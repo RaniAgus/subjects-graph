@@ -24,11 +24,12 @@
                     <div class="progress-circle">
                         <svg viewBox="0 0 100 100">
                             <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
-                            <circle class="progress-bar" cx="50" cy="50" r="45" id="progress-circle"></circle>
+                            <circle class="progress-bar progress-bar-pending" cx="50" cy="50" r="45" id="progress-pending"></circle>
+                            <circle class="progress-bar progress-bar-approved" cx="50" cy="50" r="45" id="progress-approved"></circle>
                         </svg>
                         <div class="progress-text">
                             <span id="progress-percentage">0%</span>
-                            <span class="progress-label">Completado</span>
+                            <span id="progress-pending-text" class="progress-secondary">0%</span>
                         </div>
                     </div>
                 </div>

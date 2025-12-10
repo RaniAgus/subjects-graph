@@ -459,6 +459,41 @@
           'target-arrow-color': edgeColor
         });
       });
+
+      // Update progress circle
+      updateProgress();
+    }
+
+    // Update progress percentages
+    function updateProgress() {
+      const totalSubjects = currentSubjects.length;
+      let approvedCount = 0;
+      let finalPendingPlusCount = 0;
+
+      cy.nodes('[nodeType="subject"]').forEach(node => {
+        const status = node.data('status');
+        if (status === STATUS.APPROVED) {
+          approvedCount++;
+          finalPendingPlusCount++;
+        } else if (status === STATUS.FINAL_EXAM_PENDING) {
+          finalPendingPlusCount++;
+        }
+      });
+
+      const approvedPercent = Math.round((approvedCount / totalSubjects) * 100);
+      const finalPendingPlusPercent = Math.round((finalPendingPlusCount / totalSubjects) * 100);
+
+      // Update text
+      document.getElementById('progress-percentage').textContent = `${approvedPercent}%`;
+      document.getElementById('progress-pending-text').textContent = `${finalPendingPlusPercent}%`;
+
+      // Update circles (circumference = 2 * PI * 45 ≈ 283)
+      const circumference = 283;
+      const approvedOffset = circumference - (circumference * approvedPercent / 100);
+      const pendingOffset = circumference - (circumference * finalPendingPlusPercent / 100);
+
+      document.getElementById('progress-approved').style.strokeDashoffset = approvedOffset;
+      document.getElementById('progress-pending').style.strokeDashoffset = pendingOffset;
     }
 
     // Initial update
