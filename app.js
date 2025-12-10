@@ -314,8 +314,8 @@
       cycleState(subjectId);
     });
 
-    // Hover effects
-    cy.on('mouseover', 'node', function(evt) {
+    // Hover effects (only for subject nodes)
+    cy.on('mouseover', 'node[nodeType="subject"]', function(evt) {
       const node = evt.target;
       node.style('border-width', '5');
       
@@ -327,9 +327,9 @@
       });
     });
 
-    cy.on('mouseout', 'node', function(evt) {
+    cy.on('mouseout', 'node[nodeType="subject"]', function(evt) {
       const node = evt.target;
-      node.style('border-width', node.data('isFinalProject') ? '3' : '3');
+      node.style('border-width', '3');
       
       // Reset edge colors
       node.connectedEdges().style({
