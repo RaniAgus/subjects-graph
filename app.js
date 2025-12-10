@@ -56,25 +56,63 @@
         name: subject.name,
         state: subject.state,
         isFinalProject: subject.isFinalProject || false,
-        unlocksFinal: subject.unlocksFinal || false
+        unlocksFinal: subject.unlocksFinal || false,
+        nodeType: 'subject'
       }
     }));
 
-    // Prepare edges
+    // Prepare edges and connector nodes
     const edges = [];
+    const connectorNodes = [];
+    let connectorIndex = 0;
+
     currentSubjects.forEach(subject => {
-      if (subject.prerequisites && subject.prerequisites.length > 0) {
+      if (subject.prerequisites && subject.prerequisites.length > 1) {
+        // Create a connector node for subjects with multiple prerequisites
+        const connectorId = `connector_${subject.id}_${connectorIndex++}`;
+        
+        connectorNodes.push({
+          data: {
+            id: connectorId,
+            label: 'Y',
+            nodeType: 'connector',
+            targetSubject: subject.id
+          }
+        });
+
+        // Connect prerequisites to connector
         subject.prerequisites.forEach(prereq => {
           edges.push({
             data: {
-              id: `${prereq}-${subject.id}`,
+              id: `${prereq}-${connectorId}`,
               source: prereq,
-              target: subject.id
+              target: connectorId
             }
           });
         });
+
+        // Connect connector to subject
+        edges.push({
+          data: {
+            id: `${connectorId}-${subject.id}`,
+            source: connectorId,
+            target: subject.id
+          }
+        });
+      } else if (subject.prerequisites && subject.prerequisites.length === 1) {
+        // Single prerequisite - direct connection
+        edges.push({
+          data: {
+            id: `${subject.prerequisites[0]}-${subject.id}`,
+            source: subject.prerequisites[0],
+            target: subject.id
+          }
+        });
       }
     });
+
+    // Add connector nodes to the nodes array
+    nodes.push(...connectorNodes);
 
     // Initialize Cytoscape
     cy = cytoscape({
@@ -86,12 +124,13 @@
       },
 
       style: [
-        // Base node style
+        // Base node style (for subject nodes)
         {
-          selector: 'node',
+          selector: 'node[nodeType="subject"]',
           style: {
             'width': 60,
             'height': 60,
+            'shape': 'ellipse',
             'label': 'data(label)',
             'text-valign': 'center',
             'text-halign': 'center',
@@ -102,6 +141,27 @@
             'text-outline-width': 1,
             'border-width': 3,
             'border-opacity': 1
+          }
+        },
+
+        // Connector node style (rhombus/diamond)
+        {
+          selector: 'node[nodeType="connector"]',
+          style: {
+            'width': 30,
+            'height': 30,
+            'shape': 'diamond',
+            'label': 'data(label)',
+            'text-valign': 'center',
+            'text-halign': 'center',
+            'color': '#ffffff',
+            'font-size': '10px',
+            'font-weight': 'bold',
+            'background-color': '#64748b',
+            'border-width': 2,
+            'border-color': '#94a3b8',
+            'text-outline-color': '#000',
+            'text-outline-width': 1
           }
         },
 
@@ -220,8 +280,8 @@
       wheelSensitivity: 0.2
     });
 
-    // Click handler for nodes
-    cy.on('tap', 'node', function(evt) {
+    // Click handler for nodes (only subject nodes, not connectors)
+    cy.on('tap', 'node[nodeType="subject"]', function(evt) {
       const node = evt.target;
       const subjectId = node.id();
       cycleState(subjectId);

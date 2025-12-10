@@ -23,6 +23,7 @@ The application features a dark blue theme with an interactive graph on the left
 
 ### 📊 Graph Visualization
 - **Interactive Graph**: Subjects displayed as circular nodes with arrows showing prerequisite relationships
+- **Connector Nodes**: Diamond-shaped "Y" (AND) connectors simplify visualization when multiple prerequisites converge to a single subject
 - **Cytoscape.js**: Powerful graph rendering with zoom, pan, and navigation controls
 - **Smart Layout**: Automatic breadth-first layout organizing subjects by dependency level
 
@@ -39,8 +40,9 @@ Track your academic progress with 7 different states:
 | **To Take** | Por cursar | Gray fill | No prerequisites, ready to take |
 | **Not Available** | No disponible | Dark gray, dimmed | Prerequisites not yet met |
 
-Plus special markers for:
+Plus special nodes:
 - **Final Project** (Proyecto Final): Gold/orange highlighting with star icon
+- **Connector Nodes** (Y): Gray diamond shapes that represent AND logic for multiple prerequisites
 
 ### 🎯 Interactive Features
 - **Click to Update**: Click any subject node to cycle through states

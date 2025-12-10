@@ -273,6 +273,25 @@ header h1 {
   font-size: 1.2rem;
 }
 
+.state-connector {
+  background: var(--state-in-progress);
+  width: 30px;
+  height: 30px;
+  transform: rotate(45deg);
+  position: relative;
+}
+
+.state-connector::after {
+  content: 'Y';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
 /* Controls */
 .controls {
   margin-top: 30px;
