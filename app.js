@@ -263,15 +263,6 @@
           style: {
             'target-arrow-shape': 'none'
           }
-        },
-
-        // Hover effects
-        {
-          selector: 'node:selected',
-          style: {
-            'border-width': 5,
-            'border-color': '#fbbf24'
-          }
         }
       ],
 
@@ -292,31 +283,6 @@
       minZoom: 0.3,
       maxZoom: 3,
       wheelSensitivity: 0.2
-    });
-
-    // Hover effects (only for subject nodes)
-    cy.on('mouseover', 'node[nodeType="subject"]', function(evt) {
-      const node = evt.target;
-      node.style('border-width', '5');
-      
-      // Highlight connected edges
-      node.connectedEdges().style({
-        'line-color': '#fbbf24',
-        'target-arrow-color': '#fbbf24',
-        'width': 3
-      });
-    });
-
-    cy.on('mouseout', 'node[nodeType="subject"]', function(evt) {
-      const node = evt.target;
-      node.style('border-width', '3');
-      
-      // Reset edge colors
-      node.connectedEdges().style({
-        'line-color': '#3b82f6',
-        'target-arrow-color': '#3b82f6',
-        'width': 2
-      });
     });
 
     // Click handler to cycle through statuses
