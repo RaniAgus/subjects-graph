@@ -2,6 +2,30 @@
 (function() {
   'use strict';
 
+  // Status constants
+  const STATUS = {
+    INACTIVE: 'INACTIVE',
+    IN_PROGRESS: 'IN_PROGRESS',
+    FINAL_EXAM_PENDING: 'FINAL_EXAM_PENDING',
+    APPROVED: 'APPROVED'
+  };
+
+  // Status colors (light blue #3b82f6 at different intensities)
+  const STATUS_COLORS = {
+    [STATUS.INACTIVE]: '#0d1a2d',           // 10% light blue
+    [STATUS.IN_PROGRESS]: '#1a3a5c',        // 25% light blue
+    [STATUS.FINAL_EXAM_PENDING]: '#2668a8', // 65% light blue
+    [STATUS.APPROVED]: '#3b82f6'            // 100% light blue
+  };
+
+  // Status cycle order
+  const STATUS_ORDER = [
+    STATUS.INACTIVE,
+    STATUS.IN_PROGRESS,
+    STATUS.FINAL_EXAM_PENDING,
+    STATUS.APPROVED
+  ];
+
   // State management
   let cy; // Cytoscape instance
   let currentSubjects = [];
@@ -22,6 +46,7 @@
         label: subject.id,
         name: subject.name,
         nodeType: 'subject',
+        status: STATUS.INACTIVE,
         position: subject.position
       },
       position: subject.position ? { x: subject.position.x, y: subject.position.y } : undefined
@@ -164,8 +189,27 @@
             'text-outline-color': '#000',
             'text-outline-width': 1,
             'border-width': 3,
-            'border-opacity': 1
+            'border-opacity': 1,
+            'background-color': STATUS_COLORS[STATUS.INACTIVE]
           }
+        },
+
+        // Status-specific styles for subject nodes
+        {
+          selector: 'node[status="INACTIVE"]',
+          style: { 'background-color': STATUS_COLORS[STATUS.INACTIVE] }
+        },
+        {
+          selector: 'node[status="IN_PROGRESS"]',
+          style: { 'background-color': STATUS_COLORS[STATUS.IN_PROGRESS] }
+        },
+        {
+          selector: 'node[status="FINAL_EXAM_PENDING"]',
+          style: { 'background-color': STATUS_COLORS[STATUS.FINAL_EXAM_PENDING] }
+        },
+        {
+          selector: 'node[status="APPROVED"]',
+          style: { 'background-color': STATUS_COLORS[STATUS.APPROVED] }
         },
 
         // Connector node style (rhombus/diamond)
@@ -273,6 +317,17 @@
         'target-arrow-color': '#3b82f6',
         'width': 2
       });
+    });
+
+    // Click handler to cycle through statuses
+    cy.on('tap', 'node[nodeType="subject"]', function(evt) {
+      const node = evt.target;
+      const currentStatus = node.data('status');
+      const currentIndex = STATUS_ORDER.indexOf(currentStatus);
+      const nextIndex = (currentIndex + 1) % STATUS_ORDER.length;
+      const nextStatus = STATUS_ORDER[nextIndex];
+      
+      node.data('status', nextStatus);
     });
   }
 
