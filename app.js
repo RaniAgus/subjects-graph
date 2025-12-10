@@ -336,7 +336,41 @@
         return node.data('status');
       };
 
-      // Update subject node borders based on their prerequisites
+      // Helper: recursively check if all dependencies (and their dependencies) are APPROVED
+      const allDependenciesApproved = (subjectId, visited = new Set()) => {
+        if (visited.has(subjectId)) return true; // Avoid cycles
+        visited.add(subjectId);
+        
+        const subjectData = currentSubjects.find(s => s.id === subjectId);
+        if (!subjectData || !subjectData.prerequisites || subjectData.prerequisites.length === 0) {
+          return true; // No prerequisites means this branch is OK
+        }
+        
+        return subjectData.prerequisites.every(prereqId => {
+          // The prerequisite itself must be APPROVED
+          if (!isApproved(getNodeStatus(prereqId))) return false;
+          // And all of its dependencies must also be APPROVED (recursive)
+          return allDependenciesApproved(prereqId, visited);
+        });
+      };
+
+      // Helper: check if direct prerequisites are at least FINAL_EXAM_PENDING,
+      // AND all of their dependencies are APPROVED
+      const canBeFinalPendingPlus = (subjectId) => {
+        const subjectData = currentSubjects.find(s => s.id === subjectId);
+        if (!subjectData || !subjectData.prerequisites || subjectData.prerequisites.length === 0) {
+          return true; // No prerequisites means OK
+        }
+        
+        return subjectData.prerequisites.every(prereqId => {
+          // The direct prerequisite must be at least FINAL_EXAM_PENDING
+          if (!isFinalPendingOrAbove(getNodeStatus(prereqId))) return false;
+          // AND all of the prerequisite's dependencies must be APPROVED
+          return allDependenciesApproved(prereqId);
+        });
+      };
+
+      // Update subject node borders based on their prerequisites (recursively)
       cy.nodes('[nodeType="subject"]').forEach(node => {
         const subjectData = currentSubjects.find(s => s.id === node.id());
         if (!subjectData || !subjectData.prerequisites || subjectData.prerequisites.length === 0) {
@@ -345,43 +379,44 @@
           return;
         }
 
-        // Get all prerequisite statuses
-        const prereqStatuses = subjectData.prerequisites.map(prereqId => getNodeStatus(prereqId));
-        
-        // Check if all prerequisites are APPROVED
-        const allApproved = prereqStatuses.every(isApproved);
-        // Check if all prerequisites are at least FINAL_EXAM_PENDING
-        const allFinalPendingPlus = prereqStatuses.every(isFinalPendingOrAbove);
+        // Check recursively if all dependencies are APPROVED
+        const allApproved = allDependenciesApproved(node.id());
+        // Check if direct prereqs are FINAL_EXAM_PENDING+ and their deps are APPROVED
+        const finalPendingReady = canBeFinalPendingPlus(node.id());
 
         if (allApproved) {
           node.data('borderState', 'approved');
-        } else if (allFinalPendingPlus) {
+        } else if (finalPendingReady) {
           node.data('borderState', 'finalPending');
         } else {
           node.data('borderState', 'default');
         }
       });
 
-      // Update connector node borders based on their sources
+      // Update connector node borders based on their sources (recursively)
       cy.nodes('[nodeType="connector"]').forEach(node => {
         const sources = node.data('sources') || [];
         if (sources.length === 0) return;
 
-        const sourceStatuses = sources.map(sourceId => getNodeStatus(sourceId));
-        
-        const allApproved = sourceStatuses.every(isApproved);
-        const allFinalPendingPlus = sourceStatuses.every(isFinalPendingOrAbove);
+        // Check if all sources and their dependencies are APPROVED
+        const allApproved = sources.every(sourceId => 
+          isApproved(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
+        );
+        // Check if all sources are FINAL_EXAM_PENDING+ and their deps are APPROVED
+        const finalPendingReady = sources.every(sourceId => 
+          isFinalPendingOrAbove(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
+        );
 
         if (allApproved) {
           node.data('borderState', 'approved');
-        } else if (allFinalPendingPlus) {
+        } else if (finalPendingReady) {
           node.data('borderState', 'finalPending');
         } else {
           node.data('borderState', 'default');
         }
       });
 
-      // Update edge colors based on source node
+      // Update edge colors based on source node (recursively checking all dependencies)
       cy.edges().forEach(edge => {
         const sourceNode = edge.source();
         const sourceType = sourceNode.data('nodeType');
@@ -389,25 +424,32 @@
         let edgeColor = BORDER_COLORS.DEFAULT;
 
         if (sourceType === 'connector') {
-          // For connectors: check all source subjects
+          // For connectors: check all source subjects and their dependencies
           const sources = sourceNode.data('sources') || [];
-          const sourceStatuses = sources.map(sourceId => getNodeStatus(sourceId));
           
-          const allApproved = sourceStatuses.every(isApproved);
-          const allFinalPendingPlus = sourceStatuses.every(isFinalPendingOrAbove);
+          const allApproved = sources.every(sourceId => 
+            isApproved(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
+          );
+          const finalPendingReady = sources.every(sourceId => 
+            isFinalPendingOrAbove(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
+          );
 
           if (allApproved) {
             edgeColor = BORDER_COLORS.APPROVED_READY;
-          } else if (allFinalPendingPlus) {
+          } else if (finalPendingReady) {
             edgeColor = BORDER_COLORS.FINAL_PENDING_READY;
           }
         } else if (sourceType === 'subject') {
-          // For subjects: check the source node's status
+          // For subjects: check the source node's status AND all its dependencies must be APPROVED
+          const sourceId = sourceNode.id();
           const sourceStatus = sourceNode.data('status');
           
-          if (isApproved(sourceStatus)) {
+          const sourceApproved = isApproved(sourceStatus) && allDependenciesApproved(sourceId);
+          const sourceFinalPendingReady = isFinalPendingOrAbove(sourceStatus) && allDependenciesApproved(sourceId);
+          
+          if (sourceApproved) {
             edgeColor = BORDER_COLORS.APPROVED_READY;
-          } else if (isFinalPendingOrAbove(sourceStatus)) {
+          } else if (sourceFinalPendingReady) {
             edgeColor = BORDER_COLORS.FINAL_PENDING_READY;
           }
         }
