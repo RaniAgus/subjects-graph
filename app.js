@@ -10,19 +10,21 @@
     APPROVED: 'APPROVED'
   };
 
-  // Status colors (light blue #3b82f6 at different intensities)
+  // Status colors (FILL)
   const STATUS_COLORS = {
-    [STATUS.INACTIVE]: '#0d1a2d',           // 10% light blue
-    [STATUS.IN_PROGRESS]: '#1a3a5c',        // 25% light blue
-    [STATUS.FINAL_EXAM_PENDING]: '#2668a8', // 65% light blue
+    [STATUS.INACTIVE]: '#111827',           // Neutral dark gray
+    [STATUS.IN_PROGRESS]: '#374151',        // Neutral medium gray
+    [STATUS.FINAL_EXAM_PENDING]: '#2255d4', // Medium-deep blue
     [STATUS.APPROVED]: '#3b82f6'            // 100% light blue
   };
 
-  // Border/edge colors
+  // Border/edge colors (~1% darker versions)
+  // Note: Using slightly different colors than fill to work around a Cytoscape.js bug
+  // where identical fill and border colors get swapped when using stylesheet selectors
   const BORDER_COLORS = {
-    DEFAULT: '#1a3a5c',                     // 25% - default inactive border
-    FINAL_PENDING_READY: '#2668a8',         // 65% - all deps at FINAL_EXAM_PENDING+
-    APPROVED_READY: '#3b82f6'               // 100% - all deps APPROVED
+    DEFAULT: '#323b48',                     // ~1% darker than IN_PROGRESS
+    FINAL_PENDING_READY: '#2050c8',         // ~1% darker than FINAL_EXAM_PENDING
+    APPROVED_READY: '#387dd9'               // ~1% darker than APPROVED
   };
 
   // Status cycle order
@@ -338,7 +340,7 @@
       cy.nodes('[nodeType="subject"]').forEach(node => {
         const subjectData = currentSubjects.find(s => s.id === node.id());
         if (!subjectData || !subjectData.prerequisites || subjectData.prerequisites.length === 0) {
-          // No prerequisites - automatically 100% light blue
+          // No prerequisites - automatically ready
           node.data('borderState', 'approved');
           return;
         }

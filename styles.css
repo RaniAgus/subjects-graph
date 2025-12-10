@@ -11,9 +11,9 @@
   --accent-blue-dark: #2563eb;
   
   /* State colors - based on light blue #3b82f6 at different intensities */
-  --state-inactive: #0d1a2d;          /* 10% light blue */
-  --state-in-progress: #1a3a5c;       /* 25% light blue */
-  --state-final-pending: #2668a8;     /* 65% light blue */
+  --state-inactive: #111827;          /* Neutral dark gray */
+  --state-in-progress: #374151;       /* Neutral medium gray */
+  --state-final-pending: #2255d4;     /* Medium-deep blue */
   --state-approved: #3b82f6;          /* 100% light blue */
   
   /* Text colors */
