@@ -64,16 +64,21 @@
     }));
 
     // Add static connector nodes from links array
-    const connectorNodes = links.map(link => ({
-      data: {
-        id: link.id,
-        label: 'Y',
-        nodeType: 'connector',
-        sources: link.sources || [],
-        destinations: link.destinations || []
-      },
-      position: link.position ? { x: link.position.x, y: link.position.y } : undefined
-    }));
+    const connectorNodes = links.map(link => {
+      const isInvisible = link.sources && link.destinations && 
+                          link.sources.length === 1 && link.destinations.length === 1;
+      return {
+        data: {
+          id: link.id,
+          label: 'Y',
+          nodeType: 'connector',
+          isInvisible: isInvisible,
+          sources: link.sources || [],
+          destinations: link.destinations || []
+        },
+        position: link.position ? { x: link.position.x, y: link.position.y } : undefined
+      };
+    });
 
     nodes.push(...connectorNodes);
 
@@ -84,32 +89,67 @@
     // First, process all connections through connectors
     links.forEach(link => {
       if (link.sources && link.destinations) {
-        // Connect each source to the connector
-        link.sources.forEach(sourceId => {
-          edges.push({
-            data: {
-              id: `${sourceId}-${link.id}`,
-              source: sourceId,
-              target: link.id
-            }
+        // Check if this is an "invisible" connector (1 source + 1 destination)
+        const isInvisible = link.sources.length === 1 && link.destinations.length === 1;
+        
+        if (isInvisible) {
+          // For invisible connectors: draw source -> connector and connector -> destination
+          // But the connector node itself won't be visible, creating the effect of - () ->
+          link.sources.forEach(sourceId => {
+            edges.push({
+              data: {
+                id: `${sourceId}-${link.id}`,
+                source: sourceId,
+                target: link.id
+              }
+            });
           });
           
-          // Mark these connections as processed for each destination
           link.destinations.forEach(destId => {
-            processedConnections.add(`${sourceId}-${destId}`);
+            edges.push({
+              data: {
+                id: `${link.id}-${destId}`,
+                source: link.id,
+                target: destId
+              }
+            });
           });
-        });
+          
+          // Mark connections as processed
+          link.sources.forEach(sourceId => {
+            link.destinations.forEach(destId => {
+              processedConnections.add(`${sourceId}-${destId}`);
+            });
+          });
+        } else {
+          // For visible connectors: draw both source -> connector and connector -> destination
+          // Connect each source to the connector
+          link.sources.forEach(sourceId => {
+            edges.push({
+              data: {
+                id: `${sourceId}-${link.id}`,
+                source: sourceId,
+                target: link.id
+              }
+            });
+            
+            // Mark these connections as processed for each destination
+            link.destinations.forEach(destId => {
+              processedConnections.add(`${sourceId}-${destId}`);
+            });
+          });
 
-        // Connect the connector to each destination
-        link.destinations.forEach(destId => {
-          edges.push({
-            data: {
-              id: `${link.id}-${destId}`,
-              source: link.id,
-              target: destId
-            }
+          // Connect the connector to each destination
+          link.destinations.forEach(destId => {
+            edges.push({
+              data: {
+                id: `${link.id}-${destId}`,
+                source: link.id,
+                target: destId
+              }
+            });
           });
-        });
+        }
       }
     });
 
@@ -181,6 +221,17 @@
             'border-color': '#94a3b8',
             'text-outline-color': '#000',
             'text-outline-width': 1
+          }
+        },
+
+        // Invisible connector style (for 1-to-1 connectors)
+        {
+          selector: 'node[isInvisible="true"]',
+          style: {
+            'opacity': 0,
+            'width': 1,
+            'height': 1,
+            'label': ''
           }
         },
 
