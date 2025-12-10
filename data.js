@@ -22,8 +22,8 @@ const subjects = [
   },
   {
     id: 'L',
-    name: 'Lógica',
-    prerequisites: ['IyS'],
+    name: 'Legislación',
+    prerequisites: ['IyS', 'AdS'],
     state: STATES.NOT_AVAILABLE,
     level: 1,
     position: { x: 200, y: 100 }
@@ -63,7 +63,7 @@ const subjects = [
   {
     id: 'TdC',
     name: 'Teoría de Control',
-    prerequisites: [],
+    prerequisites: ['F2', 'Q'],
     state: STATES.NOT_AVAILABLE,
     level: 1,
     position: { x: 700, y: 100 }
@@ -88,16 +88,16 @@ const subjects = [
   // Level 2
   {
     id: 'AdS',
-    name: 'Administración de Sistemas',
-    prerequisites: ['SyO', 'L'],
+    name: 'Análisis de Sistemas',
+    prerequisites: ['AyED', 'SyO'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
     position: { x: 200, y: 200 }
   },
   {
     id: 'E',
-    name: 'Estadística',
-    prerequisites: ['L', 'AdS'],
+    name: 'Economía',
+    prerequisites: ['AdS'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
     position: { x: 300, y: 200 }
@@ -105,15 +105,15 @@ const subjects = [
   {
     id: 'AdR',
     name: 'Administración de Recursos',
-    prerequisites: ['E', 'I1'],
+    prerequisites: ['E', 'SO'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
     position: { x: 400, y: 200 }
   },
   {
     id: 'AG',
-    name: 'Análisis de Gestión',
-    prerequisites: ['I2', 'AdR'],
+    name: 'Administración General',
+    prerequisites: ['IO', 'AdR'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
     position: { x: 500, y: 200 }
@@ -121,7 +121,7 @@ const subjects = [
   {
     id: 'IO',
     name: 'Investigación Operativa',
-    prerequisites: ['AG'],
+    prerequisites: ['PyE', 'MS'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
     position: { x: 600, y: 200 }
@@ -129,7 +129,7 @@ const subjects = [
   {
     id: 'MS',
     name: 'Matemática Superior',
-    prerequisites: ['TdC'],
+    prerequisites: ['AM2'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
     position: { x: 750, y: 200 }
@@ -137,7 +137,7 @@ const subjects = [
   {
     id: 'AM2',
     name: 'Análisis Matemático II',
-    prerequisites: ['Q', 'AGA', 'AM1'],
+    prerequisites: ['AGA', 'AM1'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
     position: { x: 900, y: 200 }
@@ -145,7 +145,7 @@ const subjects = [
   {
     id: 'AM1',
     name: 'Análisis Matemático I',
-    prerequisites: ['AGA'],
+    prerequisites: [],
     state: STATES.NOT_AVAILABLE,
     level: 2,
     position: { x: 1000, y: 250 }
@@ -155,7 +155,7 @@ const subjects = [
   {
     id: 'AyED',
     name: 'Algoritmos y Estructuras de Datos',
-    prerequisites: ['SyO'],
+    prerequisites: [],
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 100, y: 350 }
@@ -163,7 +163,7 @@ const subjects = [
   {
     id: 'PdP',
     name: 'Paradigmas de Programación',
-    prerequisites: ['AdS'],
+    prerequisites: ['AyED', 'MD'],
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 200, y: 350 }
@@ -171,7 +171,7 @@ const subjects = [
   {
     id: 'DDS',
     name: 'Diseño de Sistemas',
-    prerequisites: ['AdR', 'AdS', 'E'],
+    prerequisites: ['AdS', 'PdP'],
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 400, y: 300 }
@@ -179,7 +179,7 @@ const subjects = [
   {
     id: 'SdG',
     name: 'Sistemas de Gestión',
-    prerequisites: ['AG'],
+    prerequisites: ['AdR', 'IO', 'S'],
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 500, y: 300 }
@@ -187,7 +187,7 @@ const subjects = [
   {
     id: 'IA',
     name: 'Inteligencia Artificial',
-    prerequisites: ['DDS'],
+    prerequisites: ['DDS', 'IO', 'S'],
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 500, y: 400 }
@@ -195,7 +195,7 @@ const subjects = [
   {
     id: 'S',
     name: 'Simulación',
-    prerequisites: ['IO', 'SdG'],
+    prerequisites: ['MS', 'PyE'],
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 600, y: 400 }
@@ -203,7 +203,7 @@ const subjects = [
   {
     id: 'PyE',
     name: 'Probabilidad y Estadística',
-    prerequisites: ['MS', 'AM2'],
+    prerequisites: ['AGA', 'AM1'],
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 800, y: 350 }
@@ -211,7 +211,7 @@ const subjects = [
   {
     id: 'F1',
     name: 'Física I',
-    prerequisites: ['AM1'],
+    prerequisites: [],
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 1000, y: 450 }
@@ -229,7 +229,7 @@ const subjects = [
   {
     id: 'MD',
     name: 'Matemática Discreta',
-    prerequisites: ['AyED'],
+    prerequisites: [],
     state: STATES.NOT_AVAILABLE,
     level: 4,
     position: { x: 100, y: 550 }
@@ -237,7 +237,7 @@ const subjects = [
   {
     id: 'SSL',
     name: 'Sintaxis y Semántica de Lenguajes',
-    prerequisites: ['PdP', 'AyED', 'MD'],
+    prerequisites: ['AyED', 'MD'],
     state: STATES.NOT_AVAILABLE,
     level: 4,
     position: { x: 200, y: 500 }
@@ -245,7 +245,7 @@ const subjects = [
   {
     id: 'SO',
     name: 'Sistemas Operativos',
-    prerequisites: ['SSL'],
+    prerequisites: ['MD', 'AyED', 'AdC'],
     state: STATES.NOT_AVAILABLE,
     level: 4,
     position: { x: 250, y: 600 }
@@ -253,7 +253,7 @@ const subjects = [
   {
     id: 'GDD',
     name: 'Gestión de Datos',
-    prerequisites: ['DDS', 'SSL'],
+    prerequisites: ['PdP', 'AdS', 'SSL'],
     state: STATES.NOT_AVAILABLE,
     level: 4,
     position: { x: 400, y: 500 }
@@ -269,7 +269,7 @@ const subjects = [
   {
     id: 'RdI',
     name: 'Redes de Información',
-    prerequisites: ['SO'],
+    prerequisites: ['SO', 'C'],
     state: STATES.NOT_AVAILABLE,
     level: 4,
     position: { x: 500, y: 600 }
@@ -277,7 +277,7 @@ const subjects = [
   {
     id: 'C',
     name: 'Comunicaciones',
-    prerequisites: ['F2'],
+    prerequisites: ['F2', 'AM2', 'AdC'],
     state: STATES.NOT_AVAILABLE,
     level: 4,
     position: { x: 700, y: 600 }
@@ -286,8 +286,8 @@ const subjects = [
   // Level 5
   {
     id: 'AdC',
-    name: 'Administración de Comunicaciones',
-    prerequisites: ['SO', 'C'],
+    name: 'Arquitectura de Computadores',
+    prerequisites: [],
     state: STATES.NOT_AVAILABLE,
     level: 5,
     position: { x: 400, y: 700 },
