@@ -57,8 +57,10 @@
         state: subject.state,
         isFinalProject: subject.isFinalProject || false,
         unlocksFinal: subject.unlocksFinal || false,
-        nodeType: 'subject'
-      }
+        nodeType: 'subject',
+        position: subject.position
+      },
+      position: subject.position ? { x: subject.position.x, y: subject.position.y } : undefined
     }));
 
     // Prepare edges and connector nodes
@@ -71,13 +73,33 @@
         // Create a connector node for subjects with multiple prerequisites
         const connectorId = `connector_${subject.id}_${connectorIndex++}`;
         
+        // Calculate connector position as average of prerequisites positions
+        let connectorPos = undefined;
+        if (subject.position) {
+          const prereqPositions = subject.prerequisites
+            .map(pid => currentSubjects.find(s => s.id === pid))
+            .filter(s => s && s.position)
+            .map(s => s.position);
+          
+          if (prereqPositions.length > 0) {
+            const avgX = prereqPositions.reduce((sum, p) => sum + p.x, 0) / prereqPositions.length;
+            const avgY = prereqPositions.reduce((sum, p) => sum + p.y, 0) / prereqPositions.length;
+            // Position connector midway between prerequisites average and target
+            connectorPos = {
+              x: (avgX + subject.position.x) / 2,
+              y: (avgY + subject.position.y) / 2
+            };
+          }
+        }
+        
         connectorNodes.push({
           data: {
             id: connectorId,
             label: 'Y',
             nodeType: 'connector',
             targetSubject: subject.id
-          }
+          },
+          position: connectorPos
         });
 
         // Connect prerequisites to connector
@@ -267,12 +289,17 @@
       ],
 
       layout: {
-        name: 'breadthfirst',
-        directed: true,
-        padding: 50,
-        spacingFactor: 1.5,
-        avoidOverlap: true,
-        nodeDimensionsIncludeLabels: true
+        name: 'preset',
+        positions: function(node) {
+          const data = node.data();
+          if (data.position) {
+            return { x: data.position.x, y: data.position.y };
+          }
+          // For connector nodes, position them automatically
+          return undefined;
+        },
+        fit: true,
+        padding: 50
       },
 
       minZoom: 0.3,

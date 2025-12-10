@@ -9,203 +9,288 @@ const STATES = {
   NOT_AVAILABLE: 'not_available'    // No disponible
 };
 
-// UTN FRBA - Ingeniería en Sistemas de Información - Sample Curriculum
+// UTN FRBA - Ingeniería en Sistemas de Información - Curriculum based on reference image
 const subjects = [
-  // First Year - First Semester
+  // Level 1 - Top row
   {
-    id: 'AM1',
-    name: 'Análisis Matemático I',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1
-  },
-  {
-    id: 'ALG',
-    name: 'Álgebra y Geometría Analítica',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1
-  },
-  {
-    id: 'FIS1',
-    name: 'Física I',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1
-  },
-  {
-    id: 'ING',
+    id: 'IyS',
     name: 'Ingeniería y Sociedad',
     prerequisites: [],
     state: STATES.NOT_AVAILABLE,
-    level: 1
+    level: 1,
+    position: { x: 100, y: 100 }
   },
   {
-    id: 'SIS',
+    id: 'L',
+    name: 'Lógica',
+    prerequisites: ['IyS'],
+    state: STATES.NOT_AVAILABLE,
+    level: 1,
+    position: { x: 200, y: 100 }
+  },
+  {
+    id: 'SyO',
     name: 'Sistemas y Organizaciones',
     prerequisites: [],
     state: STATES.NOT_AVAILABLE,
-    level: 1
+    level: 1,
+    position: { x: 100, y: 200 }
   },
   {
-    id: 'ALG_PROG',
-    name: 'Algoritmos y Programación',
+    id: 'I1',
+    name: 'Inglés I',
     prerequisites: [],
     state: STATES.NOT_AVAILABLE,
-    level: 1
+    level: 1,
+    position: { x: 400, y: 100 }
   },
-  // First Year - Second Semester
   {
-    id: 'AM2',
-    name: 'Análisis Matemático II',
-    prerequisites: ['AM1'],
+    id: 'I2',
+    name: 'Inglés II',
+    prerequisites: ['I1'],
     state: STATES.NOT_AVAILABLE,
-    level: 2
+    level: 1,
+    position: { x: 500, y: 100 }
   },
   {
-    id: 'FIS2',
-    name: 'Física II',
-    prerequisites: ['FIS1', 'AM1'],
+    id: 'SdR',
+    name: 'Sistemas de Representación',
+    prerequisites: [],
     state: STATES.NOT_AVAILABLE,
-    level: 2
+    level: 1,
+    position: { x: 600, y: 100 }
   },
   {
-    id: 'QUI',
+    id: 'TdC',
+    name: 'Teoría de Control',
+    prerequisites: [],
+    state: STATES.NOT_AVAILABLE,
+    level: 1,
+    position: { x: 700, y: 100 }
+  },
+  {
+    id: 'Q',
     name: 'Química',
     prerequisites: [],
     state: STATES.NOT_AVAILABLE,
-    level: 2
+    level: 1,
+    position: { x: 850, y: 100 }
   },
   {
-    id: 'ING_SOFT1',
-    name: 'Ingeniería de Software I',
-    prerequisites: ['SIS'],
+    id: 'AGA',
+    name: 'Álgebra y Geometría Analítica',
+    prerequisites: [],
     state: STATES.NOT_AVAILABLE,
-    level: 2
+    level: 1,
+    position: { x: 1000, y: 100 }
   },
+  
+  // Level 2
   {
-    id: 'MAT_DISC',
-    name: 'Matemática Discreta',
-    prerequisites: ['ALG_PROG'],
+    id: 'AdS',
+    name: 'Administración de Sistemas',
+    prerequisites: ['SyO', 'L'],
     state: STATES.NOT_AVAILABLE,
-    level: 2
+    level: 2,
+    position: { x: 200, y: 200 }
   },
-  // Second Year - First Semester
   {
-    id: 'PROB',
-    name: 'Probabilidad y Estadística',
-    prerequisites: ['AM2'],
+    id: 'E',
+    name: 'Estadística',
+    prerequisites: ['L', 'AdS'],
     state: STATES.NOT_AVAILABLE,
-    level: 3
+    level: 2,
+    position: { x: 300, y: 200 }
   },
   {
-    id: 'ARQ',
-    name: 'Arquitectura de Computadoras',
-    prerequisites: ['FIS2'],
+    id: 'AdR',
+    name: 'Administración de Recursos',
+    prerequisites: ['E', 'I1'],
     state: STATES.NOT_AVAILABLE,
-    level: 3
+    level: 2,
+    position: { x: 400, y: 200 }
   },
   {
-    id: 'SINT',
-    name: 'Sintaxis y Semántica de los Lenguajes',
-    prerequisites: ['MAT_DISC'],
+    id: 'AG',
+    name: 'Análisis de Gestión',
+    prerequisites: ['I2', 'AdR'],
     state: STATES.NOT_AVAILABLE,
-    level: 3
+    level: 2,
+    position: { x: 500, y: 200 }
   },
   {
-    id: 'PARA',
+    id: 'IO',
+    name: 'Investigación Operativa',
+    prerequisites: ['AG'],
+    state: STATES.NOT_AVAILABLE,
+    level: 2,
+    position: { x: 600, y: 200 }
+  },
+  {
+    id: 'MS',
+    name: 'Matemática Superior',
+    prerequisites: ['TdC'],
+    state: STATES.NOT_AVAILABLE,
+    level: 2,
+    position: { x: 750, y: 200 }
+  },
+  {
+    id: 'AM2',
+    name: 'Análisis Matemático II',
+    prerequisites: ['Q', 'AGA', 'AM1'],
+    state: STATES.NOT_AVAILABLE,
+    level: 2,
+    position: { x: 900, y: 200 }
+  },
+  {
+    id: 'AM1',
+    name: 'Análisis Matemático I',
+    prerequisites: ['AGA'],
+    state: STATES.NOT_AVAILABLE,
+    level: 2,
+    position: { x: 1000, y: 250 }
+  },
+  
+  // Level 3
+  {
+    id: 'AyED',
+    name: 'Algoritmos y Estructuras de Datos',
+    prerequisites: ['SyO'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 100, y: 350 }
+  },
+  {
+    id: 'PdP',
     name: 'Paradigmas de Programación',
-    prerequisites: ['MAT_DISC', 'ALG_PROG'],
+    prerequisites: ['AdS'],
     state: STATES.NOT_AVAILABLE,
-    level: 3
+    level: 3,
+    position: { x: 200, y: 350 }
   },
   {
-    id: 'ING_SOFT2',
-    name: 'Ingeniería de Software II',
-    prerequisites: ['ING_SOFT1'],
+    id: 'DDS',
+    name: 'Diseño de Sistemas',
+    prerequisites: ['AdR', 'AdS', 'E'],
     state: STATES.NOT_AVAILABLE,
-    level: 3
+    level: 3,
+    position: { x: 400, y: 300 }
   },
-  // Second Year - Second Semester
   {
-    id: 'SIS_OP',
+    id: 'SdG',
+    name: 'Sistemas de Gestión',
+    prerequisites: ['AG'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 500, y: 300 }
+  },
+  {
+    id: 'IA',
+    name: 'Inteligencia Artificial',
+    prerequisites: ['DDS'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 500, y: 400 }
+  },
+  {
+    id: 'S',
+    name: 'Simulación',
+    prerequisites: ['IO', 'SdG'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 600, y: 400 }
+  },
+  {
+    id: 'PyE',
+    name: 'Probabilidad y Estadística',
+    prerequisites: ['MS', 'AM2'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 800, y: 350 }
+  },
+  {
+    id: 'F1',
+    name: 'Física I',
+    prerequisites: ['AM1'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 1000, y: 450 }
+  },
+  {
+    id: 'F2',
+    name: 'Física II',
+    prerequisites: ['F1', 'AM1'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 900, y: 450 }
+  },
+  
+  // Level 4
+  {
+    id: 'MD',
+    name: 'Matemática Discreta',
+    prerequisites: ['AyED'],
+    state: STATES.NOT_AVAILABLE,
+    level: 4,
+    position: { x: 100, y: 550 }
+  },
+  {
+    id: 'SSL',
+    name: 'Sintaxis y Semántica de Lenguajes',
+    prerequisites: ['PdP', 'AyED', 'MD'],
+    state: STATES.NOT_AVAILABLE,
+    level: 4,
+    position: { x: 200, y: 500 }
+  },
+  {
+    id: 'SO',
     name: 'Sistemas Operativos',
-    prerequisites: ['ARQ'],
+    prerequisites: ['SSL'],
     state: STATES.NOT_AVAILABLE,
-    level: 4
+    level: 4,
+    position: { x: 250, y: 600 }
   },
   {
     id: 'GDD',
     name: 'Gestión de Datos',
-    prerequisites: ['PARA'],
+    prerequisites: ['DDS', 'SSL'],
     state: STATES.NOT_AVAILABLE,
-    level: 4
+    level: 4,
+    position: { x: 400, y: 500 }
   },
   {
-    id: 'COM',
+    id: 'IeS',
+    name: 'Ingeniería de Software',
+    prerequisites: ['DDS', 'GDD'],
+    state: STATES.NOT_AVAILABLE,
+    level: 4,
+    position: { x: 500, y: 500 }
+  },
+  {
+    id: 'RdI',
+    name: 'Redes de Información',
+    prerequisites: ['SO'],
+    state: STATES.NOT_AVAILABLE,
+    level: 4,
+    position: { x: 500, y: 600 }
+  },
+  {
+    id: 'C',
     name: 'Comunicaciones',
-    prerequisites: ['FIS2'],
+    prerequisites: ['F2'],
     state: STATES.NOT_AVAILABLE,
-    level: 4
+    level: 4,
+    position: { x: 700, y: 600 }
   },
+  
+  // Level 5
   {
-    id: 'MATE',
-    name: 'Matemática Superior',
-    prerequisites: ['AM2', 'PROB'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4
-  },
-  {
-    id: 'ING_SOFT3',
-    name: 'Ingeniería de Software III',
-    prerequisites: ['ING_SOFT2'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4
-  },
-  // Third Year - First Semester
-  {
-    id: 'DDS',
-    name: 'Diseño de Sistemas',
-    prerequisites: ['GDD', 'ING_SOFT3'],
+    id: 'AdC',
+    name: 'Administración de Comunicaciones',
+    prerequisites: ['SO', 'C'],
     state: STATES.NOT_AVAILABLE,
     level: 5,
-    unlocksFinal: true
-  },
-  {
-    id: 'ADM',
-    name: 'Administración de Recursos',
-    prerequisites: ['ING'],
-    state: STATES.NOT_AVAILABLE,
-    level: 5
-  },
-  {
-    id: 'ECON',
-    name: 'Economía',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 5
-  },
-  {
-    id: 'OPE',
-    name: 'Investigación Operativa',
-    prerequisites: ['MATE', 'PROB'],
-    state: STATES.NOT_AVAILABLE,
-    level: 5
-  },
-  {
-    id: 'SIM',
-    name: 'Simulación',
-    prerequisites: ['PROB', 'PARA'],
-    state: STATES.NOT_AVAILABLE,
-    level: 5
-  },
-  // Third Year - Second Semester
-  {
-    id: 'TP',
-    name: 'Trabajo Profesional',
-    prerequisites: ['DDS', 'ADM', 'ECON', 'OPE', 'SIM'],
-    state: STATES.NOT_AVAILABLE,
-    level: 6,
+    position: { x: 400, y: 700 },
     isFinalProject: true
   }
 ];
