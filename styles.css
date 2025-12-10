@@ -10,14 +10,11 @@
   --accent-blue-light: #60a5fa;
   --accent-blue-dark: #2563eb;
   
-  /* State colors */
-  --state-passed: #3b82f6;
-  --state-signed: #3b82f6;
-  --state-in-progress: #475569;
-  --state-available-pass: #10b981;
-  --state-available-take: #60a5fa;
-  --state-not-available: #334155;
-  --state-final-project: #f59e0b;
+  /* State colors - based on light blue #3b82f6 at different intensities */
+  --state-inactive: #0d1a2d;          /* 10% light blue */
+  --state-in-progress: #1a3a5c;       /* 25% light blue */
+  --state-final-pending: #2668a8;     /* 65% light blue */
+  --state-approved: #3b82f6;          /* 100% light blue */
   
   /* Text colors */
   --text-primary: #f1f5f9;
@@ -208,76 +205,28 @@ header h1 {
 }
 
 /* State color classes for legend */
-.state-passed {
-  background: var(--state-passed);
-}
-
-.state-signed {
-  background: transparent;
-  border: 3px solid var(--state-signed);
+.state-inactive {
+  background: var(--state-inactive);
 }
 
 .state-in-progress {
   background: var(--state-in-progress);
 }
 
-.state-available-pass {
-  background: var(--state-available-pass);
-  position: relative;
+.state-final-pending {
+  background: var(--state-final-pending);
 }
 
-.state-available-pass::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.state-available-take {
-  background: transparent;
-  border: 3px solid var(--state-available-take);
-  position: relative;
-}
-
-.state-available-take::after {
-  content: '→';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--state-available-take);
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.state-not-available {
-  background: var(--state-not-available);
-  opacity: 0.6;
-}
-
-.state-final-project {
-  background: var(--state-final-project);
-  position: relative;
-}
-
-.state-final-project::after {
-  content: '⭐';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.2rem;
+.state-approved {
+  background: var(--state-approved);
 }
 
 .state-connector {
-  background: var(--state-in-progress);
+  background: #64748b;
   width: 30px;
   height: 30px;
   transform: rotate(45deg);
+  border-radius: 4px;
   position: relative;
 }
 
