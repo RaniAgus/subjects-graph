@@ -548,6 +548,48 @@
     document.getElementById('fit-btn').addEventListener('click', () => {
       cy.fit(50);
     });
+
+    // Export button
+    document.getElementById('export-btn').addEventListener('click', () => {
+      const data = localStorage.getItem('graphData');
+      if (!data) {
+        alert('No hay datos para exportar.');
+        return;
+      }
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'frba-subjects-progress.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Import button
+    document.getElementById('import-btn').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = JSON.parse(e.target.result);
+            if (!data.subjects || !data.links) {
+              throw new Error('Formato de datos inválido');
+            }
+            localStorage.setItem('graphData', JSON.stringify(data));
+            location.reload();
+          } catch (err) {
+            alert('Error al importar: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    });
   }
 
   // Start the application when DOM is ready
