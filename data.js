@@ -295,7 +295,84 @@ const subjects = [
   }
 ];
 
+// Connector nodes (rhombus) - statically defined based on reference image
+// Position coordinates extracted from materias.png
+const links = [
+  {
+    id: 'link1',
+    sources: [], // To be filled manually: L, AdS
+    destinations: [], // To be filled manually: E
+    position: { x: 255, y: 150 }
+  },
+  {
+    id: 'link2',
+    sources: [], // To be filled manually: I2, AdR
+    destinations: [], // To be filled manually: AG
+    position: { x: 450, y: 150 }
+  },
+  {
+    id: 'link3',
+    sources: [], // To be filled manually: AGA, AM2
+    destinations: [], // To be filled manually: AM1
+    position: { x: 950, y: 225 }
+  },
+  {
+    id: 'link4',
+    sources: [], // To be filled manually: AdS, E, AdR
+    destinations: [], // To be filled manually: DDS
+    position: { x: 300, y: 250 }
+  },
+  {
+    id: 'link5',
+    sources: [], // To be filled manually: DDS, AG
+    destinations: [], // To be filled manually: SdG
+    position: { x: 450, y: 330 }
+  },
+  {
+    id: 'link6',
+    sources: [], // To be filled manually: IO, SdG
+    destinations: [], // To be filled manually: S
+    position: { x: 550, y: 350 }
+  },
+  {
+    id: 'link7',
+    sources: [], // To be filled manually: MS, AM2
+    destinations: [], // To be filled manually: PyE
+    position: { x: 825, y: 275 }
+  },
+  {
+    id: 'link8',
+    sources: [], // To be filled manually: AyED, PdP
+    destinations: [], // To be filled manually: SSL
+    position: { x: 150, y: 425 }
+  },
+  {
+    id: 'link9',
+    sources: [], // To be filled manually: DDS, SSL
+    destinations: [], // To be filled manually: GDD
+    position: { x: 300, y: 400 }
+  },
+  {
+    id: 'link10',
+    sources: [], // To be filled manually: DDS, GDD
+    destinations: [], // To be filled manually: IeS
+    position: { x: 450, y: 450 }
+  },
+  {
+    id: 'link11',
+    sources: [], // To be filled manually: AM1, F1
+    destinations: [], // To be filled manually: F2
+    position: { x: 950, y: 500 }
+  },
+  {
+    id: 'link12',
+    sources: [], // To be filled manually: SO, C
+    destinations: [], // To be filled manually: AdC
+    position: { x: 350, y: 650 }
+  }
+];
+
 // Export for use in app.js
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { subjects, STATES };
+  module.exports = { subjects, STATES, links };
 }

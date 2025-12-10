@@ -143,7 +143,7 @@ The graph uses standard Cytoscape.js controls:
 ├── index.html      # Main HTML structure
 ├── styles.css      # Dark theme styles and CSS variables
 ├── app.js          # Application logic and Cytoscape initialization
-├── data.js         # Subject definitions and curriculum structure
+├── data.js         # Subject definitions, curriculum structure, and connector links
 ├── README.md       # This file
 └── LICENSE         # BSD 3-Clause License
 ```
@@ -162,12 +162,35 @@ const subjects = [
     prerequisites: [],     // Array of prerequisite IDs
     state: STATES.NOT_AVAILABLE,
     level: 1,              // Optional: for layout
+    position: { x: 100, y: 100 },  // Position coordinates for preset layout
     unlocksFinal: false,   // Optional: required for final project
     isFinalProject: false  // Optional: marks as final project
   },
   // ... more subjects
 ];
 ```
+
+### Configuring Connector Nodes
+
+Connector nodes (rhombus shapes) are statically defined in the `links` array in `data.js`:
+
+```javascript
+const links = [
+  {
+    id: 'link1',
+    sources: ['SUBJ1', 'SUBJ2'],      // Source subject IDs
+    destinations: ['SUBJ3'],           // Destination subject IDs
+    position: { x: 150, y: 150 }      // Connector position
+  },
+  // ... more connectors
+];
+```
+
+**How it works:**
+- Connectors are used when multiple prerequisites converge to a subject
+- The app first checks if a connection should go through a connector
+- If no connector path exists, a direct arrow is drawn
+- Prerequisites in the subjects array determine the actual dependencies
 
 ### Customizing Colors
 

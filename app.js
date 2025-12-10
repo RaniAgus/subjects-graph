@@ -48,7 +48,7 @@
 
   // Initialize Cytoscape graph
   function initGraph() {
-    // Prepare nodes
+    // Prepare subject nodes
     const nodes = currentSubjects.map(subject => ({
       data: {
         id: subject.id,
@@ -63,78 +63,85 @@
       position: subject.position ? { x: subject.position.x, y: subject.position.y } : undefined
     }));
 
-    // Prepare edges and connector nodes
+    // Add static connector nodes from links array
+    const connectorNodes = links.map(link => ({
+      data: {
+        id: link.id,
+        label: 'Y',
+        nodeType: 'connector',
+        sources: link.sources || [],
+        destinations: link.destinations || []
+      },
+      position: link.position ? { x: link.position.x, y: link.position.y } : undefined
+    }));
+
+    nodes.push(...connectorNodes);
+
+    // Helper function to check if a connection should use a connector
+    function findConnectorPath(sourceId, targetId) {
+      // Find a link where source is in sources and target is in destinations
+      return links.find(link => 
+        link.sources && link.destinations &&
+        link.sources.includes(sourceId) && 
+        link.destinations.includes(targetId)
+      );
+    }
+
+    // Build edges based on prerequisites
     const edges = [];
-    const connectorNodes = [];
-    let connectorIndex = 0;
+    const processedConnections = new Set(); // Track which connections we've made through connectors
 
-    currentSubjects.forEach(subject => {
-      if (subject.prerequisites && subject.prerequisites.length > 1) {
-        // Create a connector node for subjects with multiple prerequisites
-        const connectorId = `connector_${subject.id}_${connectorIndex++}`;
-        
-        // Calculate connector position as average of prerequisites positions
-        let connectorPos = undefined;
-        if (subject.position) {
-          const prereqPositions = subject.prerequisites
-            .map(pid => currentSubjects.find(s => s.id === pid))
-            .filter(s => s && s.position)
-            .map(s => s.position);
-          
-          if (prereqPositions.length > 0) {
-            const avgX = prereqPositions.reduce((sum, p) => sum + p.x, 0) / prereqPositions.length;
-            const avgY = prereqPositions.reduce((sum, p) => sum + p.y, 0) / prereqPositions.length;
-            // Position connector midway between prerequisites average and target
-            connectorPos = {
-              x: (avgX + subject.position.x) / 2,
-              y: (avgY + subject.position.y) / 2
-            };
-          }
-        }
-        
-        connectorNodes.push({
-          data: {
-            id: connectorId,
-            label: 'Y',
-            nodeType: 'connector',
-            targetSubject: subject.id
-          },
-          position: connectorPos
-        });
-
-        // Connect prerequisites to connector
-        subject.prerequisites.forEach(prereq => {
+    // First, process all connections through connectors
+    links.forEach(link => {
+      if (link.sources && link.destinations) {
+        // Connect each source to the connector
+        link.sources.forEach(sourceId => {
           edges.push({
             data: {
-              id: `${prereq}-${connectorId}`,
-              source: prereq,
-              target: connectorId
+              id: `${sourceId}-${link.id}`,
+              source: sourceId,
+              target: link.id
             }
+          });
+          
+          // Mark these connections as processed for each destination
+          link.destinations.forEach(destId => {
+            processedConnections.add(`${sourceId}-${destId}`);
           });
         });
 
-        // Connect connector to subject
-        edges.push({
-          data: {
-            id: `${connectorId}-${subject.id}`,
-            source: connectorId,
-            target: subject.id
-          }
-        });
-      } else if (subject.prerequisites && subject.prerequisites.length === 1) {
-        // Single prerequisite - direct connection
-        edges.push({
-          data: {
-            id: `${subject.prerequisites[0]}-${subject.id}`,
-            source: subject.prerequisites[0],
-            target: subject.id
-          }
+        // Connect the connector to each destination
+        link.destinations.forEach(destId => {
+          edges.push({
+            data: {
+              id: `${link.id}-${destId}`,
+              source: link.id,
+              target: destId
+            }
+          });
         });
       }
     });
 
-    // Add connector nodes to the nodes array
-    nodes.push(...connectorNodes);
+    // Then, add direct connections for prerequisites not going through connectors
+    currentSubjects.forEach(subject => {
+      if (subject.prerequisites && subject.prerequisites.length > 0) {
+        subject.prerequisites.forEach(prereqId => {
+          const connectionKey = `${prereqId}-${subject.id}`;
+          
+          // Only add direct edge if not already connected through a connector
+          if (!processedConnections.has(connectionKey)) {
+            edges.push({
+              data: {
+                id: connectionKey,
+                source: prereqId,
+                target: subject.id
+              }
+            });
+          }
+        });
+      }
+    });
 
     // Initialize Cytoscape
     cy = cytoscape({
