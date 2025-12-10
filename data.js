@@ -1,14 +1,3 @@
-// Subject states
-const STATES = {
-  PASSED: 'passed',           // Aprobada
-  SIGNED: 'signed',           // Firmada
-  IN_PROGRESS: 'in_progress', // En curso
-  TO_TAKE: 'to_take',        // Por cursar
-  AVAILABLE_PASS: 'available_pass', // Disponible para aprobar
-  AVAILABLE_TAKE: 'available_take', // Disponible para cursar
-  NOT_AVAILABLE: 'not_available'    // No disponible
-};
-
 // UTN FRBA - Ingeniería en Sistemas de Información - Curriculum based on reference image
 const subjects = [
   // y: 100
@@ -16,64 +5,48 @@ const subjects = [
     id: 'IyS',
     name: 'Ingeniería y Sociedad',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 100, y: 100 }
   },
   {
     id: 'L',
     name: 'Legislación',
     prerequisites: ['IyS', 'AdS'],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 200, y: 100 }
   },
   {
     id: 'I1',
     name: 'Inglés I',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 400, y: 100 }
   },
   {
     id: 'I2',
     name: 'Inglés II',
     prerequisites: ['I1'],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 500, y: 100 }
   },
   {
     id: 'SdR',
     name: 'Sistemas de Representación',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 600, y: 100 }
   },
   {
     id: 'TdC',
     name: 'Teoría de Control',
     prerequisites: ['F2', 'Q'],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 700, y: 100 }
   },
   {
     id: 'Q',
     name: 'Química',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 800, y: 100 }
   },
   {
     id: 'AGA',
     name: 'Álgebra y Geometría Analítica',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 900, y: 100 }
   },
   // y: 200
@@ -81,64 +54,48 @@ const subjects = [
     id: 'SyO',
     name: 'Sistemas y Organizaciones',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
     position: { x: 100, y: 200 }
   },
   {
     id: 'AdS',
     name: 'Análisis de Sistemas',
     prerequisites: ['AyED', 'SyO'],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
     position: { x: 200, y: 200 }
   },
   {
     id: 'E',
     name: 'Economía',
     prerequisites: ['AdS'],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
     position: { x: 300, y: 200 }
   },
   {
     id: 'AdR',
     name: 'Administración de Recursos',
     prerequisites: ['E', 'SO', 'I1', 'DDS'],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
     position: { x: 400, y: 200 }
   },
   {
     id: 'AG',
     name: 'Administración General',
     prerequisites: ['IO', 'AdR'],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
     position: { x: 500, y: 200 }
   },
   {
     id: 'IO',
     name: 'Investigación Operativa',
     prerequisites: ['PyE', 'MS'],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
     position: { x: 600, y: 200 }
   },
   {
     id: 'MS',
     name: 'Matemática Superior',
     prerequisites: ['AM2'],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
     position: { x: 700, y: 200 }
   },
   {
     id: 'AM2',
     name: 'Análisis Matemático II',
     prerequisites: ['AGA', 'AM1'],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
     position: { x: 800, y: 200 }
   },
 
@@ -147,24 +104,18 @@ const subjects = [
     id: 'DDS',
     name: 'Diseño de Sistemas',
     prerequisites: ['AdS', 'PdP'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 400, y: 300 }
   },
   {
     id: 'SdG',
     name: 'Sistemas de Gestión',
     prerequisites: ['AdR', 'IO', 'S'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 500, y: 300 }
   },
   {
     id: 'AM1',
     name: 'Análisis Matemático I',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
     position: { x: 900, y: 300 }
   },
   // y: 400
@@ -172,40 +123,30 @@ const subjects = [
     id: 'AyED',
     name: 'Algoritmos y Estructuras de Datos',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 100, y: 400 }
   },
   {
     id: 'PdP',
     name: 'Paradigmas de Programación',
     prerequisites: ['AyED', 'MD'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 200, y: 400 }
   },
   {
     id: 'IA',
     name: 'Inteligencia Artificial',
     prerequisites: ['DDS', 'IO', 'S'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 500, y: 400 }
   },
   {
     id: 'S',
     name: 'Simulación',
     prerequisites: ['MS', 'PyE'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 600, y: 400 }
   },
   {
     id: 'PyE',
     name: 'Probabilidad y Estadística',
     prerequisites: ['AGA', 'AM1'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 700, y: 400 }
   },
 
@@ -214,40 +155,30 @@ const subjects = [
     id: 'SSL',
     name: 'Sintaxis y Semántica de Lenguajes',
     prerequisites: ['AyED', 'MD'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
     position: { x: 200, y: 500 }
   },
   {
     id: 'GDD',
     name: 'Gestión de Datos',
     prerequisites: ['PdP', 'AdS', 'SSL'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
     position: { x: 400, y: 500 }
   },
   {
     id: 'IeS',
     name: 'Ingeniería de Software',
     prerequisites: ['DDS', 'GDD'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
     position: { x: 500, y: 500 }
   },
   {
     id: 'F2',
     name: 'Física II',
     prerequisites: ['F1', 'AM1'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 800, y: 500 }
   },
   {
     id: 'F1',
     name: 'Física I',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
     position: { x: 900, y: 500 }
   },
   
@@ -256,32 +187,24 @@ const subjects = [
     id: 'MD',
     name: 'Matemática Discreta',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
     position: { x: 100, y: 600 }
   },
   {
     id: 'SO',
     name: 'Sistemas Operativos',
     prerequisites: ['MD', 'AyED', 'AdC'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
     position: { x: 200, y: 600 }
   },
   {
     id: 'RdI',
     name: 'Redes de Información',
     prerequisites: ['SO', 'C'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
     position: { x: 500, y: 600 }
   },
   {
     id: 'C',
     name: 'Comunicaciones',
     prerequisites: ['F2', 'AM2', 'AdC'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
     position: { x: 600, y: 600 }
   },
   
@@ -290,10 +213,7 @@ const subjects = [
     id: 'AdC',
     name: 'Arquitectura de Computadores',
     prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 5,
     position: { x: 400, y: 700 },
-    isFinalProject: true
   }
 ];
 
@@ -370,5 +290,5 @@ const links = [
 
 // Export for use in app.js
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { subjects, STATES, links };
+  module.exports = { subjects, links };
 }

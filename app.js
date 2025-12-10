@@ -8,42 +8,9 @@
 
   // Initialize the application
   function init() {
-    loadProgress();
+    currentSubjects = [...subjects];
     initGraph();
-    updateAvailability();
-    updateProgress();
     setupEventListeners();
-  }
-
-  // Load progress from LocalStorage
-  function loadProgress() {
-    const saved = localStorage.getItem('subjectProgress');
-    if (saved) {
-      try {
-        const savedStates = JSON.parse(saved);
-        currentSubjects = subjects.map(subject => {
-          const savedState = savedStates[subject.id];
-          return {
-            ...subject,
-            state: savedState || subject.state
-          };
-        });
-      } catch (e) {
-        console.error('Error loading progress:', e);
-        currentSubjects = [...subjects];
-      }
-    } else {
-      currentSubjects = [...subjects];
-    }
-  }
-
-  // Save progress to LocalStorage
-  function saveProgress() {
-    const states = {};
-    currentSubjects.forEach(subject => {
-      states[subject.id] = subject.state;
-    });
-    localStorage.setItem('subjectProgress', JSON.stringify(states));
   }
 
   // Initialize Cytoscape graph
@@ -54,9 +21,6 @@
         id: subject.id,
         label: subject.id,
         name: subject.name,
-        state: subject.state,
-        isFinalProject: subject.isFinalProject || false,
-        unlocksFinal: subject.unlocksFinal || false,
         nodeType: 'subject',
         position: subject.position
       },
@@ -235,84 +199,6 @@
           }
         },
 
-        // State: Passed (Aprobada)
-        {
-          selector: 'node[state="passed"]',
-          style: {
-            'background-color': '#3b82f6',
-            'border-color': '#3b82f6'
-          }
-        },
-
-        // State: Signed (Firmada)
-        {
-          selector: 'node[state="signed"]',
-          style: {
-            'background-color': '#0a1628',
-            'border-color': '#3b82f6',
-            'border-width': 4
-          }
-        },
-
-        // State: In Progress (En curso)
-        {
-          selector: 'node[state="in_progress"]',
-          style: {
-            'background-color': '#475569',
-            'border-color': '#64748b'
-          }
-        },
-
-        // State: Available to Pass
-        {
-          selector: 'node[state="available_pass"]',
-          style: {
-            'background-color': '#10b981',
-            'border-color': '#059669'
-          }
-        },
-
-        // State: Available to Take
-        {
-          selector: 'node[state="available_take"]',
-          style: {
-            'background-color': '#0a1628',
-            'border-color': '#60a5fa',
-            'border-width': 4
-          }
-        },
-
-        // State: Not Available
-        {
-          selector: 'node[state="not_available"]',
-          style: {
-            'background-color': '#334155',
-            'border-color': '#475569',
-            'opacity': 0.6
-          }
-        },
-
-        // State: To Take
-        {
-          selector: 'node[state="to_take"]',
-          style: {
-            'background-color': '#475569',
-            'border-color': '#64748b'
-          }
-        },
-
-        // Final Project marker
-        {
-          selector: 'node[isFinalProject="true"]',
-          style: {
-            'background-color': '#f59e0b',
-            'border-color': '#d97706',
-            'width': 70,
-            'height': 70,
-            'font-size': '14px'
-          }
-        },
-
         // Edges
         {
           selector: 'edge',
@@ -355,13 +241,6 @@
       wheelSensitivity: 0.2
     });
 
-    // Click handler for nodes (only subject nodes, not connectors)
-    cy.on('tap', 'node[nodeType="subject"]', function(evt) {
-      const node = evt.target;
-      const subjectId = node.id();
-      cycleState(subjectId);
-    });
-
     // Hover effects (only for subject nodes)
     cy.on('mouseover', 'node[nodeType="subject"]', function(evt) {
       const node = evt.target;
@@ -388,132 +267,12 @@
     });
   }
 
-  // Cycle through states when clicking a node
-  function cycleState(subjectId) {
-    const subject = currentSubjects.find(s => s.id === subjectId);
-    if (!subject) return;
-
-    // Define state cycle
-    const stateCycle = [
-      STATES.NOT_AVAILABLE,
-      STATES.TO_TAKE,
-      STATES.IN_PROGRESS,
-      STATES.SIGNED,
-      STATES.PASSED
-    ];
-
-    const currentIndex = stateCycle.indexOf(subject.state);
-    const nextIndex = (currentIndex + 1) % stateCycle.length;
-    subject.state = stateCycle[nextIndex];
-
-    // Update the graph node
-    cy.getElementById(subjectId).data('state', subject.state);
-
-    // Recalculate availability and update UI
-    updateAvailability();
-    updateProgress();
-    saveProgress();
-  }
-
-  // Calculate which subjects are available based on prerequisites
-  function updateAvailability() {
-    currentSubjects.forEach(subject => {
-      // Skip if already passed or in progress
-      if (subject.state === STATES.PASSED || 
-          subject.state === STATES.IN_PROGRESS ||
-          subject.state === STATES.SIGNED) {
-        return;
-      }
-
-      // Check if all prerequisites are met
-      if (!subject.prerequisites || subject.prerequisites.length === 0) {
-        // No prerequisites - always available
-        if (subject.state === STATES.NOT_AVAILABLE) {
-          subject.state = STATES.TO_TAKE;
-        }
-        return;
-      }
-
-      // Check prerequisite status
-      const allPassed = subject.prerequisites.every(prereqId => {
-        const prereq = currentSubjects.find(s => s.id === prereqId);
-        return prereq && prereq.state === STATES.PASSED;
-      });
-
-      const allSigned = subject.prerequisites.every(prereqId => {
-        const prereq = currentSubjects.find(s => s.id === prereqId);
-        return prereq && (prereq.state === STATES.PASSED || prereq.state === STATES.SIGNED);
-      });
-
-      if (allPassed) {
-        // All prerequisites passed - available to pass
-        if (subject.state === STATES.NOT_AVAILABLE || subject.state === STATES.TO_TAKE) {
-          subject.state = STATES.AVAILABLE_PASS;
-        }
-      } else if (allSigned) {
-        // All prerequisites at least signed - available to take
-        if (subject.state === STATES.NOT_AVAILABLE) {
-          subject.state = STATES.AVAILABLE_TAKE;
-        }
-      } else {
-        // Prerequisites not met
-        if (subject.state !== STATES.TO_TAKE && subject.state !== STATES.IN_PROGRESS) {
-          subject.state = STATES.NOT_AVAILABLE;
-        }
-      }
-
-      // Update node in graph
-      cy.getElementById(subject.id).data('state', subject.state);
-    });
-  }
-
-  // Update progress gauge
-  function updateProgress() {
-    const total = currentSubjects.length;
-    const passed = currentSubjects.filter(s => s.state === STATES.PASSED).length;
-    const percentage = Math.round((passed / total) * 100);
-
-    // Update text
-    document.getElementById('progress-percentage').textContent = `${percentage}%`;
-
-    // Update circular progress bar
-    const circle = document.getElementById('progress-circle');
-    const circumference = 2 * Math.PI * 45; // radius = 45
-    const offset = circumference - (percentage / 100) * circumference;
-    circle.style.strokeDashoffset = offset;
-  }
-
   // Setup event listeners
   function setupEventListeners() {
-    // Reset button
-    document.getElementById('reset-btn').addEventListener('click', () => {
-      if (confirm('¿Estás seguro de que deseas reiniciar todo el progreso?')) {
-        resetProgress();
-      }
-    });
-
     // Fit button
     document.getElementById('fit-btn').addEventListener('click', () => {
       cy.fit(50);
     });
-  }
-
-  // Reset all progress
-  function resetProgress() {
-    currentSubjects = subjects.map(s => ({
-      ...s,
-      state: STATES.NOT_AVAILABLE
-    }));
-    
-    localStorage.removeItem('subjectProgress');
-    
-    // Update graph
-    currentSubjects.forEach(subject => {
-      cy.getElementById(subject.id).data('state', subject.state);
-    });
-    
-    updateAvailability();
-    updateProgress();
   }
 
   // Start the application when DOM is ready
