@@ -100,7 +100,7 @@ header h1 {
 /* Progress Gauge */
 .progress-container {
   position: absolute;
-  top: 30px;
+  bottom: 30px;
   right: 30px;
   z-index: 10;
 }

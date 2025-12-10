@@ -18,6 +18,13 @@
     [STATUS.APPROVED]: '#3b82f6'            // 100% light blue
   };
 
+  // Border/edge colors
+  const BORDER_COLORS = {
+    DEFAULT: '#1a3a5c',                     // 25% - default inactive border
+    FINAL_PENDING_READY: '#2668a8',         // 65% - all deps at FINAL_EXAM_PENDING+
+    APPROVED_READY: '#3b82f6'               // 100% - all deps APPROVED
+  };
+
   // Status cycle order
   const STATUS_ORDER = [
     STATUS.INACTIVE,
@@ -47,6 +54,7 @@
         name: subject.name,
         nodeType: 'subject',
         status: STATUS.INACTIVE,
+        borderState: 'default',
         position: subject.position
       },
       position: subject.position ? { x: subject.position.x, y: subject.position.y } : undefined,
@@ -63,6 +71,7 @@
           label: 'Y',
           nodeType: 'connector',
           isInvisible: isInvisible,
+          borderState: 'default',
           sources: link.sources || [],
           destinations: link.destinations || []
         },
@@ -191,7 +200,9 @@
             'text-outline-width': 1,
             'border-width': 3,
             'border-opacity': 1,
-            'background-color': STATUS_COLORS[STATUS.INACTIVE]
+            'background-color': STATUS_COLORS[STATUS.INACTIVE],
+            'transition-property': 'background-color, border-color',
+            'transition-duration': '0.3s'
           }
         },
 
@@ -213,6 +224,20 @@
           style: { 'background-color': STATUS_COLORS[STATUS.APPROVED] }
         },
 
+        // Border color styles based on dependency readiness
+        {
+          selector: 'node[borderState="default"]',
+          style: { 'border-color': BORDER_COLORS.DEFAULT }
+        },
+        {
+          selector: 'node[borderState="finalPending"]',
+          style: { 'border-color': BORDER_COLORS.FINAL_PENDING_READY }
+        },
+        {
+          selector: 'node[borderState="approved"]',
+          style: { 'border-color': BORDER_COLORS.APPROVED_READY }
+        },
+
         // Connector node style (rhombus/diamond)
         {
           selector: 'node[nodeType="connector"]',
@@ -223,7 +248,8 @@
             'label': '',
             'background-color': 'transparent',
             'border-width': 3,
-            'border-color': '#3b82f6'
+            'transition-property': 'border-color',
+            'transition-duration': '0.3s'
           }
         },
 
@@ -243,11 +269,13 @@
           selector: 'edge',
           style: {
             'width': 3,
-            'line-color': '#3b82f6',
-            'target-arrow-color': '#3b82f6',
+            'line-color': BORDER_COLORS.DEFAULT,
+            'target-arrow-color': BORDER_COLORS.DEFAULT,
             'target-arrow-shape': 'vee',
             'curve-style': 'bezier',
-            'arrow-scale': 1.5
+            'arrow-scale': 1.5,
+            'transition-property': 'line-color, target-arrow-color',
+            'transition-duration': '0.3s'
           }
         },
 
@@ -288,7 +316,109 @@
       const nextStatus = STATUS_ORDER[nextIndex];
       
       node.data('status', nextStatus);
+      updateDependentStyles();
     });
+
+    // Update borders and edge colors based on dependency statuses
+    function updateDependentStyles() {
+      // Helper: check if status is at least FINAL_EXAM_PENDING
+      const isFinalPendingOrAbove = (status) => 
+        status === STATUS.FINAL_EXAM_PENDING || status === STATUS.APPROVED;
+      
+      // Helper: check if status is APPROVED
+      const isApproved = (status) => status === STATUS.APPROVED;
+
+      // Helper: get status of a node by id
+      const getNodeStatus = (nodeId) => {
+        const node = cy.getElementById(nodeId);
+        return node.data('status');
+      };
+
+      // Update subject node borders based on their prerequisites
+      cy.nodes('[nodeType="subject"]').forEach(node => {
+        const subjectData = currentSubjects.find(s => s.id === node.id());
+        if (!subjectData || !subjectData.prerequisites || subjectData.prerequisites.length === 0) {
+          // No prerequisites - automatically 100% light blue
+          node.data('borderState', 'approved');
+          return;
+        }
+
+        // Get all prerequisite statuses
+        const prereqStatuses = subjectData.prerequisites.map(prereqId => getNodeStatus(prereqId));
+        
+        // Check if all prerequisites are APPROVED
+        const allApproved = prereqStatuses.every(isApproved);
+        // Check if all prerequisites are at least FINAL_EXAM_PENDING
+        const allFinalPendingPlus = prereqStatuses.every(isFinalPendingOrAbove);
+
+        if (allApproved) {
+          node.data('borderState', 'approved');
+        } else if (allFinalPendingPlus) {
+          node.data('borderState', 'finalPending');
+        } else {
+          node.data('borderState', 'default');
+        }
+      });
+
+      // Update connector node borders based on their sources
+      cy.nodes('[nodeType="connector"]').forEach(node => {
+        const sources = node.data('sources') || [];
+        if (sources.length === 0) return;
+
+        const sourceStatuses = sources.map(sourceId => getNodeStatus(sourceId));
+        
+        const allApproved = sourceStatuses.every(isApproved);
+        const allFinalPendingPlus = sourceStatuses.every(isFinalPendingOrAbove);
+
+        if (allApproved) {
+          node.data('borderState', 'approved');
+        } else if (allFinalPendingPlus) {
+          node.data('borderState', 'finalPending');
+        } else {
+          node.data('borderState', 'default');
+        }
+      });
+
+      // Update edge colors based on source node
+      cy.edges().forEach(edge => {
+        const sourceNode = edge.source();
+        const sourceType = sourceNode.data('nodeType');
+        
+        let edgeColor = BORDER_COLORS.DEFAULT;
+
+        if (sourceType === 'connector') {
+          // For connectors: check all source subjects
+          const sources = sourceNode.data('sources') || [];
+          const sourceStatuses = sources.map(sourceId => getNodeStatus(sourceId));
+          
+          const allApproved = sourceStatuses.every(isApproved);
+          const allFinalPendingPlus = sourceStatuses.every(isFinalPendingOrAbove);
+
+          if (allApproved) {
+            edgeColor = BORDER_COLORS.APPROVED_READY;
+          } else if (allFinalPendingPlus) {
+            edgeColor = BORDER_COLORS.FINAL_PENDING_READY;
+          }
+        } else if (sourceType === 'subject') {
+          // For subjects: check the source node's status
+          const sourceStatus = sourceNode.data('status');
+          
+          if (isApproved(sourceStatus)) {
+            edgeColor = BORDER_COLORS.APPROVED_READY;
+          } else if (isFinalPendingOrAbove(sourceStatus)) {
+            edgeColor = BORDER_COLORS.FINAL_PENDING_READY;
+          }
+        }
+
+        edge.style({
+          'line-color': edgeColor,
+          'target-arrow-color': edgeColor
+        });
+      });
+    }
+
+    // Initial update
+    updateDependentStyles();
 
     // Cursor styles
     const container = document.getElementById('cy');
