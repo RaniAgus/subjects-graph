@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grafo de Materias - UTN FRBA</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Cytoscape.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Grafo de Materias</h1>
+            <p class="subtitle">Ingeniería en Sistemas de Información - UTN FRBA</p>
+        </header>
+
+        <div class="main-content">
+            <div class="graph-container">
+                <div id="cy"></div>
+                
+                <!-- Progress Gauge -->
+                <div class="progress-container">
+                    <div class="progress-circle">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="progress-bar" cx="50" cy="50" r="45" id="progress-circle"></circle>
+                        </svg>
+                        <div class="progress-text">
+                            <span id="progress-percentage">0%</span>
+                            <span class="progress-label">Completado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend/References Panel -->
+            <aside class="legend-panel">
+                <h2>Referencias</h2>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color state-passed"></div>
+                        <span>Aprobada</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color state-signed"></div>
+                        <span>Firmada</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color state-in-progress"></div>
+                        <span>En curso</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color state-available-pass"></div>
+                        <span>Disponible para aprobar</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color state-available-take"></div>
+                        <span>Disponible para cursar</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color state-not-available"></div>
+                        <span>No disponible</span>
+                    </div>
+                    <div class="legend-item special">
+                        <div class="legend-color state-final-project"></div>
+                        <span>Proyecto Final</span>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <h3>Controles</h3>
+                    <p class="control-description">• Click en un nodo: cambiar estado</p>
+                    <p class="control-description">• Scroll: zoom</p>
+                    <p class="control-description">• Arrastrar: mover vista</p>
+                    <button id="reset-btn" class="btn-reset">Reiniciar Progreso</button>
+                    <button id="fit-btn" class="btn-fit">Ajustar Vista</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Load data and app -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+/* CSS Variables for theming */
+:root {
+  /* Background colors */
+  --bg-primary: #0a1628;
+  --bg-secondary: #1a2942;
+  --bg-tertiary: #2a3952;
+  
+  /* Accent colors */
+  --accent-blue: #3b82f6;
+  --accent-blue-light: #60a5fa;
+  --accent-blue-dark: #2563eb;
+  
+  /* State colors */
+  --state-passed: #3b82f6;
+  --state-signed: #3b82f6;
+  --state-in-progress: #475569;
+  --state-available-pass: #10b981;
+  --state-available-take: #60a5fa;
+  --state-not-available: #334155;
+  --state-final-project: #f59e0b;
+  
+  /* Text colors */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  /* Border and shadow */
+  --border-color: #334155;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Container */
+.container {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* Main Content Layout */
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Graph Container */
+.graph-container {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+  min-height: 700px;
+}
+
+#cy {
+  width: 100%;
+  height: 700px;
+  border-radius: 8px;
+  background: var(--bg-primary);
+}
+
+/* Progress Gauge */
+.progress-container {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  z-index: 10;
+}
+
+.progress-circle {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  background: var(--bg-secondary);
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: var(--shadow);
+}
+
+.progress-circle svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.progress-bg {
+  fill: none;
+  stroke: var(--bg-tertiary);
+  stroke-width: 8;
+}
+
+.progress-bar {
+  fill: none;
+  stroke: var(--accent-blue);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+#progress-percentage {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.progress-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: -2px;
+}
+
+/* Legend Panel */
+.legend-panel {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 20px;
+}
+
+.legend-panel h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: var(--accent-blue);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+}
+
+.legend-item.special {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.legend-color {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* State color classes for legend */
+.state-passed {
+  background: var(--state-passed);
+}
+
+.state-signed {
+  background: transparent;
+  border: 3px solid var(--state-signed);
+}
+
+.state-in-progress {
+  background: var(--state-in-progress);
+}
+
+.state-available-pass {
+  background: var(--state-available-pass);
+  position: relative;
+}
+
+.state-available-pass::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.state-available-take {
+  background: transparent;
+  border: 3px solid var(--state-available-take);
+  position: relative;
+}
+
+.state-available-take::after {
+  content: '→';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--state-available-take);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.state-not-available {
+  background: var(--state-not-available);
+  opacity: 0.6;
+}
+
+.state-final-project {
+  background: var(--state-final-project);
+  position: relative;
+}
+
+.state-final-project::after {
+  content: '⭐';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+}
+
+/* Controls */
+.controls {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid var(--border-color);
+}
+
+.controls h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+}
+
+.control-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.btn-reset,
+.btn-fit {
+  width: 100%;
+  padding: 12px 20px;
+  margin-top: 12px;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-reset:hover,
+.btn-fit:hover {
+  background: var(--accent-blue-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-reset:active,
+.btn-fit:active {
+  transform: translateY(0);
+}
+
+.btn-reset {
+  background: #ef4444;
+}
+
+.btn-reset:hover {
+  background: #dc2626;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .legend-panel {
+    position: relative;
+    top: 0;
+  }
+  
+  .progress-container {
+    top: 20px;
+    right: 20px;
+  }
+  
+  .progress-circle {
+    width: 100px;
+    height: 100px;
+  }
+  
+  #progress-percentage {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  #cy {
+    height: 500px;
+  }
+  
+  .graph-container {
+    min-height: 500px;
+    padding: 15px;
+  }
+  
+  .legend-panel {
+    padding: 20px;
+  }
+}
+
+/* Cytoscape tooltip (if needed) */
+.cy-tooltip {
+  position: absolute;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+  display: none;
+}
