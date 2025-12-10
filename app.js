@@ -217,20 +217,13 @@
         {
           selector: 'node[nodeType="connector"]',
           style: {
-            'width': 30,
-            'height': 30,
+            'width': 15,
+            'height': 15,
             'shape': 'diamond',
-            'label': 'data(label)',
-            'text-valign': 'center',
-            'text-halign': 'center',
-            'color': '#ffffff',
-            'font-size': '10px',
-            'font-weight': 'bold',
-            'background-color': '#64748b',
-            'border-width': 2,
-            'border-color': '#94a3b8',
-            'text-outline-color': '#000',
-            'text-outline-width': 1
+            'label': '',
+            'background-color': 'transparent',
+            'border-width': 3,
+            'border-color': '#3b82f6'
           }
         },
 
@@ -249,10 +242,10 @@
         {
           selector: 'edge',
           style: {
-            'width': 2,
+            'width': 3,
             'line-color': '#3b82f6',
             'target-arrow-color': '#3b82f6',
-            'target-arrow-shape': 'triangle',
+            'target-arrow-shape': 'vee',
             'curve-style': 'bezier',
             'arrow-scale': 1.5
           }
