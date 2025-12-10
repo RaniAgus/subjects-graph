@@ -11,7 +11,7 @@ const STATES = {
 
 // UTN FRBA - Ingeniería en Sistemas de Información - Curriculum based on reference image
 const subjects = [
-  // Level 1 - Top row
+  // y: 100
   {
     id: 'IyS',
     name: 'Ingeniería y Sociedad',
@@ -27,14 +27,6 @@ const subjects = [
     state: STATES.NOT_AVAILABLE,
     level: 1,
     position: { x: 200, y: 100 }
-  },
-  {
-    id: 'SyO',
-    name: 'Sistemas y Organizaciones',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 1,
-    position: { x: 100, y: 200 }
   },
   {
     id: 'I1',
@@ -74,7 +66,7 @@ const subjects = [
     prerequisites: [],
     state: STATES.NOT_AVAILABLE,
     level: 1,
-    position: { x: 850, y: 100 }
+    position: { x: 800, y: 100 }
   },
   {
     id: 'AGA',
@@ -82,10 +74,17 @@ const subjects = [
     prerequisites: [],
     state: STATES.NOT_AVAILABLE,
     level: 1,
-    position: { x: 1000, y: 100 }
+    position: { x: 900, y: 100 }
   },
-  
-  // Level 2
+  // y: 200
+  {
+    id: 'SyO',
+    name: 'Sistemas y Organizaciones',
+    prerequisites: [],
+    state: STATES.NOT_AVAILABLE,
+    level: 1,
+    position: { x: 100, y: 200 }
+  },
   {
     id: 'AdS',
     name: 'Análisis de Sistemas',
@@ -132,7 +131,7 @@ const subjects = [
     prerequisites: ['AM2'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
-    position: { x: 750, y: 200 }
+    position: { x: 700, y: 200 }
   },
   {
     id: 'AM2',
@@ -140,34 +139,10 @@ const subjects = [
     prerequisites: ['AGA', 'AM1'],
     state: STATES.NOT_AVAILABLE,
     level: 2,
-    position: { x: 900, y: 200 }
+    position: { x: 800, y: 200 }
   },
-  {
-    id: 'AM1',
-    name: 'Análisis Matemático I',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 2,
-    position: { x: 1000, y: 250 }
-  },
-  
-  // Level 3
-  {
-    id: 'AyED',
-    name: 'Algoritmos y Estructuras de Datos',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
-    position: { x: 100, y: 350 }
-  },
-  {
-    id: 'PdP',
-    name: 'Paradigmas de Programación',
-    prerequisites: ['AyED', 'MD'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
-    position: { x: 200, y: 350 }
-  },
+
+  // y: 300
   {
     id: 'DDS',
     name: 'Diseño de Sistemas',
@@ -183,6 +158,31 @@ const subjects = [
     state: STATES.NOT_AVAILABLE,
     level: 3,
     position: { x: 500, y: 300 }
+  },
+  {
+    id: 'AM1',
+    name: 'Análisis Matemático I',
+    prerequisites: [],
+    state: STATES.NOT_AVAILABLE,
+    level: 2,
+    position: { x: 900, y: 300 }
+  },
+  // y: 400
+  {
+    id: 'AyED',
+    name: 'Algoritmos y Estructuras de Datos',
+    prerequisites: [],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 100, y: 400 }
+  },
+  {
+    id: 'PdP',
+    name: 'Paradigmas de Programación',
+    prerequisites: ['AyED', 'MD'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 200, y: 400 }
   },
   {
     id: 'IA',
@@ -206,34 +206,10 @@ const subjects = [
     prerequisites: ['AGA', 'AM1'],
     state: STATES.NOT_AVAILABLE,
     level: 3,
-    position: { x: 750, y: 400 }
+    position: { x: 700, y: 400 }
   },
-  {
-    id: 'F1',
-    name: 'Física I',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
-    position: { x: 1000, y: 450 }
-  },
-  {
-    id: 'F2',
-    name: 'Física II',
-    prerequisites: ['F1', 'AM1'],
-    state: STATES.NOT_AVAILABLE,
-    level: 3,
-    position: { x: 900, y: 450 }
-  },
-  
-  // Level 4
-  {
-    id: 'MD',
-    name: 'Matemática Discreta',
-    prerequisites: [],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
-    position: { x: 100, y: 550 }
-  },
+
+  // y: 500
   {
     id: 'SSL',
     name: 'Sintaxis y Semántica de Lenguajes',
@@ -241,14 +217,6 @@ const subjects = [
     state: STATES.NOT_AVAILABLE,
     level: 4,
     position: { x: 200, y: 500 }
-  },
-  {
-    id: 'SO',
-    name: 'Sistemas Operativos',
-    prerequisites: ['MD', 'AyED', 'AdC'],
-    state: STATES.NOT_AVAILABLE,
-    level: 4,
-    position: { x: 250, y: 600 }
   },
   {
     id: 'GDD',
@@ -267,6 +235,40 @@ const subjects = [
     position: { x: 500, y: 500 }
   },
   {
+    id: 'F2',
+    name: 'Física II',
+    prerequisites: ['F1', 'AM1'],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 800, y: 500 }
+  },
+  {
+    id: 'F1',
+    name: 'Física I',
+    prerequisites: [],
+    state: STATES.NOT_AVAILABLE,
+    level: 3,
+    position: { x: 900, y: 500 }
+  },
+  
+  // y: 600
+  {
+    id: 'MD',
+    name: 'Matemática Discreta',
+    prerequisites: [],
+    state: STATES.NOT_AVAILABLE,
+    level: 4,
+    position: { x: 100, y: 600 }
+  },
+  {
+    id: 'SO',
+    name: 'Sistemas Operativos',
+    prerequisites: ['MD', 'AyED', 'AdC'],
+    state: STATES.NOT_AVAILABLE,
+    level: 4,
+    position: { x: 200, y: 600 }
+  },
+  {
     id: 'RdI',
     name: 'Redes de Información',
     prerequisites: ['SO', 'C'],
@@ -280,10 +282,10 @@ const subjects = [
     prerequisites: ['F2', 'AM2', 'AdC'],
     state: STATES.NOT_AVAILABLE,
     level: 4,
-    position: { x: 700, y: 600 }
+    position: { x: 600, y: 600 }
   },
   
-  // Level 5
+  // y: 700
   {
     id: 'AdC',
     name: 'Arquitectura de Computadores',
@@ -302,7 +304,7 @@ const links = [
     id: 'link3',
     sources: ['AGA', 'AM1'], // To be filled manually: AGA, AM2
     destinations: ['AM2', 'PyE'], // To be filled manually: AM1
-    position: { x: 1000, y: 200 }
+    position: { x: 900, y: 200 }
   },
   {
     id: 'link6',
@@ -314,25 +316,55 @@ const links = [
     id: 'link7',
     sources: ['MS', 'PyE'], // To be filled manually: MS, AM2
     destinations: ['IO', 'S'], // To be filled manually: PyE
-    position: { x: 750, y: 300 }
+    position: { x: 700, y: 300 }
   },
   {
     id: 'link8',
     sources: ['AyED', 'MD'], // To be filled manually: AyED, PdP
     destinations: ['PdP', 'SSL', 'SO'], // To be filled manually: SSL
-    position: { x: 100, y: 475 }
+    position: { x: 100, y: 500 }
   },
   {
     id: 'link9',
     sources: ['AdS', 'PdP'], // To be filled manually: DDS, SSL
     destinations: ['GDD', 'DDS'], // To be filled manually: GDD
-    position: { x: 200, y: 275 }
+    position: { x: 200, y: 300 }
   },
   {
     id: 'link12',
     sources: ['AdC'], // To be filled manually: SO, C
     destinations: ['SO'], // To be filled manually: AdC
-    position: { x: 350, y: 650 }
+    position: { x: 300, y: 700 }
+  },
+  {
+    id: 'link13',
+    sources: ['AdC'], // To be filled manually: SO, C
+    destinations: ['C'], // To be filled manually: AdC
+    position: { x: 500, y: 700 }
+  },
+  {
+    id: 'link14',
+    sources: ['DDS'],
+    destinations: ['IeS'],
+    position: { x: 400, y: 400 }
+  },
+  {
+    id: 'link15',
+    sources: ['AM2'],
+    destinations: ['C'],
+    position: { x: 800, y: 400 }
+  },
+  {
+    id: 'link16',
+    sources: ['F2'],
+    destinations: ['C'],
+    position: { x: 700, y: 600 }
+  },
+  {
+    id: 'link17',
+    sources: ['AyED'],
+    destinations: ['AdS'],
+    position: { x: 100, y: 300 }
   }
 ];
 
