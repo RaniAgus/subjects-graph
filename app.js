@@ -49,7 +49,8 @@
         status: STATUS.INACTIVE,
         position: subject.position
       },
-      position: subject.position ? { x: subject.position.x, y: subject.position.y } : undefined
+      position: subject.position ? { x: subject.position.x, y: subject.position.y } : undefined,
+      locked: true  // Subject nodes are not draggable
     }));
 
     // Add static connector nodes from links array
@@ -294,6 +295,18 @@
       const nextStatus = STATUS_ORDER[nextIndex];
       
       node.data('status', nextStatus);
+    });
+
+    // Cursor styles
+    const container = document.getElementById('cy');
+    cy.on('mouseover', 'node[nodeType="subject"]', function() {
+      container.style.cursor = 'pointer';
+    });
+    cy.on('mouseover', 'node[nodeType="connector"]', function() {
+      container.style.cursor = 'move';
+    });
+    cy.on('mouseout', 'node', function() {
+      container.style.cursor = 'default';
     });
   }
 
