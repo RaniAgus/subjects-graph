@@ -129,12 +129,19 @@ header h1 {
 
 .progress-bar {
   fill: none;
-  stroke: var(--accent-blue);
   stroke-width: 8;
   stroke-linecap: round;
   stroke-dasharray: 283;
   stroke-dashoffset: 283;
   transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-bar-pending {
+  stroke: var(--state-final-pending);
+}
+
+.progress-bar-approved {
+  stroke: var(--accent-blue);
 }
 
 .progress-text {
@@ -152,11 +159,19 @@ header h1 {
   color: var(--accent-blue);
 }
 
+.progress-secondary {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--state-final-pending);
+  margin-top: -4px;
+}
+
 .progress-label {
   display: block;
   font-size: 0.7rem;
   color: var(--text-muted);
-  margin-top: -2px;
+  margin-top: 2px;
 }
 
 /* Legend Panel */
