@@ -285,6 +285,12 @@ const links = [
     sources: ['AyED'],
     destinations: ['AdS'],
     position: { x: 100, y: 300 }
+  },
+  {
+    id: 'link18',
+    sources: ['AM1'],
+    destinations: ['F2'],
+    position: { x: 900, y: 400 }
   }
 ];
 
