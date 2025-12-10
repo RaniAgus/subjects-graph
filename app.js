@@ -593,6 +593,10 @@
 
     // Screenshot button
     document.getElementById('screenshot-btn').addEventListener('click', () => {
+      const screenshotContainer = document.querySelector('.screenshot-container');
+      const originalDisplay = screenshotContainer.style.display;
+      screenshotContainer.style.display = 'none'; // Hide the button
+      
       const element = document.querySelector('.graph-container');
       html2canvas(element, {
         useCORS: true,
@@ -614,6 +618,8 @@
       }).catch(err => {
         console.error('Screenshot error:', err);
         alert('Error al capturar pantalla: ' + err.message);
+      }).finally(() => {
+        screenshotContainer.style.display = originalDisplay; // Restore the button
       });
     });
   }

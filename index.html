@@ -16,26 +16,30 @@
         </header>
 
         <div class="main-content">
-            <div class="graph-container">
-                <div id="cy"></div>
-                
-                <!-- Progress Gauge -->
-                <div class="progress-container">
-                    <div class="progress-circle">
-                        <svg viewBox="0 0 100 100">
-                            <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
-                            <circle class="progress-bar progress-bar-pending" cx="50" cy="50" r="45" id="progress-pending"></circle>
-                            <circle class="progress-bar progress-bar-approved" cx="50" cy="50" r="45" id="progress-approved"></circle>
-                        </svg>
-                        <div class="progress-text">
-                            <span id="progress-percentage">0%</span>
-                            <span id="progress-pending-text" class="progress-secondary">0%</span>
+                <div class="graph-container">
+                    <div id="cy"></div>
+                    
+                    <!-- Progress Gauge -->
+                    <div class="progress-container">
+                        <div class="progress-circle">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                                <circle class="progress-bar progress-bar-pending" cx="50" cy="50" r="45" id="progress-pending"></circle>
+                                <circle class="progress-bar progress-bar-approved" cx="50" cy="50" r="45" id="progress-approved"></circle>
+                            </svg>
+                            <div class="progress-text">
+                                <span id="progress-percentage">0%</span>
+                                <span id="progress-pending-text" class="progress-secondary">0%</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Legend/References Panel -->
+                    
+                    <!-- Screenshot Button -->
+                    <div class="screenshot-container">
+                        <button id="fit-btn" class="btn-fit" title="Ajustar Vista">🔍</button>
+                        <button id="screenshot-btn" class="btn-screenshot" title="Capturar Pantalla">📸</button>
+                    </div>
+                </div>            <!-- Legend/References Panel -->
             <aside class="legend-panel">
                 <h2>Referencias</h2>
                 <div class="legend-items">
@@ -76,11 +80,9 @@
                     <p class="control-description">• Scroll: zoom</p>
                     <p class="control-description">• Arrastrar: mover vista</p>
                     <div class="button-row">
-                        <button id="reset-btn" class="btn-reset" title="Reiniciar Progreso">🔄</button>
-                        <button id="fit-btn" class="btn-fit" title="Ajustar Vista">🔍</button>
-                        <button id="export-btn" class="btn-export" title="Exportar Datos">📤</button>
-                        <button id="import-btn" class="btn-import" title="Importar Datos">📥</button>
-                        <button id="screenshot-btn" class="btn-screenshot" title="Capturar Pantalla">📸</button>
+                        <button id="import-btn" class="btn-import" title="Importar Datos">📥 Importar</button>
+                        <button id="export-btn" class="btn-export" title="Exportar Datos">📤 Exportar</button>
+                        <button id="reset-btn" class="btn-reset" title="Reiniciar Progreso">🗑️</button>
                     </div>
                 </div>
             </aside>
