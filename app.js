@@ -659,16 +659,30 @@
     // Initial update
     updateDependentStyles();
 
-    // Cursor styles
+    // Cursor styles and tooltip
     const container = document.getElementById('cy');
-    cy.on('mouseover', 'node[nodeType="subject"]', function() {
+    
+    // Create tooltip element
+    const tooltip = document.createElement('div');
+    tooltip.className = 'cy-tooltip';
+    container.appendChild(tooltip);
+    
+    cy.on('mouseover', 'node[nodeType="subject"]', function(e) {
       container.style.cursor = 'pointer';
+      tooltip.textContent = e.target.data('name');
+      tooltip.style.display = 'block';
     });
     cy.on('mouseover', 'node[nodeType="connector"]', function() {
       container.style.cursor = 'move';
     });
+    cy.on('mousemove', 'node[nodeType="subject"]', function(e) {
+      const pos = e.renderedPosition;
+      tooltip.style.left = (pos.x + 15) + 'px';
+      tooltip.style.top = (pos.y + 15) + 'px';
+    });
     cy.on('mouseout', 'node', function() {
       container.style.cursor = 'default';
+      tooltip.style.display = 'none';
     });
   }
 
