@@ -39,6 +39,21 @@
   let cy; // Cytoscape instance
   let currentSubjects = [];
 
+  // Save current statuses to localStorage
+  function saveStatuses() {
+    const statuses = {};
+    cy.nodes('[nodeType="subject"]').forEach(node => {
+      statuses[node.id()] = node.data('status');
+    });
+    localStorage.setItem('subjectStatuses', JSON.stringify(statuses));
+  }
+
+  // Load saved statuses from localStorage
+  function loadStatuses() {
+    const saved = localStorage.getItem('subjectStatuses');
+    return saved ? JSON.parse(saved) : {};
+  }
+
   // Initialize the application
   function init() {
     currentSubjects = [...subjects];
@@ -309,6 +324,15 @@
       wheelSensitivity: 0.2
     });
 
+    // Load saved statuses and apply them
+    const savedStatuses = loadStatuses();
+    cy.nodes('[nodeType="subject"]').forEach(node => {
+      if (savedStatuses[node.id()]) {
+        node.data('status', savedStatuses[node.id()]);
+      }
+    });
+    updateDependentStyles();
+
     // Click handler to cycle through statuses
     cy.on('tap', 'node[nodeType="subject"]', function(evt) {
       const node = evt.target;
@@ -319,6 +343,7 @@
       
       node.data('status', nextStatus);
       updateDependentStyles();
+      saveStatuses();
     });
 
     // Update borders and edge colors based on dependency statuses
@@ -514,6 +539,15 @@
 
   // Setup event listeners
   function setupEventListeners() {
+    // Reset button
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      cy.nodes('[nodeType="subject"]').forEach(node => {
+        node.data('status', STATUS.INACTIVE);
+      });
+      updateDependentStyles();
+      localStorage.removeItem('subjectStatuses');
+    });
+
     // Fit button
     document.getElementById('fit-btn').addEventListener('click', () => {
       cy.fit(50);
