@@ -77,16 +77,6 @@
 
     nodes.push(...connectorNodes);
 
-    // Helper function to check if a connection should use a connector
-    function findConnectorPath(sourceId, targetId) {
-      // Find a link where source is in sources and target is in destinations
-      return links.find(link => 
-        link.sources && link.destinations &&
-        link.sources.includes(sourceId) && 
-        link.destinations.includes(targetId)
-      );
-    }
-
     // Build edges based on prerequisites
     const edges = [];
     const processedConnections = new Set(); // Track which connections we've made through connectors
