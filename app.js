@@ -64,7 +64,8 @@
               data: {
                 id: `${sourceId}-${link.id}`,
                 source: sourceId,
-                target: link.id
+                target: link.id,
+                toInvisible: true  // Mark edge going to invisible connector
               }
             });
           });
@@ -190,7 +191,7 @@
 
         // Invisible connector style (for 1-to-1 connectors)
         {
-          selector: 'node[isInvisible="true"]',
+          selector: 'node[?isInvisible]',
           style: {
             'opacity': 0,
             'width': 1,
@@ -209,6 +210,14 @@
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'arrow-scale': 1.5
+          }
+        },
+
+        // Edges pointing to invisible connectors (no arrow, just a line)
+        {
+          selector: 'edge[?toInvisible]',
+          style: {
+            'target-arrow-shape': 'none'
           }
         },
 
