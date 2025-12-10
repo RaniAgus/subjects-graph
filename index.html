@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grafo de Materias - UTN FRBA</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Cytoscape.js from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <!-- Cytoscape.js from CDN with multiple fallbacks -->
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    <script>
+        // Fallback check for Cytoscape loading
+        window.addEventListener('DOMContentLoaded', function() {
+            if (typeof cytoscape === 'undefined') {
+                console.warn('Cytoscape.js failed to load from CDN. The graph will not be displayed.');
+                document.getElementById('cy').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;text-align:center;padding:40px;"><div><h3 style="color:#f59e0b;margin-bottom:15px;">📡 Graph library could not be loaded</h3><p style="line-height:1.8;">Please check your internet connection and refresh the page.</p><p style="font-size:0.9em;margin-top:20px;opacity:0.8;">This application requires Cytoscape.js from CDN to display the interactive graph.<br>Make sure you have an active internet connection.</p></div></div>';
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="container">

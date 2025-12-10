@@ -5,6 +5,20 @@ Interactive web application for visualizing and tracking university subject depe
 ![Graph Visualization](https://img.shields.io/badge/Graph-Cytoscape.js-blue)
 ![License](https://img.shields.io/badge/License-BSD%203--Clause-green)
 
+## Screenshots
+
+### Application Interface
+The application features a dark blue theme with an interactive graph on the left and a legend/controls panel on the right:
+
+- **Graph Area**: Interactive visualization of subjects and their dependencies
+- **Progress Gauge**: Circular indicator showing completion percentage (top-right of graph)
+- **Legend Panel**: Color-coded reference guide for subject states
+- **Control Buttons**: Reset progress and fit-to-view options
+
+![Application Interface](https://github.com/user-attachments/assets/6fb5c1ab-eb7c-4419-93e0-fd21652f56ce)
+
+> **Note**: The graph visualization requires an active internet connection to load Cytoscape.js from CDN. In restricted environments, you'll see a fallback message.
+
 ## Features
 
 ### 📊 Graph Visualization
@@ -57,6 +71,7 @@ Plus special markers for:
 
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Safari, Edge)
+- **Internet connection** (required to load Cytoscape.js from CDN)
 - No build tools or dependencies required!
 
 ### Installation
