@@ -590,6 +590,32 @@
       };
       input.click();
     });
+
+    // Screenshot button
+    document.getElementById('screenshot-btn').addEventListener('click', () => {
+      const element = document.querySelector('.graph-container');
+      html2canvas(element, {
+        useCORS: true,
+        allowTaint: true,
+        scale: 4, // Ultra high resolution (4x)
+        backgroundColor: null, // Transparent background
+        logging: false, // Disable logging for cleaner output
+        imageTimeout: 0, // No timeout for complex renders
+        removeContainer: true // Clean up temporary elements
+      }).then(canvas => {
+        canvas.toBlob(blob => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = 'frba-subjects-graph.png';
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+        }, 'image/png', 1.0); // Maximum PNG quality
+      }).catch(err => {
+        console.error('Screenshot error:', err);
+        alert('Error al capturar pantalla: ' + err.message);
+      });
+    });
   }
 
   // Start the application when DOM is ready
