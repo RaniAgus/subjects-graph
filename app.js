@@ -84,10 +84,17 @@
       locked: true  // Subject nodes are not draggable
     }));
 
+    // Helper to check if an ID is a link (connector) ID
+    const linkIds = new Set(currentLinks.map(l => l.id));
+    const isLinkId = (id) => linkIds.has(id);
+
     // Add static connector nodes from links array
     const connectorNodes = currentLinks.map(link => {
-      const isInvisible = link.sources && link.destinations && 
-                          link.sources.length === 1 && link.destinations.length === 1;
+      // Invisible if: 1 source + 1 destination, OR connects to/from another link
+      const connectsToLink = link.destinations?.some(id => isLinkId(id));
+      const connectsFromLink = link.sources?.some(id => isLinkId(id));
+      const isInvisible = (link.sources?.length === 1 && link.destinations?.length === 1) || 
+                          connectsToLink || connectsFromLink;
       return {
         data: {
           id: link.id,
@@ -111,29 +118,36 @@
     // First, process all connections through connectors
     currentLinks.forEach(link => {
       if (link.sources && link.destinations) {
-        // Check if this is an "invisible" connector (1 source + 1 destination)
-        const isInvisible = link.sources.length === 1 && link.destinations.length === 1;
+        // Check if this connector should be invisible
+        const connectsToLink = link.destinations.some(id => isLinkId(id));
+        const connectsFromLink = link.sources.some(id => isLinkId(id));
+        const isInvisible = (link.sources.length === 1 && link.destinations.length === 1) || 
+                            connectsToLink || connectsFromLink;
         
         if (isInvisible) {
           // For invisible connectors: draw source -> connector and connector -> destination
           // But the connector node itself won't be visible, creating the effect of - () ->
           link.sources.forEach(sourceId => {
+            const sourceIsLink = isLinkId(sourceId);
             edges.push({
               data: {
                 id: `${sourceId}-${link.id}`,
                 source: sourceId,
                 target: link.id,
-                toInvisible: true  // Mark edge going to invisible connector
+                toInvisible: true,  // Mark edge going to invisible connector
+                fromInvisible: sourceIsLink  // Mark if coming from another invisible connector
               }
             });
           });
           
           link.destinations.forEach(destId => {
+            const destIsLink = isLinkId(destId);
             edges.push({
               data: {
                 id: `${link.id}-${destId}`,
                 source: link.id,
-                target: destId
+                target: destId,
+                toInvisible: destIsLink  // Mark if going to another invisible connector
               }
             });
           });
@@ -174,6 +188,55 @@
           });
         }
       }
+    });
+
+    // Helper: get ultimate subject destinations from a link (follows link chains)
+    const getUltimateDestinations = (linkId, visited = new Set()) => {
+      if (visited.has(linkId)) return [];
+      visited.add(linkId);
+      
+      const linkData = currentLinks.find(l => l.id === linkId);
+      if (!linkData || !linkData.destinations) return [];
+      
+      const subjectDests = [];
+      linkData.destinations.forEach(destId => {
+        if (isLinkId(destId)) {
+          subjectDests.push(...getUltimateDestinations(destId, visited));
+        } else {
+          subjectDests.push(destId);
+        }
+      });
+      return subjectDests;
+    };
+
+    // Helper: get ultimate subject sources from a link (follows link chains)
+    const getUltimateSources = (linkId, visited = new Set()) => {
+      if (visited.has(linkId)) return [];
+      visited.add(linkId);
+      
+      const linkData = currentLinks.find(l => l.id === linkId);
+      if (!linkData || !linkData.sources) return [];
+      
+      const subjectSources = [];
+      linkData.sources.forEach(sourceId => {
+        if (isLinkId(sourceId)) {
+          subjectSources.push(...getUltimateSources(sourceId, visited));
+        } else {
+          subjectSources.push(sourceId);
+        }
+      });
+      return subjectSources;
+    };
+
+    // Mark all ultimate source-destination pairs through link chains as processed
+    currentLinks.forEach(link => {
+      const ultimateSources = getUltimateSources(link.id);
+      const ultimateDests = getUltimateDestinations(link.id);
+      ultimateSources.forEach(sourceId => {
+        ultimateDests.forEach(destId => {
+          processedConnections.add(`${sourceId}-${destId}`);
+        });
+      });
     });
 
     // Then, add direct connections for prerequisites not going through connectors
@@ -417,17 +480,40 @@
         }
       });
 
+      // Helper: get ultimate subject sources from a connector (follows link chains)
+      const getUltimateSubjectSources = (linkId, visited = new Set()) => {
+        if (visited.has(linkId)) return []; // Avoid cycles
+        visited.add(linkId);
+        
+        const linkData = currentLinks.find(l => l.id === linkId);
+        if (!linkData || !linkData.sources) return [];
+        
+        const subjectSources = [];
+        linkData.sources.forEach(sourceId => {
+          const isLink = currentLinks.some(l => l.id === sourceId);
+          if (isLink) {
+            // Recursively get sources from the chained link
+            subjectSources.push(...getUltimateSubjectSources(sourceId, visited));
+          } else {
+            // It's a subject
+            subjectSources.push(sourceId);
+          }
+        });
+        return subjectSources;
+      };
+
       // Update connector node borders based on their sources (recursively)
       cy.nodes('[nodeType="connector"]').forEach(node => {
-        const sources = node.data('sources') || [];
-        if (sources.length === 0) return;
+        // Get ultimate subject sources (traverse link chains)
+        const ultimateSources = getUltimateSubjectSources(node.id());
+        if (ultimateSources.length === 0) return;
 
         // Check if all sources and their dependencies are APPROVED
-        const allApproved = sources.every(sourceId => 
+        const allApproved = ultimateSources.every(sourceId => 
           isApproved(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
         );
         // Check if all sources are FINAL_EXAM_PENDING+ and their deps are APPROVED
-        const finalPendingReady = sources.every(sourceId => 
+        const finalPendingReady = ultimateSources.every(sourceId => 
           isFinalPendingOrAbove(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
         );
 
@@ -448,13 +534,13 @@
         let edgeColor = BORDER_COLORS.DEFAULT;
 
         if (sourceType === 'connector') {
-          // For connectors: check all source subjects and their dependencies
-          const sources = sourceNode.data('sources') || [];
+          // For connectors: get ultimate subject sources (traverse link chains)
+          const ultimateSources = getUltimateSubjectSources(sourceNode.id());
           
-          const allApproved = sources.every(sourceId => 
+          const allApproved = ultimateSources.every(sourceId => 
             isApproved(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
           );
-          const finalPendingReady = sources.every(sourceId => 
+          const finalPendingReady = ultimateSources.every(sourceId => 
             isFinalPendingOrAbove(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
           );
 

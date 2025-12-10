@@ -291,6 +291,30 @@ const links = [
     sources: ['AM1'],
     destinations: ['F2'],
     position: { x: 900, y: 400 }
+  },
+  {
+    id: 'link19',
+    sources: ['F2'],
+    destinations: ['link20'],
+    position: { x: 900, y: 600 }
+  },
+  {
+    id: 'link20',
+    sources: ['link19'],
+    destinations: ['link21'],
+    position: { x: 1000, y: 600 }
+  },
+  {
+    id: 'link21',
+    sources: ['link20'],
+    destinations: ['link22'],
+    position: { x: 1000, y: 0 }
+  },
+  {
+    id: 'link22',
+    sources: ['link21'],
+    destinations: ['TdC'],
+    position: { x: 800, y: 0 }
   }
 ];
 
