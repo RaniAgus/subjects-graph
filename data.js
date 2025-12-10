@@ -222,44 +222,44 @@ const subjects = [
 const links = [
   {
     id: 'link3',
-    sources: ['AGA', 'AM1'], // To be filled manually: AGA, AM2
-    destinations: ['AM2', 'PyE'], // To be filled manually: AM1
+    sources: ['AGA', 'AM1'],
+    destinations: ['AM2', 'PyE'],
     position: { x: 900, y: 200 }
   },
   {
     id: 'link6',
-    sources: ['IO', 'S'], // To be filled manually: IO, SdG
-    destinations: ['SdG', 'IA'], // To be filled manually: S
+    sources: ['IO', 'S'],
+    destinations: ['SdG', 'IA'],
     position: { x: 600, y: 300 }
   },
   {
     id: 'link7',
-    sources: ['MS', 'PyE'], // To be filled manually: MS, AM2
-    destinations: ['IO', 'S'], // To be filled manually: PyE
+    sources: ['MS', 'PyE'],
+    destinations: ['IO', 'S'],
     position: { x: 700, y: 300 }
   },
   {
     id: 'link8',
-    sources: ['AyED', 'MD'], // To be filled manually: AyED, PdP
-    destinations: ['PdP', 'SSL', 'SO'], // To be filled manually: SSL
+    sources: ['AyED', 'MD'],
+    destinations: ['PdP', 'SSL', 'SO'],
     position: { x: 100, y: 500 }
   },
   {
     id: 'link9',
-    sources: ['AdS', 'PdP'], // To be filled manually: DDS, SSL
-    destinations: ['GDD', 'DDS'], // To be filled manually: GDD
+    sources: ['AdS', 'PdP'],
+    destinations: ['GDD', 'DDS'],
     position: { x: 200, y: 300 }
   },
   {
     id: 'link12',
-    sources: ['AdC'], // To be filled manually: SO, C
-    destinations: ['SO'], // To be filled manually: AdC
+    sources: ['AdC'],
+    destinations: ['SO'],
     position: { x: 300, y: 700 }
   },
   {
     id: 'link13',
-    sources: ['AdC'], // To be filled manually: SO, C
-    destinations: ['C'], // To be filled manually: AdC
+    sources: ['AdC'],
+    destinations: ['C'],
     position: { x: 500, y: 700 }
   },
   {
@@ -295,6 +295,4 @@ const links = [
 ];
 
 // Export for use in app.js
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { subjects, links };
-}
+const defaultData = { subjects, links };

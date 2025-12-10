@@ -38,25 +38,31 @@
   // State management
   let cy; // Cytoscape instance
   let currentSubjects = [];
+  let currentLinks = [];
 
-  // Save current statuses to localStorage
-  function saveStatuses() {
-    const statuses = {};
-    cy.nodes('[nodeType="subject"]').forEach(node => {
-      statuses[node.id()] = node.data('status');
-    });
-    localStorage.setItem('subjectStatuses', JSON.stringify(statuses));
+  // Save current data to localStorage
+  function saveData() {
+    const data = {
+      subjects: currentSubjects.map(s => {
+        const node = cy.$(`#${s.id}`);
+        return { ...s, status: node ? node.data('status') : s.status || STATUS.INACTIVE };
+      }),
+      links: currentLinks
+    };
+    localStorage.setItem('graphData', JSON.stringify(data));
   }
 
-  // Load saved statuses from localStorage
-  function loadStatuses() {
-    const saved = localStorage.getItem('subjectStatuses');
-    return saved ? JSON.parse(saved) : {};
+  // Load saved data from localStorage or use default
+  function loadData() {
+    const saved = localStorage.getItem('graphData');
+    return saved ? JSON.parse(saved) : defaultData;
   }
 
   // Initialize the application
   function init() {
-    currentSubjects = [...subjects];
+    const data = loadData();
+    currentSubjects = data.subjects;
+    currentLinks = data.links;
     initGraph();
     setupEventListeners();
   }
@@ -70,7 +76,7 @@
         label: subject.id,
         name: subject.name,
         nodeType: 'subject',
-        status: STATUS.INACTIVE,
+        status: subject.status || STATUS.INACTIVE,
         borderState: 'default',
         position: subject.position
       },
@@ -79,7 +85,7 @@
     }));
 
     // Add static connector nodes from links array
-    const connectorNodes = links.map(link => {
+    const connectorNodes = currentLinks.map(link => {
       const isInvisible = link.sources && link.destinations && 
                           link.sources.length === 1 && link.destinations.length === 1;
       return {
@@ -103,7 +109,7 @@
     const processedConnections = new Set(); // Track which connections we've made through connectors
 
     // First, process all connections through connectors
-    links.forEach(link => {
+    currentLinks.forEach(link => {
       if (link.sources && link.destinations) {
         // Check if this is an "invisible" connector (1 source + 1 destination)
         const isInvisible = link.sources.length === 1 && link.destinations.length === 1;
@@ -324,13 +330,6 @@
       wheelSensitivity: 0.2
     });
 
-    // Load saved statuses and apply them
-    const savedStatuses = loadStatuses();
-    cy.nodes('[nodeType="subject"]').forEach(node => {
-      if (savedStatuses[node.id()]) {
-        node.data('status', savedStatuses[node.id()]);
-      }
-    });
     updateDependentStyles();
 
     // Click handler to cycle through statuses
@@ -343,7 +342,7 @@
       
       node.data('status', nextStatus);
       updateDependentStyles();
-      saveStatuses();
+      saveData();
     });
 
     // Update borders and edge colors based on dependency statuses
@@ -541,11 +540,8 @@
   function setupEventListeners() {
     // Reset button
     document.getElementById('reset-btn').addEventListener('click', () => {
-      cy.nodes('[nodeType="subject"]').forEach(node => {
-        node.data('status', STATUS.INACTIVE);
-      });
-      updateDependentStyles();
-      localStorage.removeItem('subjectStatuses');
+      localStorage.removeItem('graphData');
+      location.reload();
     });
 
     // Fit button
