@@ -177,7 +177,8 @@
           sources: link.sources || [],
           destinations: link.destinations || []
         },
-        position: link.position ? { x: link.position.x, y: link.position.y } : undefined
+        position: link.position ? { x: link.position.x, y: link.position.y } : undefined,
+        locked: true
       };
     });
 
@@ -695,7 +696,7 @@
       tooltip.style.display = 'block';
     });
     cy.on('mouseover', 'node[nodeType="connector"]', function() {
-      container.style.cursor = 'move';
+      container.style.cursor = 'default';
     });
     cy.on('mousemove', 'node[nodeType="subject"]', function(e) {
       const pos = e.renderedPosition;
