@@ -5,19 +5,19 @@ Interactive web application for visualizing and tracking university subject depe
 ![Graph Visualization](https://img.shields.io/badge/Graph-Cytoscape.js-blue)
 ![License](https://img.shields.io/badge/License-BSD%203--Clause-green)
 
-## Screenshot
-
-![Application Interface](screenshot.png)
+![Application Interface](image.png)
 
 ## Features
 
 ### Graph Visualization
+
 - **Interactive Graph**: Subjects displayed as circular nodes with arrows showing prerequisite relationships
 - **Connector Nodes**: Diamond-shaped connectors for complex prerequisite chains
 - **Tooltips**: Hover over nodes to see full subject names
 - **Pan & Zoom**: Navigate the graph with scroll and drag
 
 ### Subject States
+
 Click any subject node to cycle through states:
 
 | State | Spanish | Visual Style |
@@ -28,6 +28,7 @@ Click any subject node to cycle through states:
 | Approved | Aprobada | Blue fill |
 
 ### Border Colors (Availability)
+
 | Border | Spanish | Meaning |
 |--------|---------|---------|
 | Gray | No disponible | Prerequisites not met |
@@ -35,15 +36,18 @@ Click any subject node to cycle through states:
 | Light Blue | Disponible para aprobar | Ready to pass (all prereqs approved) |
 
 ### Progress Tracking
+
 - **Completion Gauge**: Circular progress showing approved % and final-pending %
 - **Auto-save**: Progress saved to LocalStorage per variant
 - **Export/Import**: Backup and restore your progress as JSON
 
 ### Screenshot Export
+
 - Export graph as PNG with transparent background
 - Includes progress gauge and watermark
 
 ### Variant Support
+
 - Dropdown to switch between curriculum variants
 - Each variant has independent progress tracking
 
@@ -83,13 +87,13 @@ npx serve docs
 
 The `docs/` folder is configured for GitHub Pages deployment.
 
-## Progressive Web App (PWA) Support ✅
+## Progressive Web App (PWA) Support
 
 This project implements a basic PWA. It includes:
 
-- `docs/manifest.webmanifest` — Web App Manifest (name, short_name, icons, theme)
-- `docs/sw.js` — Service Worker that precaches the app shell and assets (index, CSS, JS, JSON, libraries)
-- `docs/offline.html` — a fallback offline page when the app shell can't be served
+- `docs/manifest.webmanifest` - Web App Manifest (name, short_name, icons, theme)
+- `docs/sw.js` - Service Worker that precaches the app shell and assets (index, CSS, JS, JSON, libraries)
+- `docs/offline.html` - a fallback offline page when the app shell can't be served
 
 ### Offline behavior
 
@@ -102,7 +106,7 @@ The app caches the full app shell and crucial resources (scripts, styles, `data.
 How to validate offline behavior:
 
 1. Start a local server from the repo root (see instructions above).
-2. Open https://localhost:8000 (or http) in Chrome/Edge DevTools.
+2. Open `localhost` in Chrome/Edge DevTools.
 3. Open DevTools > Application > Service Workers and ensure `sw.js` is registered and the cache (`subjects-graph-cache-v1`) contains `index.html` and `data.json`.
 4. In DevTools > Application > Service Workers, check "Offline" and refresh.
 5. Confirm the app still loads and you can interact with it (cycle statuses, export/import, etc.).
@@ -171,6 +175,7 @@ Edit `docs/data.json`:
 ```
 
 Links can also chain to other links for complex routing:
+
 ```json
 { "id": "link19", "sources": ["F2"], "destinations": ["link20"], ... },
 { "id": "link20", "sources": ["link19"], "destinations": ["link21"], ... }
