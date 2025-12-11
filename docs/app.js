@@ -2,38 +2,11 @@
 (function() {
   'use strict';
 
-  // Status constants
-  const STATUS = {
-    INACTIVE: 'INACTIVE',
-    IN_PROGRESS: 'IN_PROGRESS',
-    FINAL_EXAM_PENDING: 'FINAL_EXAM_PENDING',
-    APPROVED: 'APPROVED'
-  };
-
-  // Status colors (FILL)
-  const STATUS_COLORS = {
-    [STATUS.INACTIVE]: '#111827',           // Neutral dark gray
-    [STATUS.IN_PROGRESS]: '#374151',        // Neutral medium gray
-    [STATUS.FINAL_EXAM_PENDING]: '#2255d4', // Medium-deep blue
-    [STATUS.APPROVED]: '#3b82f6'            // 100% light blue
-  };
-
-  // Border/edge colors (~1% darker versions)
-  // Note: Using slightly different colors than fill to work around a Cytoscape.js bug
-  // where identical fill and border colors get swapped when using stylesheet selectors
-  const BORDER_COLORS = {
-    DEFAULT: '#323b48',                     // ~1% darker than IN_PROGRESS
-    FINAL_PENDING_READY: '#2050c8',         // ~1% darker than FINAL_EXAM_PENDING
-    APPROVED_READY: '#387dd9'               // ~1% darker than APPROVED
-  };
-
-  // Status cycle order
-  const STATUS_ORDER = [
-    STATUS.INACTIVE,
-    STATUS.IN_PROGRESS,
-    STATUS.FINAL_EXAM_PENDING,
-    STATUS.APPROVED
-  ];
+  // Status configuration (loaded from variant data)
+  let statusConfig = [];       // Full status objects from data.json
+  let STATUS_ORDER = [];       // Status IDs in order
+  let STATUS_COLORS = {};      // Status ID -> fill color
+  let STATUS_BORDER_COLORS = {}; // Status ID -> border color
 
   // Variant storage key
   const VARIANT_STORAGE_KEY = 'selectedVariant';
@@ -55,8 +28,8 @@
     const statuses = {};
     currentSubjects.forEach(s => {
       const node = cy.$(`#${s.id}`);
-      const status = node ? node.data('status') : s.status || STATUS.INACTIVE;
-      if (status !== STATUS.INACTIVE) {
+      const status = node ? node.data('status') : s.status || STATUS_ORDER[0];
+      if (status !== STATUS_ORDER[0]) {
         statuses[s.id] = status; // Only save non-inactive statuses
       }
     });
@@ -105,6 +78,12 @@
     currentSubjects = variantData.subjects.map(s => ({ ...s }));
     currentLinks = variantData.links;
 
+    // Load status configuration from variant data
+    statusConfig = variantData.statuses;
+    STATUS_ORDER = statusConfig.map(s => s.id);
+    STATUS_COLORS = Object.fromEntries(statusConfig.map(s => [s.id, s.color]));
+    STATUS_BORDER_COLORS = Object.fromEntries(statusConfig.map(s => [s.id, s.borderColor]));
+
     // Apply saved statuses
     const savedStatuses = loadStatuses();
     currentSubjects.forEach(s => {
@@ -139,6 +118,104 @@
     }
   }
 
+  // Build dynamic stylesheet based on status configuration
+  function buildStylesheet() {
+    const defaultBorderColor = STATUS_BORDER_COLORS[STATUS_ORDER[0]];
+
+    const styles = [
+      // Base node style (for subject nodes)
+      {
+        selector: 'node[nodeType="subject"]',
+        style: {
+          'width': 60,
+          'height': 60,
+          'shape': 'ellipse',
+          'label': 'data(label)',
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'color': '#ffffff',
+          'font-size': '12px',
+          'font-weight': 'bold',
+          'text-outline-color': '#000',
+          'text-outline-width': 1,
+          'border-width': 3,
+          'border-opacity': 1,
+          'background-color': STATUS_COLORS[STATUS_ORDER[0]],
+          'transition-property': 'background-color, border-color',
+          'transition-duration': '0.3s'
+        }
+      },
+
+      // Connector node style (rhombus/diamond)
+      {
+        selector: 'node[nodeType="connector"]',
+        style: {
+          'width': 15,
+          'height': 15,
+          'shape': 'diamond',
+          'label': '',
+          'background-opacity': 0,
+          'border-width': 3,
+          'border-color': defaultBorderColor,
+          'transition-property': 'border-color',
+          'transition-duration': '0.3s'
+        }
+      },
+
+      // Invisible connector style (for 1-to-1 connectors)
+      {
+        selector: 'node[?isInvisible]',
+        style: {
+          'opacity': 0,
+          'width': 1,
+          'height': 1,
+          'label': ''
+        }
+      },
+
+      // Edges
+      {
+        selector: 'edge',
+        style: {
+          'width': 3,
+          'line-color': defaultBorderColor,
+          'target-arrow-color': defaultBorderColor,
+          'target-arrow-shape': 'vee',
+          'curve-style': 'bezier',
+          'arrow-scale': 1.5,
+          'transition-property': 'line-color, target-arrow-color',
+          'transition-duration': '0.3s'
+        }
+      },
+
+      // Edges pointing to invisible connectors (no arrow, just a line)
+      {
+        selector: 'edge[?toInvisible]',
+        style: {
+          'target-arrow-shape': 'none'
+        }
+      }
+    ];
+
+    // Generate status-specific fill color styles
+    statusConfig.forEach(status => {
+      styles.push({
+        selector: `node[status="${status.id}"]`,
+        style: { 'background-color': status.color }
+      });
+    });
+
+    // Generate border color styles for each status (used as borderState)
+    statusConfig.forEach(status => {
+      styles.push({
+        selector: `node[borderState="${status.id}"]`,
+        style: { 'border-color': status.borderColor }
+      });
+    });
+
+    return styles;
+  }
+
   // Initialize Cytoscape graph
   function initGraph() {
     // Prepare subject nodes
@@ -148,8 +225,8 @@
         label: subject.id,
         name: subject.name,
         nodeType: 'subject',
-        status: subject.status || STATUS.INACTIVE,
-        borderState: 'default',
+        status: subject.status || STATUS_ORDER[0],
+        borderState: STATUS_ORDER[0],
         position: subject.position
       },
       position: subject.position ? { x: subject.position.x, y: subject.position.y } : undefined,
@@ -173,7 +250,7 @@
           label: 'Y',
           nodeType: 'connector',
           isInvisible: isInvisible,
-          borderState: 'default',
+          borderState: STATUS_ORDER[0],
           sources: link.sources || [],
           destinations: link.destinations || []
         },
@@ -312,24 +389,54 @@
       });
     });
 
-    // Then, add direct connections for prerequisites not going through connectors
-    currentSubjects.forEach(subject => {
-      if (subject.prerequisites && subject.prerequisites.length > 0) {
-        subject.prerequisites.forEach(prereqId => {
-          const connectionKey = `${prereqId}-${subject.id}`;
+    // Helper: get all prerequisite IDs for a subject (flattened from all status groups)
+    const getAllPrereqIds = (subjectId) => {
+      const subject = currentSubjects.find(s => s.id === subjectId);
+      if (!subject || !subject.prerequisites) return [];
+      return Object.values(subject.prerequisites).flat();
+    };
 
-          // Only add direct edge if not already connected through a connector
-          if (!processedConnections.has(connectionKey)) {
-            edges.push({
-              data: {
-                id: connectionKey,
-                source: prereqId,
-                target: subject.id
-              }
-            });
-          }
-        });
+    // Helper: check if targetId is transitively reachable from sourceId
+    const isTransitivelyReachable = (sourceId, targetId, visited = new Set()) => {
+      if (visited.has(sourceId)) return false;
+      visited.add(sourceId);
+
+      const prereqs = getAllPrereqIds(sourceId);
+      for (const prereqId of prereqs) {
+        if (prereqId === targetId) return true;
+        if (isTransitivelyReachable(prereqId, targetId, visited)) return true;
       }
+      return false;
+    };
+
+    // Then, add direct connections for prerequisites not going through connectors
+    // Skip transitive edges (if A→B→C exists, don't draw A→C)
+    currentSubjects.forEach(subject => {
+      const allPrereqIds = getAllPrereqIds(subject.id);
+
+      // Filter out transitive prerequisites
+      // A prereq is transitive if it's reachable through another prereq
+      const directPrereqs = allPrereqIds.filter(prereqId => {
+        // Check if any OTHER prereq has this prereqId in its transitive closure
+        return !allPrereqIds.some(otherPrereqId =>
+          otherPrereqId !== prereqId && isTransitivelyReachable(otherPrereqId, prereqId)
+        );
+      });
+
+      directPrereqs.forEach(prereqId => {
+        const connectionKey = `${prereqId}-${subject.id}`;
+
+        // Only add direct edge if not already connected through a connector
+        if (!processedConnections.has(connectionKey)) {
+          edges.push({
+            data: {
+              id: connectionKey,
+              source: prereqId,
+              target: subject.id
+            }
+          });
+        }
+      });
     });
 
     // Initialize Cytoscape
@@ -341,111 +448,7 @@
         edges: edges
       },
 
-      style: [
-        // Base node style (for subject nodes)
-        {
-          selector: 'node[nodeType="subject"]',
-          style: {
-            'width': 60,
-            'height': 60,
-            'shape': 'ellipse',
-            'label': 'data(label)',
-            'text-valign': 'center',
-            'text-halign': 'center',
-            'color': '#ffffff',
-            'font-size': '12px',
-            'font-weight': 'bold',
-            'text-outline-color': '#000',
-            'text-outline-width': 1,
-            'border-width': 3,
-            'border-opacity': 1,
-            'background-color': STATUS_COLORS[STATUS.INACTIVE],
-            'transition-property': 'background-color, border-color',
-            'transition-duration': '0.3s'
-          }
-        },
-
-        // Status-specific styles for subject nodes
-        {
-          selector: 'node[status="INACTIVE"]',
-          style: { 'background-color': STATUS_COLORS[STATUS.INACTIVE] }
-        },
-        {
-          selector: 'node[status="IN_PROGRESS"]',
-          style: { 'background-color': STATUS_COLORS[STATUS.IN_PROGRESS] }
-        },
-        {
-          selector: 'node[status="FINAL_EXAM_PENDING"]',
-          style: { 'background-color': STATUS_COLORS[STATUS.FINAL_EXAM_PENDING] }
-        },
-        {
-          selector: 'node[status="APPROVED"]',
-          style: { 'background-color': STATUS_COLORS[STATUS.APPROVED] }
-        },
-
-        // Border color styles based on dependency readiness
-        {
-          selector: 'node[borderState="default"]',
-          style: { 'border-color': BORDER_COLORS.DEFAULT }
-        },
-        {
-          selector: 'node[borderState="finalPending"]',
-          style: { 'border-color': BORDER_COLORS.FINAL_PENDING_READY }
-        },
-        {
-          selector: 'node[borderState="approved"]',
-          style: { 'border-color': BORDER_COLORS.APPROVED_READY }
-        },
-
-        // Connector node style (rhombus/diamond)
-        {
-          selector: 'node[nodeType="connector"]',
-          style: {
-            'width': 15,
-            'height': 15,
-            'shape': 'diamond',
-            'label': '',
-            'background-opacity': 0,
-            'border-width': 3,
-            'transition-property': 'border-color',
-            'transition-duration': '0.3s'
-          }
-        },
-
-        // Invisible connector style (for 1-to-1 connectors)
-        {
-          selector: 'node[?isInvisible]',
-          style: {
-            'opacity': 0,
-            'width': 1,
-            'height': 1,
-            'label': ''
-          }
-        },
-
-        // Edges
-        {
-          selector: 'edge',
-          style: {
-            'width': 3,
-            'line-color': BORDER_COLORS.DEFAULT,
-            'target-arrow-color': BORDER_COLORS.DEFAULT,
-            'target-arrow-shape': 'vee',
-            'curve-style': 'bezier',
-            'arrow-scale': 1.5,
-            'transition-property': 'line-color, target-arrow-color',
-            'transition-duration': '0.3s'
-          }
-        },
-
-        // Edges pointing to invisible connectors (no arrow, just a line)
-        {
-          selector: 'edge[?toInvisible]',
-          style: {
-            'target-arrow-shape': 'none'
-          }
-        }
-      ],
+      style: buildStylesheet(),
 
       layout: {
         name: 'preset',
@@ -483,12 +486,14 @@
 
     // Update borders and edge colors based on dependency statuses
     function updateDependentStyles() {
-      // Helper: check if status is at least FINAL_EXAM_PENDING
-      const isFinalPendingOrAbove = (status) =>
-        status === STATUS.FINAL_EXAM_PENDING || status === STATUS.APPROVED;
+      // Helper: get status index in order (higher = more complete)
+      const getStatusIndex = (status) => STATUS_ORDER.indexOf(status);
+      const lastStatusId = STATUS_ORDER[STATUS_ORDER.length - 1];
+      const defaultStatusId = STATUS_ORDER[0];
 
-      // Helper: check if status is APPROVED
-      const isApproved = (status) => status === STATUS.APPROVED;
+      // Helper: check if status meets minimum requirement
+      const statusMeetsMinimum = (status, minStatus) =>
+        getStatusIndex(status) >= getStatusIndex(minStatus);
 
       // Helper: get status of a node by id
       const getNodeStatus = (nodeId) => {
@@ -496,61 +501,45 @@
         return node.data('status');
       };
 
-      // Helper: recursively check if all dependencies (and their dependencies) are APPROVED
-      const allDependenciesApproved = (subjectId, visited = new Set()) => {
-        if (visited.has(subjectId)) return true; // Avoid cycles
-        visited.add(subjectId);
+      // Helper: find highest status level where all prerequisites are satisfied
+      // Returns the status ID to use for borderState, or defaultStatusId if none met
+      const getHighestSatisfiedStatus = (subjectData) => {
+        const prereqs = subjectData.prerequisites || {};
+        const hasPrereqs = Object.keys(prereqs).length > 0;
+        if (!hasPrereqs) return lastStatusId; // No prerequisites = fully satisfied
 
-        const subjectData = currentSubjects.find(s => s.id === subjectId);
-        if (!subjectData || !subjectData.prerequisites || subjectData.prerequisites.length === 0) {
-          return true; // No prerequisites means this branch is OK
+        // First check: do all subjects meet their MINIMUM required status?
+        let allMinimumsMet = true;
+        for (const [requiredStatus, subjectIds] of Object.entries(prereqs)) {
+          const groupMet = subjectIds.every(id =>
+            statusMeetsMinimum(getNodeStatus(id), requiredStatus)
+          );
+          if (!groupMet) {
+            allMinimumsMet = false;
+            break;
+          }
         }
 
-        return subjectData.prerequisites.every(prereqId => {
-          // The prerequisite itself must be APPROVED
-          if (!isApproved(getNodeStatus(prereqId))) return false;
-          // And all of its dependencies must also be APPROVED (recursive)
-          return allDependenciesApproved(prereqId, visited);
-        });
-      };
+        if (!allMinimumsMet) return defaultStatusId; // Can't even start
 
-      // Helper: check if direct prerequisites are at least FINAL_EXAM_PENDING,
-      // AND all of their dependencies are APPROVED
-      const canBeFinalPendingPlus = (subjectId) => {
-        const subjectData = currentSubjects.find(s => s.id === subjectId);
-        if (!subjectData || !subjectData.prerequisites || subjectData.prerequisites.length === 0) {
-          return true; // No prerequisites means OK
+        // All minimums met - now find the highest level where ALL prereqs are satisfied
+        // (i.e., find the minimum status among all prereq subjects)
+        let minStatusIndex = STATUS_ORDER.length - 1;
+        for (const subjectIds of Object.values(prereqs)) {
+          for (const id of subjectIds) {
+            const statusIndex = getStatusIndex(getNodeStatus(id));
+            minStatusIndex = Math.min(minStatusIndex, statusIndex);
+          }
         }
 
-        return subjectData.prerequisites.every(prereqId => {
-          // The direct prerequisite must be at least FINAL_EXAM_PENDING
-          if (!isFinalPendingOrAbove(getNodeStatus(prereqId))) return false;
-          // AND all of the prerequisite's dependencies must be APPROVED
-          return allDependenciesApproved(prereqId);
-        });
+        return STATUS_ORDER[minStatusIndex];
       };
 
-      // Update subject node borders based on their prerequisites (recursively)
+      // Update subject node borders based on their prerequisites
       cy.nodes('[nodeType="subject"]').forEach(node => {
         const subjectData = currentSubjects.find(s => s.id === node.id());
-        if (!subjectData || !subjectData.prerequisites || subjectData.prerequisites.length === 0) {
-          // No prerequisites - automatically ready
-          node.data('borderState', 'approved');
-          return;
-        }
-
-        // Check recursively if all dependencies are APPROVED
-        const allApproved = allDependenciesApproved(node.id());
-        // Check if direct prereqs are FINAL_EXAM_PENDING+ and their deps are APPROVED
-        const finalPendingReady = canBeFinalPendingPlus(node.id());
-
-        if (allApproved) {
-          node.data('borderState', 'approved');
-        } else if (finalPendingReady) {
-          node.data('borderState', 'finalPending');
-        } else {
-          node.data('borderState', 'default');
-        }
+        const satisfiedStatus = getHighestSatisfiedStatus(subjectData);
+        node.data('borderState', satisfiedStatus || defaultStatusId);
       });
 
       // Helper: get ultimate subject sources from a connector (follows link chains)
@@ -565,78 +554,61 @@
         linkData.sources.forEach(sourceId => {
           const isLink = currentLinks.some(l => l.id === sourceId);
           if (isLink) {
-            // Recursively get sources from the chained link
             subjectSources.push(...getUltimateSubjectSources(sourceId, visited));
           } else {
-            // It's a subject
             subjectSources.push(sourceId);
           }
         });
         return subjectSources;
       };
 
-      // Update connector node borders based on their sources (recursively)
+      // Helper: get highest satisfied status for a set of source subjects
+      const getSourcesSatisfiedStatus = (sourceIds) => {
+        if (sourceIds.length === 0) return null;
+
+        // Find the minimum satisfied status across all sources
+        let minSatisfiedIndex = STATUS_ORDER.length - 1;
+
+        for (const id of sourceIds) {
+          const subjectData = currentSubjects.find(s => s.id === id);
+          const sourceStatus = getNodeStatus(id);
+          const prereqSatisfied = getHighestSatisfiedStatus(subjectData);
+
+          // The source's effective status is the minimum of its own status and its prereq satisfaction
+          const sourceIndex = getStatusIndex(sourceStatus);
+          const prereqIndex = prereqSatisfied ? getStatusIndex(prereqSatisfied) : -1;
+          const effectiveIndex = Math.min(sourceIndex, prereqIndex);
+
+          minSatisfiedIndex = Math.min(minSatisfiedIndex, effectiveIndex);
+        }
+
+        return minSatisfiedIndex >= 0 ? STATUS_ORDER[minSatisfiedIndex] : null;
+      };
+
+      // Update connector node borders based on their sources
       cy.nodes('[nodeType="connector"]').forEach(node => {
-        // Get ultimate subject sources (traverse link chains)
         const ultimateSources = getUltimateSubjectSources(node.id());
         if (ultimateSources.length === 0) return;
 
-        // Check if all sources and their dependencies are APPROVED
-        const allApproved = ultimateSources.every(sourceId =>
-          isApproved(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
-        );
-        // Check if all sources are FINAL_EXAM_PENDING+ and their deps are APPROVED
-        const finalPendingReady = ultimateSources.every(sourceId =>
-          isFinalPendingOrAbove(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
-        );
-
-        if (allApproved) {
-          node.data('borderState', 'approved');
-        } else if (finalPendingReady) {
-          node.data('borderState', 'finalPending');
-        } else {
-          node.data('borderState', 'default');
-        }
+        const satisfiedStatus = getSourcesSatisfiedStatus(ultimateSources);
+        node.data('borderState', satisfiedStatus || defaultStatusId);
       });
 
-      // Update edge colors based on source node (recursively checking all dependencies)
+      // Update edge colors based on source node
       cy.edges().forEach(edge => {
         const sourceNode = edge.source();
         const sourceType = sourceNode.data('nodeType');
 
-        let edgeColor = BORDER_COLORS.DEFAULT;
+        let satisfiedStatus = null;
 
         if (sourceType === 'connector') {
-          // For connectors: get ultimate subject sources (traverse link chains)
           const ultimateSources = getUltimateSubjectSources(sourceNode.id());
-
-          const allApproved = ultimateSources.every(sourceId =>
-            isApproved(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
-          );
-          const finalPendingReady = ultimateSources.every(sourceId =>
-            isFinalPendingOrAbove(getNodeStatus(sourceId)) && allDependenciesApproved(sourceId)
-          );
-
-          if (allApproved) {
-            edgeColor = BORDER_COLORS.APPROVED_READY;
-          } else if (finalPendingReady) {
-            edgeColor = BORDER_COLORS.FINAL_PENDING_READY;
-          }
+          satisfiedStatus = getSourcesSatisfiedStatus(ultimateSources);
         } else if (sourceType === 'subject') {
-          // For subjects: check the source node's status AND all its dependencies must be APPROVED
-          const sourceId = sourceNode.id();
-          const sourceStatus = sourceNode.data('status');
-
-          const sourceApproved = isApproved(sourceStatus) && allDependenciesApproved(sourceId);
-          const sourceFinalPendingReady = isFinalPendingOrAbove(sourceStatus) && allDependenciesApproved(sourceId);
-
-          if (sourceApproved) {
-            edgeColor = BORDER_COLORS.APPROVED_READY;
-          } else if (sourceFinalPendingReady) {
-            edgeColor = BORDER_COLORS.FINAL_PENDING_READY;
-          }
+          satisfiedStatus = getSourcesSatisfiedStatus([sourceNode.id()]);
         }
 
+        const edgeColor = STATUS_BORDER_COLORS[satisfiedStatus] || STATUS_BORDER_COLORS[defaultStatusId];
         edge.style({
           'line-color': edgeColor,
           'target-arrow-color': edgeColor
@@ -651,29 +623,31 @@
     function updateProgress() {
       const totalSubjects = currentSubjects.length;
       let approvedCount = 0;
-      let finalPendingPlusCount = 0;
+      let pendingCount = 0;
+
+      // Progress thresholds based on position in status array
+      // Approved = last status, Pending = second-to-last and above
+      const approvedThreshold = STATUS_ORDER.length - 1;
+      const pendingThreshold = STATUS_ORDER.length - 2;
 
       cy.nodes('[nodeType="subject"]').forEach(node => {
         const status = node.data('status');
-        if (status === STATUS.APPROVED) {
-          approvedCount++;
-          finalPendingPlusCount++;
-        } else if (status === STATUS.FINAL_EXAM_PENDING) {
-          finalPendingPlusCount++;
-        }
+        const statusIndex = STATUS_ORDER.indexOf(status);
+        if (statusIndex >= approvedThreshold) approvedCount++;
+        if (statusIndex >= pendingThreshold) pendingCount++;
       });
 
       const approvedPercent = Math.round((approvedCount / totalSubjects) * 100);
-      const finalPendingPlusPercent = Math.round((finalPendingPlusCount / totalSubjects) * 100);
+      const pendingPercent = Math.round((pendingCount / totalSubjects) * 100);
 
       // Update text
       document.getElementById('progress-percentage').textContent = `${approvedPercent}%`;
-      document.getElementById('progress-pending-text').textContent = `${finalPendingPlusPercent}%`;
+      document.getElementById('progress-pending-text').textContent = `${pendingPercent}%`;
 
       // Update circles (circumference = 2 * PI * 45 ≈ 283)
       const circumference = 283;
       const approvedOffset = circumference - (circumference * approvedPercent / 100);
-      const pendingOffset = circumference - (circumference * finalPendingPlusPercent / 100);
+      const pendingOffset = circumference - (circumference * pendingPercent / 100);
 
       document.getElementById('progress-approved').style.strokeDashoffset = approvedOffset;
       document.getElementById('progress-pending').style.strokeDashoffset = pendingOffset;
