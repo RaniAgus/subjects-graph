@@ -217,9 +217,17 @@ class SubjectNode extends AbstractNode {
   }
 
   /**
+   * Gets the availability status of the subject based on its prerequisites.
+   * @returns {Availability}
+   */
+  _getAvailability() {
+    return this.#config.availabilities.findLast(a => this.#satisfiesAvailability(a.id));
+  }
+
+  /**
    * @param {AvailabilityId}
    */
-  satisfies(availabilityId) {
+  #satisfiesAvailability(availabilityId) {
     const prerequisite = this.#data.prerequisites
       .find(p => p.availabilityId === availabilityId);
 
