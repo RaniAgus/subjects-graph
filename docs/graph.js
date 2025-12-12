@@ -96,9 +96,13 @@ export class Graph {
   constructor(config, subjects, edges) {
     this.#config = config;
     this.#subjects = new Map();
+    for (const subject of subjects) {
+      this.#addSubject(subject);
+    }
     this.#edges = new Map();
-    subjects.forEach(subject => this.#addSubject(subject));
-    edges.forEach(edge => this.#addEdge(edge));
+    for (const edge of edges) {
+      this.#addEdge(edge);
+    }
     this.#calculateDependencies();
   }
 
