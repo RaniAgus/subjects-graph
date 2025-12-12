@@ -41,6 +41,11 @@
  * @typedef {object} Position
  * @property {number} x
  * @property {number} y
+ *
+ * @interface Drawer
+ * @method drawCircle
+ * @method drawDiamond
+ * @method drawArrow
  */
 
 class Graph {
@@ -121,6 +126,16 @@ class Graph {
     }
     return null;
   }
+
+  /**
+   * Renders the entire graph.
+   * @param {Drawer} drawer
+   */
+  render(drawer) {
+    for (const node of this.#nodes) {
+      node.render(drawer);
+    }
+  }
 }
 
 /**
@@ -186,10 +201,11 @@ class AbstractNode {
 
   /**
    * Renders the node and its links.
+   * @param {Drawer} drawer
    */
-  render() {
+  render(drawer) {
     for (const link of this.#dependencies) {
-      link.render();
+      link.render(drawer);
     }
   }
 
@@ -260,9 +276,10 @@ class SubjectNode extends AbstractNode {
   }
 
   /**
-   * Renders the subject node.
+   * Renders the node and its links.
+   * @param {Drawer} drawer
    */
-  render() {
+  render(drawer) {
     const status = this.#config.statuses.find(s => s.id === this.#data.status);
     const availability = this.getAvailability();
 
@@ -271,19 +288,15 @@ class SubjectNode extends AbstractNode {
       return;
     }
 
-    // TODO: Render subject-specific details
-    // Example rendering logic (pseudo-code)
-    /*
-    drawCircle({
+    drawer.drawCircle({
       label: this.#data.id,
       tooltip: this.#data.name,
       position: this.#data.position,
       fillColor: status.color,
       borderColor: availability.color,
     });
-    */
 
-    super.render();
+    super.render(drawer);
   }
 
   /**
@@ -367,6 +380,25 @@ class EdgeNode extends AbstractNode {
   }
 
   /**
+   * Renders the node and its links.
+   * @param {Drawer} drawer
+   */
+  render(drawer) {
+    const availability = this.getAvailability();
+    if (!availability) {
+      log.warn(`Availability not found for edge ID ${this.#data.id}.`);
+      return;
+    }
+
+    drawer.drawDiamond({
+      position: this.#data.position,
+      borderColor: availability.color,
+    });
+
+    super.render(drawer);
+  }
+
+  /**
    * Gets the availability status of the node based on its prerequisites.
    * @param {Array<string>} [subjects=[]] - Subgroup of subjects to consider. If empty, consider all.
    * @returns {Availability}
@@ -404,18 +436,21 @@ class Link {
   }
 
   /**
-   * Renders the link between nodes.
+   * Renders the node and its links.
+   * @param {Drawer} drawer
    */
-  render() {
-    // TODO: Implement link rendering logic
-    // Example rendering logic (pseudo-code)
-    /*
-    drawArrow({
+  render(drawer) {
+    const availability = this.#getAvailability();
+    if (!availability) {
+      log.warn('Availability not found for link rendering.');
+      return;
+    }
+
+    drawer.drawArrow({
       from: this.from.position,
       to: this.#to.position,
-      color: getAvailability().color,
+      color: availability.color,
     });
-    */
   }
 
   /**
