@@ -54,3 +54,9 @@ export function edges(edgeIds, subjectIds) {
 // Helper to get color for a status/availability
 export const statusColor = (statusId) => config.statuses.find(s => s.id === statusId).color;
 export const availabilityColor = (availId) => config.availabilities.find(a => a.id === availId).color;
+
+// Export full variant data for comprehensive tests
+export const fullVariant = {
+  subjects: variant.subjects,
+  edges: variant.edges,
+};

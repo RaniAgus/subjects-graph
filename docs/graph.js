@@ -556,6 +556,7 @@ class Link {
    */
   #getAvailability() {
     const sourceSubjects = Array.from(this.from.getAllSubjects());
+    const sourceIds = sourceSubjects.map(s => s.id);
     
     // Find the highest availability that the source satisfies for the target
     const result = this.#config.availabilities.findLast(availability => {
@@ -564,17 +565,26 @@ class Link {
       if (prereqsList.length === 0) return false;
       
       // Check if source subjects satisfy their required statuses in ALL prerequisites
-      return prereqsList.every(prereqs =>
-        prereqs.dependencies.every(dep =>
+      return prereqsList.every(prereqs => {
+        // Get all subjects from source that are mentioned in this prereq's dependencies
+        const relevantDeps = prereqs.dependencies.filter(dep =>
+          dep.subjects.some(subjectId => sourceIds.includes(subjectId))
+        );
+        
+        // If no source subjects are mentioned in prereqs, this availability is not satisfied by source
+        if (relevantDeps.length === 0) return false;
+        
+        // Check that all relevant source subjects meet their required status
+        return relevantDeps.every(dep =>
           dep.subjects
-            .filter(subjectId => sourceSubjects.some(s => s.id === subjectId))
+            .filter(subjectId => sourceIds.includes(subjectId))
             .every(subjectId => {
               const sourceSubject = sourceSubjects.find(s => s.id === subjectId);
               return this.#config.statuses.findIndex(s => s.id === sourceSubject.status) >=
                      this.#config.statuses.findIndex(s => s.id === dep.statusId);
             })
-        )
-      );
+        );
+      });
     });
     
     // If no availability matched, return the lowest (INACTIVE)

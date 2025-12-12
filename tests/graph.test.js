@@ -62,6 +62,50 @@ describe('Graph rendering (I1 -> I2)', () => {
   });
 });
 
+describe('Graph rendering (Q, F2 -> TdC)', () => {
+  // TdC has 2 availability states:
+  // - FINAL_EXAM_PENDING: Q at FINAL_EXAM_PENDING AND F2 at APPROVED
+  // - APPROVED: Q at APPROVED
+  // As it depends on 2 subjects with no common edge, it should show the color of the source's contribution to the target's availability
+  // without interfering with the other source's contribution to the target's availability
+  
+  // All 9 combinations (3x3) for Q and F2
+  // F2 needs APPROVED for TdC's FINAL_EXAM_PENDING availability
+  const testCases = [
+    // F2=INACTIVE -> arrow should be INACTIVE (F2 doesn't satisfy APPROVED prereq)
+    { statuses: ['INACTIVE', 'INACTIVE'], arrowAvailability: 'INACTIVE' },
+    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING'], arrowAvailability: 'INACTIVE' },
+    { statuses: ['INACTIVE', 'APPROVED'], arrowAvailability: 'INACTIVE' },
+    // F2=FINAL_EXAM_PENDING -> arrow should be INACTIVE (F2 needs APPROVED, not FEP)
+    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailability: 'INACTIVE' },
+    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], arrowAvailability: 'INACTIVE' },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED'], arrowAvailability: 'INACTIVE' },
+    // F2=APPROVED -> arrow should be FINAL_EXAM_PENDING (F2 satisfies its part of FEP prereq)
+    { statuses: ['APPROVED', 'INACTIVE'], arrowAvailability: 'FINAL_EXAM_PENDING' },
+    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailability: 'FINAL_EXAM_PENDING' },
+    { statuses: ['APPROVED', 'APPROVED'], arrowAvailability: 'FINAL_EXAM_PENDING' },
+  ];
+
+  testCases.forEach(({ statuses: [f2Status, qStatus], arrowAvailability }) => {
+    it(`renders with F2=${f2Status}, Q=${qStatus}`, () => {
+      const testSubjects = subjects(
+        ['Q', qStatus],
+        ['F2', f2Status],
+        ['TdC', 'INACTIVE'],
+      );
+
+      const graph = new Graph(config, testSubjects, []);
+      const drawer = createMockDrawer();
+      graph.render(drawer);
+
+      // F2 -> TdC arrow should reflect F2's contribution
+      const f2Arrow = drawer.shapes.arrows.find(a => a.id === 'F2-TdC');
+      expect(f2Arrow).toBeDefined();
+      expect(f2Arrow.color).toBe(availabilityColor(arrowAvailability));
+    });
+  });
+});
+
 describe('Transitive deduplication', () => {
   // AyED -> PdP -> DDS chain
   // DDS depends on PdP (FINAL_EXAM_PENDING) and AyED (APPROVED)
