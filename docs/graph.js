@@ -245,6 +245,15 @@ class AbstractNode {
   }
 
   /**
+   * Gets the prerequisites for a specific availability level.
+   * @param {string} availabilityId
+   * @returns {Array<Prerequisite>}
+   */
+  getPrerequisitesById(availabilityId) {
+    throw new Error('Method getPrerequisitesById() must be implemented in subclasses');
+  }
+
+  /**
    * Checks if this node satisfies the given subject and status.
    * @param {string} subjectId
    * @param {StatusId} statusId
@@ -377,6 +386,15 @@ class SubjectNode extends AbstractNode {
     for (const subj of super.getAllSubjects(visited)) set.add(subj);
     return set;
   }
+
+  /**
+   * @param {string} availabilityId
+   * @returns {Array<Prerequisite>}
+   */
+  getPrerequisitesById(availabilityId) {
+    const prereq = this.#data.prerequisites.find(p => p.availabilityId === availabilityId);
+    return prereq ? [prereq] : [];
+  }
 }
 
 class EdgeNode extends AbstractNode {
@@ -465,6 +483,15 @@ class EdgeNode extends AbstractNode {
       )
     );
   }
+
+  /**
+   * Gets the combined prerequisites for a specific availability level from all targets.
+   * @param {string} availabilityId
+   * @returns {Array<Prerequisite>}
+   */
+  getPrerequisitesById(availabilityId) {
+    return this.#targets.flatMap(target => target.getPrerequisitesById(availabilityId));
+  }
 }
 
 class Link {
@@ -511,14 +538,34 @@ class Link {
   }
 
   /**
-   * From all dependencies listed in 'from', get the lowest availability
-   * based on 'to' requirements.
+   * Get the availability that the source contributes to the target.
+   * Arrow color reflects what the source provides, not the target's overall availability.
    */
   #getAvailability() {
-    const subjects = Array.from(this.from.getAllSubjects()).map(subject => subject.id);
-    return this.#config.availabilities.findLast((_, idx) =>
-      this.#config.availabilities.indexOf(this.#to.getAvailability(subjects)) <= idx
-    );
+    const sourceSubjects = Array.from(this.from.getAllSubjects());
+    
+    // Find the highest availability that the source satisfies for the target
+    const result = this.#config.availabilities.findLast(availability => {
+      // Get the target's prerequisites for this availability level (may be multiple for EdgeNode)
+      const prereqsList = this.#to.getPrerequisitesById(availability.id);
+      if (prereqsList.length === 0) return false;
+      
+      // Check if source subjects satisfy their required statuses in ALL prerequisites
+      return prereqsList.every(prereqs =>
+        prereqs.dependencies.every(dep =>
+          dep.subjects
+            .filter(subjectId => sourceSubjects.some(s => s.id === subjectId))
+            .every(subjectId => {
+              const sourceSubject = sourceSubjects.find(s => s.id === subjectId);
+              return this.#config.statuses.findIndex(s => s.id === sourceSubject.status) >=
+                     this.#config.statuses.findIndex(s => s.id === dep.statusId);
+            })
+        )
+      );
+    });
+    
+    // If no availability matched, return the lowest (INACTIVE)
+    return result ?? this.#config.availabilities[0];
   }
 }
 
