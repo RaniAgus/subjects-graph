@@ -148,7 +148,6 @@ class AbstractNode {
   /** @type {Set<Link>} */
   #dependencies;
 
-
   /**
    * @param {Config} config
    */
@@ -158,6 +157,16 @@ class AbstractNode {
     }
     this.#config = config;
     this.#dependencies = new Set();
+  }
+
+  /** @returns {string} */
+  get id() {
+    throw new Error('Getter id() must be implemented in subclasses');
+  }
+
+  /** @returns {Position} */
+  get position() {
+    throw new Error('Getter position() must be implemented in subclasses');
   }
 
   /**
@@ -267,6 +276,10 @@ class SubjectNode extends AbstractNode {
     this.#data = data;
   }
 
+  get id() {
+    return this.#data.id;
+  }
+
   get position() {
     return this.#data.position;
   }
@@ -372,6 +385,10 @@ class EdgeNode extends AbstractNode {
     this.#targets = [];
   }
 
+  get id() {
+    return this.#data.id;
+  }
+
   get position() {
     return this.#data.position;
   }
@@ -466,11 +483,13 @@ class Link {
       return;
     }
 
-    drawer.drawArrow({
-      from: this.from.position,
-      to: this.#to.position,
-      color: availability.color,
-    });
+    const edgeId = `${this.from.id}-${this.#to.id}`;
+    if (!this.from.id || !this.#to.id) {
+      console.warn('Cannot render link: missing fromId or toId.', { fromId: this.from.id, toId: this.#to.id });
+      return;
+    }
+
+    drawer.drawArrow({ id: edgeId, from: this.from.id, to: this.#to.id, color: availability.color });
   }
 
   /**
