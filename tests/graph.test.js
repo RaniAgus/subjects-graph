@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Graph } from '../docs/graph.js';
-import { config, subject, subjects, edge, statusColor, availabilityColor } from './helpers/common.js';
+import { config, subject, subjects, edge, edges, statusColor, availabilityColor } from './helpers/common.js';
 import { createMockDrawer } from './helpers/mockDrawer.js';
 
 describe('Graph rendering (I1 -> I2)', () => {
@@ -182,14 +182,13 @@ describe('Edge nodes (AGA + AM1 -> link3 -> AM2, PyE)', () => {
 
   testCases.forEach(({ statuses: [agaStatus, am1Status, am2Status, pyeStatus], availabilities: [agaAvail, am1Avail, link3Avail, am2Avail, pyeAvail], arrowAvailabilities }) => {
     it(`renders with AGA=${agaStatus}, AM1=${am1Status}`, () => {
-      const subjectIds = ['AGA', 'AM1', 'AM2', 'PyE'];
       const testSubjects = subjects(
         ['AGA', agaStatus],
         ['AM1', am1Status],
         ['AM2', am2Status],
         ['PyE', pyeStatus],
       );
-      const testEdges = [edge('link3', subjectIds)];
+      const testEdges = edges(['link3'], ['AGA', 'AM1', 'AM2', 'PyE']);
 
       const graph = new Graph(config, testSubjects, testEdges);
       const drawer = createMockDrawer();
@@ -233,5 +232,33 @@ describe('Edge nodes (AGA + AM1 -> link3 -> AM2, PyE)', () => {
         color: availabilityColor(arrowAvailabilities['link3-PyE']),
       });
     });
+  });
+});
+
+describe('Invisible edge nodes (F2 -> link19 -> link20 -> link21 -> link22 -> TdC)', () => {
+  // Chain of 1:1 edge nodes that should use drawEdge (invisible) instead of drawDiamond
+  // F2 -> link19 -> link20 -> link21 -> link22 -> TdC
+  // Focus: edge nodes use drawEdge (not drawDiamond) and arrows connect through chain
+  it('uses drawEdge for 1:1 edge nodes and draws arrows through chain', () => {
+    const testSubjects = subjects(
+      ['F2', 'APPROVED'],
+      ['TdC', 'INACTIVE'],
+    );
+    const testEdges = edges(['link19', 'link20', 'link21', 'link22'], ['F2', 'TdC']);
+
+    const graph = new Graph(config, testSubjects, testEdges);
+    const drawer = createMockDrawer();
+    graph.render(drawer);
+
+    // Should draw 2 circles, 0 diamonds, 4 invisible edges
+    expect(drawer.shapes.circles).toHaveLength(2);
+    expect(drawer.shapes.diamonds).toHaveLength(0);
+    expect(drawer.shapes.edges).toHaveLength(4);
+
+    // Should draw 5 arrows through the chain
+    expect(drawer.shapes.arrows).toHaveLength(5);
+    expect(drawer.shapes.arrows.map(a => a.id)).toEqual(
+      expect.arrayContaining(['F2-link19', 'link19-link20', 'link20-link21', 'link21-link22', 'link22-TdC'])
+    );
   });
 });

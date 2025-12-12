@@ -465,11 +465,19 @@ class EdgeNode extends AbstractNode {
       return;
     }
 
-    drawer.drawDiamond({
-      id: this.#data.id,
-      position: this.#data.position,
-      borderColor: availability.color,
-    });
+    // Use drawEdge for 1:1 edges (invisible), drawDiamond for many-to-many
+    if (this.#data.dependencies.length === 1 && this.#targets.length === 1) {
+      drawer.drawEdge({
+        id: this.#data.id,
+        position: this.#data.position,
+      });
+    } else {
+      drawer.drawDiamond({
+        id: this.#data.id,
+        position: this.#data.position,
+        borderColor: availability.color,
+      });
+    }
   }
 
   /**

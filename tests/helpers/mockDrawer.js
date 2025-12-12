@@ -3,6 +3,7 @@ export function createMockDrawer() {
   const shapes = {
     circles: [],
     diamonds: [],
+    edges: [],
     arrows: [],
   };
 
@@ -13,6 +14,9 @@ export function createMockDrawer() {
     },
     drawDiamond(params) {
       shapes.diamonds.push(params);
+    },
+    drawEdge(params) {
+      shapes.edges.push(params);
     },
     drawArrow(params) {
       shapes.arrows.push(params);

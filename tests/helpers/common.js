@@ -34,15 +34,21 @@ export function subjects(...entries) {
   });
 }
 
-// Utility: get edge by id, filtering to only include specified subjects
-export function edge(id, subjectIds) {
+// Utility: get edge by id, filtering to only include specified ids (subjects + edges)
+export function edge(id, filterIds) {
   const edgeData = variant.edges.find(e => e.id === id);
   if (!edgeData) throw new Error(`Edge ${id} not found`);
   return {
     ...edgeData,
-    dependencies: edgeData.dependencies.filter(d => subjectIds.includes(d)),
-    targets: edgeData.targets.filter(t => subjectIds.includes(t)),
+    dependencies: edgeData.dependencies.filter(d => filterIds.includes(d)),
+    targets: edgeData.targets.filter(t => filterIds.includes(t)),
   };
+}
+
+// Utility: get multiple edges, auto-filtering to include only specified subjects and edge ids
+export function edges(edgeIds, subjectIds) {
+  const allIds = [...subjectIds, ...edgeIds];
+  return edgeIds.map(id => edge(id, allIds));
 }
 
 // Helper to get color for a status/availability
