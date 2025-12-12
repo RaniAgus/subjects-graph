@@ -442,6 +442,7 @@ class EdgeNode extends AbstractNode {
       const targetNode = graph.getNodeById(targetId);
       if (targetNode) {
         this.#targets.push(targetNode);
+        targetNode._addDependency(this);
       } else {
         console.warn(`Edge target with ID ${targetId} not found in graph.`);
       }

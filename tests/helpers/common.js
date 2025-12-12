@@ -34,11 +34,15 @@ export function subjects(...entries) {
   });
 }
 
-// Utility: get edge by id
-export function edge(id) {
+// Utility: get edge by id, filtering to only include specified subjects
+export function edge(id, subjectIds) {
   const edgeData = variant.edges.find(e => e.id === id);
   if (!edgeData) throw new Error(`Edge ${id} not found`);
-  return { ...edgeData };
+  return {
+    ...edgeData,
+    dependencies: edgeData.dependencies.filter(d => subjectIds.includes(d)),
+    targets: edgeData.targets.filter(t => subjectIds.includes(t)),
+  };
 }
 
 // Helper to get color for a status/availability
