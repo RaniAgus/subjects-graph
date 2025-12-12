@@ -4,10 +4,10 @@ import { config, fullVariant, availabilityColor } from '../helpers/common.js';
 import { createMockDrawer } from '../helpers/mockDrawer.js';
 
 /**
- * Bug: All INACTIVE subjects showing APPROVED arrow color
+ * Bug: All PENDING subjects showing APPROVED arrow color
  * 
- * Issue: With the full graph and ALL subjects set to INACTIVE,
- * some arrows were incorrectly showing APPROVED color instead of INACTIVE.
+ * Issue: With the full graph and ALL subjects set to PENDING,
+ * some arrows were incorrectly showing APPROVED color instead of PENDING.
  * Affected paths: F2 -> TdC, I1 -> AdR, DDS -> IA
  * 
  * Root cause: In Link.#getAvailability(), when checking if a source satisfies
@@ -25,12 +25,12 @@ import { createMockDrawer } from '../helpers/mockDrawer.js';
  * 4. The test should FAIL before the fix and PASS after
  */
 
-describe('Full graph with all INACTIVE subjects', () => {
-  it('shows INACTIVE arrows for all paths when all subjects are INACTIVE', () => {
-    // Set all subjects to INACTIVE
+describe('Full graph with all PENDING subjects', () => {
+  it('shows PENDING arrows for all paths when all subjects are PENDING', () => {
+    // Set all subjects to PENDING
     const allInactiveSubjects = fullVariant.subjects.map(s => ({
       ...s,
-      status: 'INACTIVE',
+      status: 'PENDING',
     }));
 
     const graph = new Graph(config, allInactiveSubjects, fullVariant.edges);
@@ -50,14 +50,14 @@ describe('Full graph with all INACTIVE subjects', () => {
     const i1Arrows = drawer.shapes.arrows.filter(a => a.id.startsWith('I1-'));
     expect(i1Arrows.length).toBeGreaterThan(0);
     i1Arrows.forEach(arrow => {
-      expect(arrow.color, `Arrow ${arrow.id} should be INACTIVE`).toBe(availabilityColor('NOT_AVAILABLE'));
+      expect(arrow.color, `Arrow ${arrow.id} should be PENDING`).toBe(availabilityColor('NOT_AVAILABLE'));
     });
 
     // DDS -> IA (direct or through edges)
     const ddsArrows = drawer.shapes.arrows.filter(a => a.id.startsWith('DDS-'));
     expect(ddsArrows.length).toBeGreaterThan(0);
     ddsArrows.forEach(arrow => {
-      expect(arrow.color, `Arrow ${arrow.id} should be INACTIVE`).toBe(availabilityColor('NOT_AVAILABLE'));
+      expect(arrow.color, `Arrow ${arrow.id} should be PENDING`).toBe(availabilityColor('NOT_AVAILABLE'));
     });
   });
 });

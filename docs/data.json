@@ -5,8 +5,8 @@
       "name": "Ingeniería en Sistemas de Información - UTN FRBA - Plan K08",
       "statuses": [
         {
-          "id": "INACTIVE",
-          "name": "Inactiva",
+          "id": "PENDING",
+          "name": "Pendiente",
           "color": "#111827"
         },
         {
@@ -16,7 +16,7 @@
         },
         {
           "id": "FINAL_EXAM_PENDING",
-          "name": "Final pendiente",
+          "name": "Cursada",
           "color": "#2255d4"
         },
         {
