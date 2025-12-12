@@ -185,16 +185,6 @@ class AbstractNode {
   }
 
   /**
-   * @param {string} subjectId
-   * @param {StatusId} statusId
-   * @returns {boolean}
-   */
-  _hasDependency(subjectId, statusId) {
-    return Array.from(this.#dependencies)
-      .some(link => link.from._hasDependency(subjectId, statusId));
-  }
-
-  /**
    * Renders the node and its links.
    */
   render() {
@@ -277,37 +267,9 @@ class SubjectNode extends AbstractNode {
    * @returns {Availability}
    */
   getAvailability() {
-    return this.#config.availabilities
-      .findLast(a => this.#satisfiesAvailability(a.id));
+    // TODO: Implement logic to determine availability based on prerequisites
   }
 
-  /**
-   * @param {AvailabilityId}
-   */
-  #satisfiesAvailability(availabilityId) {
-    const prerequisite = this.#data.prerequisites
-      .find(p => p.availabilityId === availabilityId);
-
-    if (!prerequisite) {
-      return true;
-    }
-
-    return prerequisite.dependencies.every(d =>
-      d.subjects.every(subjectId => this._hasDependency(subjectId, d.statusId))
-    );
-  }
-
-  /**
-   * @param {string} subjectId
-   * @param {StatusId} statusId
-   * @returns {boolean}
-   */
-  _hasDependency(subjectId, statusId) {
-    if (this.#data.id === subjectId) {
-      return this.#data.status === statusId;
-    }
-    return super._hasDependency(subjectId, statusId);
-  }
 }
 
 class EdgeNode extends AbstractNode {
@@ -354,12 +316,11 @@ class EdgeNode extends AbstractNode {
   }
 
   /**
-   * Gets the availability status of the edge based on its target nodes.
+   * Gets the lowest availability status among all target nodes.
    * @returns {Availability}
    */
   getAvailability() {
-    return this.#config.availabilities
-      .find(a => this.#targets.map(t => t.getAvailability()).includes(a))
+    // TODO: Implement logic to determine availability based on prerequisites
   }
 }
 
@@ -401,7 +362,11 @@ class Link {
     */
   }
 
+  /**
+   * From all dependencies listed in 'from', get the lowest availability
+   * based on 'to' requirements.
+   */
   #getAvailability() {
-    return this.#config.availabilities[0]; // TODO: Calculate availability
+    // TODO: Implement logic to determine availability based on prerequisites
   }
 }
