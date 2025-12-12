@@ -82,7 +82,7 @@ class Graph {
    */
   #addSubject(subject) {
     if (this.#subjects.has(subject.id)) {
-      log.warn(`Subject with ID ${subject.id} already exists in the graph.`);
+      console.warn(`Subject with ID ${subject.id} already exists in the graph.`);
       return;
     }
     this.#subjects.set(subject.id, new SubjectNode(this.#config, subject));
@@ -94,7 +94,7 @@ class Graph {
    */
   #addEdge(edge) {
     if (this.#edges.has(edge.id)) {
-      log.warn(`Edge with ID ${edge.id} already exists in the graph.`);
+      console.warn(`Edge with ID ${edge.id} already exists in the graph.`);
       return;
     }
     this.#edges.set(edge.id, new EdgeNode(this.#config, edge));
@@ -142,13 +142,21 @@ class Graph {
  * @abstract
  */
 class AbstractNode {
+  /** @type {Config} */
+  #config;
+
   /** @type {Set<Link>} */
   #dependencies;
 
-  constructor() {
+
+  /**
+   * @param {Config} config
+   */
+  constructor(config) {
     if (new.target === AbstractNode) {
       throw new TypeError('Cannot instantiate AbstractNode');
     }
+    this.#config = config;
     this.#dependencies = new Set();
   }
 
@@ -157,7 +165,7 @@ class AbstractNode {
    * @protected
    */
   _addDependency(node) {
-    this.#dependencies.add(new Link(node, this));
+    this.#dependencies.add(new Link(this.#config, node, this));
   }
 
   /**
@@ -173,7 +181,8 @@ class AbstractNode {
    * path to the same target node.
    */
   simplifyTransitiveDependencies() {
-    for (const link of this.#dependencies) {
+    // Work on a snapshot of current links to avoid mutating during iteration
+    for (const link of Array.from(this.#dependencies)) {
       // Temporarily remove the link
       this.#dependencies.delete(link);
       if (this.#dependsOn(link.from)) {
@@ -189,7 +198,7 @@ class AbstractNode {
    * @returns {boolean}
    */
   #dependsOn(node, visited = new Set()) {
-    if (this === target) return true;
+    if (this === node) return true;
     if (visited.has(this)) return false;
     visited.add(this);
     return Array.from(this.#dependencies).some(link => link.from.#dependsOn(node, visited));
@@ -228,12 +237,16 @@ class AbstractNode {
    * Gets all subjects this node depends on.
    * @returns {Set<Subject>}
    */
-  getAllSubjects() {
-    const subjects = Array.from(this.#dependencies)
-      .map(link => link.from.getAllSubjects())
-      .flatMap(set => Array.from(set));
+  getAllSubjects(visited = new Set()) {
+    if (visited.has(this)) return new Set();
+    visited.add(this);
 
-    return new Set(subjects)
+    const result = new Set();
+    for (const link of this.#dependencies) {
+      const subjSet = link.from.getAllSubjects(visited);
+      for (const subj of subjSet) result.add(subj);
+    }
+    return result;
   }
 }
 
@@ -249,9 +262,13 @@ class SubjectNode extends AbstractNode {
    * @param {Subject} data
    */
   constructor(config, data) {
-    super();
+    super(config);
     this.#config = config;
     this.#data = data;
+  }
+
+  get position() {
+    return this.#data.position;
   }
 
   /**
@@ -266,7 +283,7 @@ class SubjectNode extends AbstractNode {
         if (targetNode) {
           this._addDependency(targetNode);
         } else {
-          log.warn(`Subject with ID ${subjectId} not found in graph.`);
+          console.warn(`Subject with ID ${subjectId} not found in graph.`);
         }
       });
   }
@@ -280,7 +297,7 @@ class SubjectNode extends AbstractNode {
     const availability = this.getAvailability();
 
     if (!status || !availability) {
-      log.warn(`Status or availability not found for subject ID ${this.#data.id}.`);
+      console.warn(`Status or availability not found for subject ID ${this.#data.id}.`);
       return;
     }
 
@@ -327,8 +344,10 @@ class SubjectNode extends AbstractNode {
   /**
    * @returns {Array<Subject>}
    */
-  getAllSubjects() {
-    return new Set([this.#data, ...super.getAllSubjects()]);
+  getAllSubjects(visited = new Set()) {
+    const set = new Set([this.#data]);
+    for (const subj of super.getAllSubjects(visited)) set.add(subj);
+    return set;
   }
 }
 
@@ -347,10 +366,14 @@ class EdgeNode extends AbstractNode {
    * @param {Edge} data
    */
   constructor(config, data) {
-    super();
+    super(config);
     this.#config = config;
     this.#data = data;
     this.#targets = [];
+  }
+
+  get position() {
+    return this.#data.position;
   }
 
   /**
@@ -362,7 +385,7 @@ class EdgeNode extends AbstractNode {
       if (sourceNode) {
         this._addDependency(sourceNode);
       } else {
-        log.warn(`Edge dependency with ID ${sourceId} not found in graph.`);
+        console.warn(`Edge dependency with ID ${sourceId} not found in graph.`);
       }
     });
     this.#data.targets.forEach(targetId => {
@@ -370,7 +393,7 @@ class EdgeNode extends AbstractNode {
       if (targetNode) {
         this.#targets.push(targetNode);
       } else {
-        log.warn(`Edge target with ID ${targetId} not found in graph.`);
+        console.warn(`Edge target with ID ${targetId} not found in graph.`);
       }
     });
   }
@@ -382,11 +405,12 @@ class EdgeNode extends AbstractNode {
   render(drawer) {
     const availability = this.getAvailability();
     if (!availability) {
-      log.warn(`Availability not found for edge ID ${this.#data.id}.`);
+      console.warn(`Availability not found for edge ID ${this.#data.id}.`);
       return;
     }
 
     drawer.drawDiamond({
+      id: this.#data.id,
       position: this.#data.position,
       borderColor: availability.color,
     });
@@ -438,7 +462,7 @@ class Link {
   render(drawer) {
     const availability = this.#getAvailability();
     if (!availability) {
-      log.warn('Availability not found for link rendering.');
+      console.warn('Availability not found for link rendering.');
       return;
     }
 
