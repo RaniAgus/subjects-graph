@@ -575,10 +575,10 @@ import { Graph } from './graph.js';
           ctx.drawImage(img, paddingX, paddingY);
 
           // Draw progress gauge in bottom-right corner (in padding area)
-          drawProgressGauge(ctx, scale);
+          drawProgressGauge(ctx);
 
           // Draw watermark
-          drawWatermark(ctx, scale);
+          drawWatermark(ctx);
 
           // Download the composited image
           canvas.toBlob(blob => {
@@ -598,15 +598,18 @@ import { Graph } from './graph.js';
     });
 
     // Draw progress gauge on canvas
-    function drawProgressGauge(ctx, scale) {
-      const size = 120 * scale;
-      const padding = 10 * scale;
-      const x = ctx.canvas.width - size - 30 * scale;
-      const y = ctx.canvas.height - size - 30 * scale;
+    function drawProgressGauge(ctx) {
+      // Scale gauge relative to canvas size (15% of smaller dimension)
+      const minDimension = Math.min(ctx.canvas.width, ctx.canvas.height);
+      const gaugeScale = minDimension / 800;
+
+      const size = 120 * gaugeScale;
+      const x = ctx.canvas.width - size - 30 * gaugeScale;
+      const y = ctx.canvas.height - size - 30 * gaugeScale;
       const centerX = x + size / 2;
       const centerY = y + size / 2;
-      const radius = 45 * scale;
-      const strokeWidth = 8 * scale;
+      const radius = 45 * gaugeScale;
+      const strokeWidth = 8 * gaugeScale;
 
       // Get current progress values
       const approvedPercent = parseInt(document.getElementById('progress-percentage').textContent);
@@ -647,23 +650,27 @@ import { Graph } from './graph.js';
 
       // Draw approved percentage text
       ctx.fillStyle = '#3b82f6';
-      ctx.font = `700 ${1.5 * 16 * scale}px -apple-system, BlinkMacSystemFont, sans-serif`;
+      ctx.font = `700 ${1.5 * 16 * gaugeScale}px -apple-system, BlinkMacSystemFont, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`${approvedPercent}%`, centerX, centerY - 6 * scale);
+      ctx.fillText(`${approvedPercent}%`, centerX, centerY - 6 * gaugeScale);
 
       // Draw pending percentage text
       ctx.fillStyle = '#2255d4';
-      ctx.font = `600 ${0.75 * 16 * scale}px -apple-system, BlinkMacSystemFont, sans-serif`;
-      ctx.fillText(`${pendingPercent}%`, centerX, centerY + 12 * scale);
+      ctx.font = `600 ${0.75 * 16 * gaugeScale}px -apple-system, BlinkMacSystemFont, sans-serif`;
+      ctx.fillText(`${pendingPercent}%`, centerX, centerY + 12 * gaugeScale);
     }
 
     // Draw watermark on canvas
-    function drawWatermark(ctx, scale) {
+    function drawWatermark(ctx) {
+      // Scale watermark relative to canvas size
+      const minDimension = Math.min(ctx.canvas.width, ctx.canvas.height);
+      const wmScale = minDimension / 800;
+
       const text = 'raniagus.github.io/subjects-graph';
-      const fontSize = 12 * scale;
+      const fontSize = 12 * wmScale;
       const x = ctx.canvas.width / 2;
-      const y = 20 * scale;
+      const y = 20 * wmScale;
 
       ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`;
       ctx.textAlign = 'center';
@@ -671,7 +678,7 @@ import { Graph } from './graph.js';
 
       // Draw black stroke
       ctx.strokeStyle = 'black';
-      ctx.lineWidth = 3 * scale;
+      ctx.lineWidth = 3 * wmScale;
       ctx.lineJoin = 'round';
       ctx.strokeText(text, x, y);
 
