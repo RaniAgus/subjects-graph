@@ -133,7 +133,7 @@ import { Graph } from './graph.js';
         `;
         statusLegend.appendChild(item);
       } else {
-        log.warn(`Status ${status.id} has no name to render in references section`);
+        console.warn(`Status ${status.id} has no name to render in references section`);
       }
     });
 
@@ -147,6 +147,8 @@ import { Graph } from './graph.js';
           <span>${avail.name}</span>
         `;
         borderLegend.appendChild(item);
+      } else {
+        console.warn(`Availability ${avail.id} has no name to render in references section`);
       }
     });
   }
@@ -159,7 +161,6 @@ import { Graph } from './graph.js';
       appData = await response.json();
     } catch (err) {
       console.error('Error loading data.json:', err);
-      alert('Error al cargar datos');
       return;
     }
 
