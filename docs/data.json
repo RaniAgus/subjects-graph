@@ -27,17 +27,17 @@
       ],
       "availabilities": [
         {
-          "id": "INACTIVE",
+          "id": "NOT_AVAILABLE",
           "name": "No disponible",
           "color": "#323b48"
         },
         {
-          "id": "FINAL_EXAM_PENDING",
+          "id": "ENROLL_AVAILABLE",
           "name": "Disponible para cursar",
           "color": "#2050c8"
         },
         {
-          "id": "APPROVED",
+          "id": "FINAL_EXAM_AVAILABLE",
           "name": "Disponible para aprobar",
           "color": "#387dd9"
         }
@@ -57,7 +57,7 @@
           "name": "Legislación",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -70,7 +70,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -98,7 +98,7 @@
           "name": "Inglés II",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -107,7 +107,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -135,7 +135,7 @@
           "name": "Teoría de Control",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -148,7 +148,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -194,7 +194,7 @@
           "name": "Análisis de Sistemas",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -203,7 +203,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -222,7 +222,7 @@
           "name": "Economía",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -235,7 +235,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -254,7 +254,7 @@
           "name": "Administración de Recursos",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -267,7 +267,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -286,7 +286,7 @@
           "name": "Administración Gerencial",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -299,7 +299,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -318,7 +318,7 @@
           "name": "Investigación Operativa",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -331,7 +331,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -350,7 +350,7 @@
           "name": "Matemática Superior",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -363,7 +363,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -382,7 +382,7 @@
           "name": "Análisis Matemático II",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -391,7 +391,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -410,7 +410,7 @@
           "name": "Diseño de Sistemas",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -423,7 +423,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -442,7 +442,7 @@
           "name": "Sistemas de Gestión",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -455,7 +455,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -492,7 +492,7 @@
           "name": "Paradigmas de Programación",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -501,7 +501,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -520,7 +520,7 @@
           "name": "Inteligencia Artificial",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -533,7 +533,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -552,7 +552,7 @@
           "name": "Simulación",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -565,7 +565,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -584,7 +584,7 @@
           "name": "Probabilidad y Estadística",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -593,7 +593,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -612,7 +612,7 @@
           "name": "Sintaxis y Semántica de los Lenguajes",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -621,7 +621,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -640,7 +640,7 @@
           "name": "Gestión de Datos",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -653,7 +653,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -672,7 +672,7 @@
           "name": "Ingeniería en Software",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -685,7 +685,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -704,7 +704,7 @@
           "name": "Física II",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -713,7 +713,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -750,7 +750,7 @@
           "name": "Sistemas Operativos",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -759,7 +759,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -778,7 +778,7 @@
           "name": "Redes de Información",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -791,7 +791,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
@@ -810,7 +810,7 @@
           "name": "Comunicaciones",
           "prerequisites": [
             {
-              "availabilityId": "FINAL_EXAM_PENDING",
+              "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
@@ -823,7 +823,7 @@
               ]
             },
             {
-              "availabilityId": "APPROVED",
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",

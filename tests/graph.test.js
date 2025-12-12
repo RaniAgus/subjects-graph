@@ -9,17 +9,17 @@ describe('Graph rendering (I1 -> I2)', () => {
   // All 9 combinations (3x3) - EXPECTED behavior (TDD)
   const testCases = [
     // I1=INACTIVE -> arrow should be INACTIVE (source doesn't satisfy any prereq)
-    { statuses: ['INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'INACTIVE'], arrowAvailability: 'INACTIVE' },
-    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'INACTIVE'], arrowAvailability: 'INACTIVE' },
-    { statuses: ['INACTIVE', 'APPROVED'], availabilities: ['APPROVED', 'INACTIVE'], arrowAvailability: 'INACTIVE' },
+    { statuses: ['INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailability: 'NOT_AVAILABLE' },
+    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailability: 'NOT_AVAILABLE' },
+    { statuses: ['INACTIVE', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailability: 'NOT_AVAILABLE' },
     // I1=FINAL_EXAM_PENDING -> arrow should be FINAL_EXAM_PENDING (source satisfies FEP prereq)
-    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailability: 'FINAL_EXAM_PENDING' },
-    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailability: 'FINAL_EXAM_PENDING' },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailability: 'FINAL_EXAM_PENDING' },
+    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailability: 'ENROLL_AVAILABLE' },
+    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailability: 'ENROLL_AVAILABLE' },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailability: 'ENROLL_AVAILABLE' },
     // I1=APPROVED -> arrow should be APPROVED (source satisfies APPROVED prereq)
-    { statuses: ['APPROVED', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED'], arrowAvailability: 'APPROVED' },
-    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'APPROVED'], arrowAvailability: 'APPROVED' },
-    { statuses: ['APPROVED', 'APPROVED'], availabilities: ['APPROVED', 'APPROVED'], arrowAvailability: 'APPROVED' },
+    { statuses: ['APPROVED', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
+    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
+    { statuses: ['APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
   ];
 
   testCases.forEach(({ statuses: [i1Status, i2Status], availabilities: [i1Avail, i2Avail], arrowAvailability }) => {
@@ -73,17 +73,17 @@ describe('Graph rendering (Q, F2 -> TdC)', () => {
   // F2 needs APPROVED for TdC's FINAL_EXAM_PENDING availability
   const testCases = [
     // F2=INACTIVE -> arrow should be INACTIVE (F2 doesn't satisfy APPROVED prereq)
-    { statuses: ['INACTIVE', 'INACTIVE'], arrowAvailability: 'INACTIVE' },
-    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING'], arrowAvailability: 'INACTIVE' },
-    { statuses: ['INACTIVE', 'APPROVED'], arrowAvailability: 'INACTIVE' },
+    { statuses: ['INACTIVE', 'INACTIVE'], arrowAvailability: 'NOT_AVAILABLE' },
+    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING'], arrowAvailability: 'NOT_AVAILABLE' },
+    { statuses: ['INACTIVE', 'APPROVED'], arrowAvailability: 'NOT_AVAILABLE' },
     // F2=FINAL_EXAM_PENDING -> arrow should be INACTIVE (F2 needs APPROVED, not FEP)
-    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailability: 'INACTIVE' },
-    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], arrowAvailability: 'INACTIVE' },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED'], arrowAvailability: 'INACTIVE' },
+    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailability: 'NOT_AVAILABLE' },
+    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], arrowAvailability: 'NOT_AVAILABLE' },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED'], arrowAvailability: 'NOT_AVAILABLE' },
     // F2=APPROVED -> arrow should be FINAL_EXAM_PENDING (F2 satisfies its part of FEP prereq)
-    { statuses: ['APPROVED', 'INACTIVE'], arrowAvailability: 'FINAL_EXAM_PENDING' },
-    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailability: 'FINAL_EXAM_PENDING' },
-    { statuses: ['APPROVED', 'APPROVED'], arrowAvailability: 'FINAL_EXAM_PENDING' },
+    { statuses: ['APPROVED', 'INACTIVE'], arrowAvailability: 'ENROLL_AVAILABLE' },
+    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailability: 'ENROLL_AVAILABLE' },
+    { statuses: ['APPROVED', 'APPROVED'], arrowAvailability: 'ENROLL_AVAILABLE' },
   ];
 
   testCases.forEach(({ statuses: [f2Status, qStatus], arrowAvailability }) => {
@@ -116,36 +116,36 @@ describe('Transitive deduplication', () => {
   // All 27 combinations (3x3x3) - EXPECTED behavior (TDD)
   // Arrow color = source's contribution to target's availability
   const testCases = [
-    // AyED=INACTIVE -> AyED-PdP arrow is INACTIVE (AyED doesn't satisfy prereq)
-    { statuses: ['INACTIVE', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['INACTIVE', 'INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['INACTIVE', 'INACTIVE', 'APPROVED'], availabilities: ['APPROVED', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['APPROVED', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['APPROVED', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['INACTIVE', 'APPROVED', 'INACTIVE'], availabilities: ['APPROVED', 'INACTIVE', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'APPROVED' } },
-    { statuses: ['INACTIVE', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'INACTIVE', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'APPROVED' } },
-    { statuses: ['INACTIVE', 'APPROVED', 'APPROVED'], availabilities: ['APPROVED', 'INACTIVE', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'INACTIVE', 'PdP-DDS': 'APPROVED' } },
-    // AyED=FINAL_EXAM_PENDING -> AyED-PdP arrow is FINAL_EXAM_PENDING
-    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'APPROVED'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'INACTIVE'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'APPROVED' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'APPROVED' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'APPROVED'], availabilities: ['APPROVED', 'FINAL_EXAM_PENDING', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_PENDING', 'PdP-DDS': 'APPROVED' } },
-    // AyED=APPROVED -> AyED-PdP arrow is APPROVED
-    { statuses: ['APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['APPROVED', 'INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'APPROVED', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['APPROVED', 'INACTIVE', 'APPROVED'], availabilities: ['APPROVED', 'APPROVED', 'INACTIVE'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'INACTIVE' } },
-    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'FINAL_EXAM_PENDING' } },
-    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'FINAL_EXAM_PENDING' } },
-    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'FINAL_EXAM_PENDING' } },
-    { statuses: ['APPROVED', 'APPROVED', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'APPROVED' } },
-    { statuses: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['APPROVED', 'APPROVED', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'APPROVED' } },
-    { statuses: ['APPROVED', 'APPROVED', 'APPROVED'], availabilities: ['APPROVED', 'APPROVED', 'APPROVED'], arrowAvailabilities: { 'AyED-PdP': 'APPROVED', 'PdP-DDS': 'APPROVED' } },
+    // AyED=INACTIVE -> AyED-PdP arrow is NOT_AVAILABLE (AyED doesn't satisfy prereq)
+    { statuses: ['INACTIVE', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'INACTIVE', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'APPROVED', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    // AyED=FINAL_EXAM_PENDING -> AyED-PdP arrow is ENROLL_AVAILABLE
+    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    // AyED=APPROVED -> AyED-PdP arrow is FINAL_EXAM_AVAILABLE
+    { statuses: ['APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['APPROVED', 'INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['APPROVED', 'INACTIVE', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'ENROLL_AVAILABLE' } },
+    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'ENROLL_AVAILABLE' } },
+    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'ENROLL_AVAILABLE' } },
+    { statuses: ['APPROVED', 'APPROVED', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    { statuses: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    { statuses: ['APPROVED', 'APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
   ];
 
   testCases.forEach(({ statuses: [ayedStatus, pdpStatus, ddsStatus], availabilities: [ayedAvail, pdpAvail, ddsAvail], arrowAvailabilities }) => {
@@ -207,21 +207,21 @@ describe('Edge nodes (AGA + AM1 -> link3 -> AM2, PyE)', () => {
   // Both AM2 and PyE need AGA and AM1 (FINAL_EXAM_PENDING for FEP, APPROVED for APPROVED)
   // All 9 combinations (3x3) for AGA and AM1 statuses
   const testCases = [
-    // Both INACTIVE -> edge INACTIVE, targets INACTIVE
-    { statuses: ['INACTIVE', 'INACTIVE', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'INACTIVE', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AGA-link3': 'INACTIVE', 'AM1-link3': 'INACTIVE', 'link3-AM2': 'INACTIVE', 'link3-PyE': 'INACTIVE' } },
-    // One FEP, one INACTIVE -> edge INACTIVE
-    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'INACTIVE', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_PENDING', 'AM1-link3': 'INACTIVE', 'link3-AM2': 'INACTIVE', 'link3-PyE': 'INACTIVE' } },
-    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'INACTIVE', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AGA-link3': 'INACTIVE', 'AM1-link3': 'FINAL_EXAM_PENDING', 'link3-AM2': 'INACTIVE', 'link3-PyE': 'INACTIVE' } },
-    // Both FEP -> edge FEP, targets FEP
-    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_PENDING', 'AM1-link3': 'FINAL_EXAM_PENDING', 'link3-AM2': 'FINAL_EXAM_PENDING', 'link3-PyE': 'FINAL_EXAM_PENDING' } },
-    // One APPROVED, one INACTIVE -> edge INACTIVE
-    { statuses: ['APPROVED', 'INACTIVE', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'INACTIVE', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AGA-link3': 'APPROVED', 'AM1-link3': 'INACTIVE', 'link3-AM2': 'INACTIVE', 'link3-PyE': 'INACTIVE' } },
-    { statuses: ['INACTIVE', 'APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'INACTIVE', 'INACTIVE', 'INACTIVE'], arrowAvailabilities: { 'AGA-link3': 'INACTIVE', 'AM1-link3': 'APPROVED', 'link3-AM2': 'INACTIVE', 'link3-PyE': 'INACTIVE' } },
-    // One APPROVED, one FEP -> edge FEP (minimum)
-    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], arrowAvailabilities: { 'AGA-link3': 'APPROVED', 'AM1-link3': 'FINAL_EXAM_PENDING', 'link3-AM2': 'FINAL_EXAM_PENDING', 'link3-PyE': 'FINAL_EXAM_PENDING' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_PENDING', 'AM1-link3': 'APPROVED', 'link3-AM2': 'FINAL_EXAM_PENDING', 'link3-PyE': 'FINAL_EXAM_PENDING' } },
-    // Both APPROVED -> edge APPROVED, targets APPROVED
-    { statuses: ['APPROVED', 'APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['APPROVED', 'APPROVED', 'APPROVED', 'APPROVED', 'APPROVED'], arrowAvailabilities: { 'AGA-link3': 'APPROVED', 'AM1-link3': 'APPROVED', 'link3-AM2': 'APPROVED', 'link3-PyE': 'APPROVED' } },
+    // Both INACTIVE -> edge NOT_AVAILABLE, targets NOT_AVAILABLE
+    { statuses: ['INACTIVE', 'INACTIVE', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+    // One FEP, one INACTIVE -> edge NOT_AVAILABLE
+    { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+    // Both FEP -> edge ENROLL_AVAILABLE, targets ENROLL_AVAILABLE
+    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
+    // One APPROVED, one INACTIVE -> edge NOT_AVAILABLE
+    { statuses: ['APPROVED', 'INACTIVE', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+    // One APPROVED, one FEP -> edge ENROLL_AVAILABLE (minimum)
+    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
+    // Both APPROVED -> edge FINAL_EXAM_AVAILABLE, targets FINAL_EXAM_AVAILABLE
+    { statuses: ['APPROVED', 'APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'FINAL_EXAM_AVAILABLE', 'link3-PyE': 'FINAL_EXAM_AVAILABLE' } },
   ];
 
   testCases.forEach(({ statuses: [agaStatus, am1Status, am2Status, pyeStatus], availabilities: [agaAvail, am1Avail, link3Avail, am2Avail, pyeAvail], arrowAvailabilities }) => {
@@ -317,7 +317,7 @@ describe('Circular dependency protection', () => {
         name: 'Subject A',
         status: 'APPROVED',
         prerequisites: [
-          { availabilityId: 'APPROVED', dependencies: [{ statusId: 'APPROVED', subjects: ['B'] }] },
+          { availabilityId: 'FINAL_EXAM_AVAILABLE', dependencies: [{ statusId: 'APPROVED', subjects: ['B'] }] },
         ],
         position: { x: 100, y: 100 },
       },
@@ -326,7 +326,7 @@ describe('Circular dependency protection', () => {
         name: 'Subject B',
         status: 'APPROVED',
         prerequisites: [
-          { availabilityId: 'APPROVED', dependencies: [{ statusId: 'APPROVED', subjects: ['A'] }] },
+          { availabilityId: 'FINAL_EXAM_AVAILABLE', dependencies: [{ statusId: 'APPROVED', subjects: ['A'] }] },
         ],
         position: { x: 200, y: 100 },
       },
