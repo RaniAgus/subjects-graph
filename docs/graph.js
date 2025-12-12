@@ -194,10 +194,34 @@ class AbstractNode {
   }
 
   /**
+   * Gets the availability status of the node based on its prerequisites.
+   * @param {Array<string>} [subjects=[]] - Subgroup of subjects to consider. If empty, consider all.
    * @returns {Availability}
    */
-  getAvailability() {
+  getAvailability(subjects = []) {
     throw new Error('Method getAvailability() must be implemented in subclasses');
+  }
+
+  /**
+   * Checks if this node satisfies the given subject and status.
+   * @param {string} subjectId
+   * @param {StatusId} statusId
+   */
+  satisfies(subjectId, statusId) {
+    return Array.from(this.#dependencies)
+      .some(link => link.from.satisfies(subjectId, statusId));
+  }
+
+  /**
+   * Gets all subjects this node depends on.
+   * @returns {Set<Subject>}
+   */
+  getAllSubjects() {
+    const subjects = Array.from(this.#dependencies)
+      .map(link => link.from.getAllSubjects())
+      .flatMap(set => Array.from(set));
+
+    return new Set(subjects)
   }
 }
 
@@ -263,13 +287,40 @@ class SubjectNode extends AbstractNode {
   }
 
   /**
-   * Gets the availability status of the subject based on its prerequisites.
+   * Gets the availability status of the node based on its prerequisites.
+   * @param {Array<string>} [subjects=[]] - Subgroup of subjects to consider. If empty, consider all.
    * @returns {Availability}
    */
-  getAvailability() {
-    // TODO: Implement logic to determine availability based on prerequisites
+  getAvailability(subjects = []) {
+    return this.#config.availabilities.findLast(a => {
+      const p = this.#data.prerequisites.find(pr => pr.availabilityId === a.id);
+      return (p?.dependencies ?? []).every(d =>
+        d.subjects
+          .filter(subjectId => subjects.length === 0 || subjects.includes(subjectId))
+          .every(subjectId => this.satisfies(subjectId, d.statusId))
+      );
+    })
   }
 
+  /**
+   * @param {string} subjectId
+   * @param {Subject} statusId
+   */
+  satisfies(subjectId, statusId) {
+    if (this.#data.id === subjectId) {
+      return this.#config.statuses.findIndex(s => s.id === this.#data.status) >=
+             this.#config.statuses.findIndex(s => s.id === statusId);
+    }
+
+    return super.satisfies(subjectId, statusId);
+  }
+
+  /**
+   * @returns {Array<Subject>}
+   */
+  getAllSubjects() {
+    return new Set([this.#data, ...super.getAllSubjects()]);
+  }
 }
 
 class EdgeNode extends AbstractNode {
@@ -316,11 +367,16 @@ class EdgeNode extends AbstractNode {
   }
 
   /**
-   * Gets the lowest availability status among all target nodes.
+   * Gets the availability status of the node based on its prerequisites.
+   * @param {Array<string>} [subjects=[]] - Subgroup of subjects to consider. If empty, consider all.
    * @returns {Availability}
    */
-  getAvailability() {
-    // TODO: Implement logic to determine availability based on prerequisites
+  getAvailability(subjects = []) {
+    return this.#config.availabilities.findLast(a =>
+      this.#targets.every(target =>
+        target.getAvailability(subjects)?.id === a.id
+      )
+    );
   }
 }
 
@@ -367,6 +423,9 @@ class Link {
    * based on 'to' requirements.
    */
   #getAvailability() {
-    // TODO: Implement logic to determine availability based on prerequisites
+    const subjects = Array.from(this.from.getAllSubjects()).map(subject => subject.id);
+    return this.#config.availabilities.findLast((_, idx) =>
+      this.#config.availabilities.indexOf(this.#to.getAvailability(subjects)) <= idx
+    );
   }
 }
