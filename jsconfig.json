@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "moduleResolution": "node",
+    "target": "ES2023",
+    "module": "ES2020",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+  },
+  "include": ["docs/**/*.js", "tests/**/*.js"],
+  "exclude": ["docs/cytoscape.min.js", "docs/lucide.min.js", "node_modules"]
+}

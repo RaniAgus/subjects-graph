@@ -42,10 +42,33 @@
  * @property {number} x
  * @property {number} y
  *
- * @interface Drawer
- * @method drawCircle
- * @method drawDiamond
- * @method drawArrow
+ * @typedef {object} Circle
+ * @property {string} label
+ * @property {string} tooltip
+ * @property {Position} position
+ * @property {string} fillColor
+ * @property {string} borderColor
+ *
+ * @typedef {object} Diamond
+ * @property {string} id
+ * @property {Position} position
+ * @property {string} borderColor
+ *
+ * @typedef {object} Hidden
+ * @property {string} id
+ * @property {Position} position
+ *
+ * @typedef {object} Arrow
+ * @property {string} id
+ * @property {string} from
+ * @property {string} to
+ * @property {string} color
+ *
+ * @typedef {object} Drawer
+ * @property {(params: Circle) => void} drawCircle
+ * @property {(params: Diamond) => void} drawDiamond
+ * @property {(params: Hidden) => void} drawEdge
+ * @property {(params: Arrow) => void} drawArrow
  */
 
 export class Graph {
@@ -119,10 +142,10 @@ export class Graph {
    */
   getNodeById(id) {
     if (this.#subjects.has(id)) {
-      return this.#subjects.get(id);
+      return this.#subjects.get(id) ?? null;
     }
     if (this.#edges.has(id)) {
-      return this.#edges.get(id);
+      return this.#edges.get(id) ?? null;
     }
     return null;
   }
@@ -174,9 +197,8 @@ class AbstractNode {
 
   /**
    * @param {AbstractNode} node
-   * @protected
    */
-  _addDependency(node) {
+  addDependency(node) {
     this.#dependencies.add(new Link(this.#config, node, this));
   }
 
@@ -258,6 +280,7 @@ class AbstractNode {
    * @param {string} subjectId
    * @param {StatusId} statusId
    * @param {Set<AbstractNode>} [visited=new Set()]
+   * @returns {boolean}
    */
   satisfies(subjectId, statusId, visited = new Set()) {
     if (visited.has(this)) return false;
@@ -318,7 +341,7 @@ class SubjectNode extends AbstractNode {
       .forEach(subjectId => {
         const targetNode = graph.getNodeById(subjectId);
         if (targetNode) {
-          this._addDependency(targetNode);
+          this.addDependency(targetNode);
         } else {
           console.warn(`Subject with ID ${subjectId} not found in graph.`);
         }
@@ -365,7 +388,7 @@ class SubjectNode extends AbstractNode {
           .filter(subjectId => subjects.length === 0 || subjects.includes(subjectId))
           .every(subjectId => this.satisfies(subjectId, d.statusId))
       );
-    })
+    }) ?? this.#config.availabilities[0];
   }
 
   /**
@@ -383,7 +406,7 @@ class SubjectNode extends AbstractNode {
   }
 
   /**
-   * @returns {Array<Subject>}
+   * @returns {Set<Subject>}
    */
   getAllSubjects(visited = new Set()) {
     const set = new Set([this.#data]);
@@ -437,7 +460,7 @@ class EdgeNode extends AbstractNode {
     this.#data.dependencies.forEach(sourceId => {
       const sourceNode = graph.getNodeById(sourceId);
       if (sourceNode) {
-        this._addDependency(sourceNode);
+        this.addDependency(sourceNode);
       } else {
         console.warn(`Edge dependency with ID ${sourceId} not found in graph.`);
       }
@@ -446,7 +469,7 @@ class EdgeNode extends AbstractNode {
       const targetNode = graph.getNodeById(targetId);
       if (targetNode) {
         this.#targets.push(targetNode);
-        targetNode._addDependency(this);
+        targetNode.addDependency(this);
       } else {
         console.warn(`Edge target with ID ${targetId} not found in graph.`);
       }
@@ -494,7 +517,7 @@ class EdgeNode extends AbstractNode {
       this.#targets.every(target =>
         target.getAvailability(subjects)?.id === a.id
       )
-    );
+    ) ?? this.#config.availabilities[0];
   }
 
   /**
@@ -580,7 +603,7 @@ class Link {
             .filter(subjectId => sourceIds.includes(subjectId))
             .every(subjectId => {
               const sourceSubject = sourceSubjects.find(s => s.id === subjectId);
-              return this.#config.statuses.findIndex(s => s.id === sourceSubject.status) >=
+              return this.#config.statuses.findIndex(s => s.id === sourceSubject?.status) >=
                      this.#config.statuses.findIndex(s => s.id === dep.statusId);
             })
         );
@@ -590,9 +613,4 @@ class Link {
     // If no availability matched, return the lowest (INACTIVE)
     return result ?? this.#config.availabilities[0];
   }
-}
-
-// CommonJS export (guarded) so this module is testable in Node environments.
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Graph, SubjectNode, EdgeNode, AbstractNode, Link };
 }
