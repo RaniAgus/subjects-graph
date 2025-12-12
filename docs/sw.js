@@ -1,9 +1,10 @@
-const CACHE_NAME = 'subjects-graph-cache-v3';
+const CACHE_NAME = 'subjects-graph-cache-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './styles.css',
   './app.js',
+  './graph.js',
   './cytoscape.min.js',
   './lucide.min.js',
   './data.json',
