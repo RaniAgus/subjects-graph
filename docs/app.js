@@ -124,25 +124,27 @@ import { Graph } from './graph.js';
 
     // Generate status legend items
     config.statuses.forEach(status => {
-      if (status.label) {
+      if (status.name) {
         const item = document.createElement('div');
         item.className = 'legend-item';
         item.innerHTML = `
           <div class="legend-color" style="background: ${status.color}"></div>
-          <span>${status.label}</span>
+          <span>${status.name}</span>
         `;
         statusLegend.appendChild(item);
+      } else {
+        log.warn(`Status ${status.id} has no name to render in references section`);
       }
     });
 
     // Generate border legend items from availabilities
     config.availabilities.forEach(avail => {
-      if (avail.label) {
+      if (avail.name) {
         const item = document.createElement('div');
         item.className = 'legend-item';
         item.innerHTML = `
           <div class="legend-color legend-border" style="border-color: ${avail.color}"></div>
-          <span>${avail.label}</span>
+          <span>${avail.name}</span>
         `;
         borderLegend.appendChild(item);
       }
