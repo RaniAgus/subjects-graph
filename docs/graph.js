@@ -133,7 +133,10 @@ class Graph {
    */
   render(drawer) {
     for (const node of this.#nodes) {
-      node.render(drawer);
+       node.renderNode(drawer);
+    }
+    for (const node of this.#nodes) {
+      node.renderLinks(drawer);
     }
   }
 }
@@ -214,10 +217,19 @@ class AbstractNode {
   }
 
   /**
-   * Renders the node and its links.
+   * Renders the node (shape only). Links are rendered separately by
+   * `renderLinks` to allow graphs to draw nodes first and arrows later.
    * @param {Drawer} drawer
    */
-  render(drawer) {
+  renderNode(drawer) {
+    throw new Error('Method renderNode() must be implemented in subclasses');
+  }
+
+  /**
+   * Renders only the node's links (arrows).
+   * @param {Drawer} drawer
+   */
+  renderLinks(drawer) {
     for (const link of this.#dependencies) {
       link.render(drawer);
     }
@@ -305,7 +317,12 @@ class SubjectNode extends AbstractNode {
    * Renders the node and its links.
    * @param {Drawer} drawer
    */
-  render(drawer) {
+  /**
+   * Renders the node (shape only). Links are rendered separately by
+   * `renderLinks` to allow graphs to draw nodes first and arrows later.
+   * @param {Drawer} drawer
+   */
+  renderNode(drawer) {
     const status = this.#config.statuses.find(s => s.id === this.#data.status);
     const availability = this.getAvailability();
 
@@ -321,8 +338,6 @@ class SubjectNode extends AbstractNode {
       fillColor: status.color,
       borderColor: availability.color,
     });
-
-    super.render(drawer);
   }
 
   /**
@@ -419,7 +434,12 @@ class EdgeNode extends AbstractNode {
    * Renders the node and its links.
    * @param {Drawer} drawer
    */
-  render(drawer) {
+  /**
+   * Renders the node (shape only). Links are rendered separately by
+   * `renderLinks` to allow graphs to draw nodes first and arrows later.
+   * @param {Drawer} drawer
+   */
+  renderNode(drawer) {
     const availability = this.getAvailability();
     if (!availability) {
       console.warn(`Availability not found for edge ID ${this.#data.id}.`);
@@ -431,8 +451,6 @@ class EdgeNode extends AbstractNode {
       position: this.#data.position,
       borderColor: availability.color,
     });
-
-    super.render(drawer);
   }
 
   /**
@@ -502,4 +520,9 @@ class Link {
       this.#config.availabilities.indexOf(this.#to.getAvailability(subjects)) <= idx
     );
   }
+}
+
+// CommonJS export (guarded) so this module is testable in Node environments.
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { Graph, SubjectNode, EdgeNode, AbstractNode, Link };
 }
