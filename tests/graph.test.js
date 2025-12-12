@@ -80,10 +80,10 @@ describe('Graph rendering (Q, F2 -> TdC)', () => {
     { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE'], arrowAvailability: 'NOT_AVAILABLE' },
     { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], arrowAvailability: 'NOT_AVAILABLE' },
     { statuses: ['FINAL_EXAM_PENDING', 'APPROVED'], arrowAvailability: 'NOT_AVAILABLE' },
-    // F2=APPROVED -> arrow should be FINAL_EXAM_PENDING (F2 satisfies its part of FEP prereq)
-    { statuses: ['APPROVED', 'INACTIVE'], arrowAvailability: 'ENROLL_AVAILABLE' },
-    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailability: 'ENROLL_AVAILABLE' },
-    { statuses: ['APPROVED', 'APPROVED'], arrowAvailability: 'ENROLL_AVAILABLE' },
+    // F2=APPROVED -> arrow should be FINAL_EXAM_AVAILABLE (F2 satisfies APPROVED prereq, higher levels have no F2 prereqs so also satisfied)
+    { statuses: ['APPROVED', 'INACTIVE'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
+    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
+    { statuses: ['APPROVED', 'APPROVED'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
   ];
 
   testCases.forEach(({ statuses: [f2Status, qStatus], arrowAvailability }) => {
@@ -123,9 +123,9 @@ describe('Transitive deduplication', () => {
     { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
     { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
     { statuses: ['INACTIVE', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
-    { statuses: ['INACTIVE', 'APPROVED', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
-    { statuses: ['INACTIVE', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
-    { statuses: ['INACTIVE', 'APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'APPROVED', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['INACTIVE', 'APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'NOT_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
     // AyED=FINAL_EXAM_PENDING -> AyED-PdP arrow is ENROLL_AVAILABLE
     { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
     { statuses: ['FINAL_EXAM_PENDING', 'INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
@@ -133,9 +133,10 @@ describe('Transitive deduplication', () => {
     { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
     { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
     { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'FINAL_EXAM_AVAILABLE' } },
+    // DDS needs AyED=APPROVED for ENROLL, so with AyED=FEP, DDS can't reach ENROLL or higher -> NOT_AVAILABLE
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
+    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'ENROLL_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
     // AyED=APPROVED -> AyED-PdP arrow is FINAL_EXAM_AVAILABLE
     { statuses: ['APPROVED', 'INACTIVE', 'INACTIVE'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },
     { statuses: ['APPROVED', 'INACTIVE', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AyED-PdP': 'FINAL_EXAM_AVAILABLE', 'PdP-DDS': 'NOT_AVAILABLE' } },

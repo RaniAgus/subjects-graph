@@ -204,9 +204,12 @@ class AbstractNode {
 
   /**
    * @param {AbstractNode} node
+   * @returns {Link}
    */
   addDependency(node) {
-    this.#dependencies.add(new Link(this.#config, node, this));
+    const link = new Link(this.#config, node, this);
+    this.#dependencies.add(link);
+    return link;
   }
 
   /**
@@ -388,14 +391,24 @@ class SubjectNode extends AbstractNode {
    * @returns {Availability}
    */
   getAvailability(subjects = []) {
-    return this.#config.availabilities.findLast(a => {
-      const p = this.#data.prerequisites.find(pr => pr.availabilityId === a.id);
-      return (p?.dependencies ?? []).every(d =>
-        d.subjects
+    let last = this.#config.availabilities[0];
+
+    for (const a of this.#config.availabilities) {
+      const isSatisfied = this.#data.prerequisites
+        .filter(p => p.availabilityId === a.id)
+        .every(p => p.dependencies.every(d => d.subjects
           .filter(subjectId => subjects.length === 0 || subjects.includes(subjectId))
           .every(subjectId => this.satisfies(subjectId, d.statusId))
-      );
-    }) ?? this.#config.availabilities[0];
+        ));
+      
+      if (!isSatisfied) {
+        break;
+      }
+
+      last = a;
+    }
+
+    return last;
   }
 
   /**
@@ -438,7 +451,7 @@ class EdgeNode extends AbstractNode {
   /** @type {Edge} */
   #data;
 
-  /** @type {Array<AbstractNode>} */
+  /** @type {Array<Link>} */
   #targets;
 
   /**
@@ -475,8 +488,7 @@ class EdgeNode extends AbstractNode {
     this.#data.targets.forEach(targetId => {
       const targetNode = graph.getNodeById(targetId);
       if (targetNode) {
-        this.#targets.push(targetNode);
-        targetNode.addDependency(this);
+        this.#targets.push(targetNode.addDependency(this));
       } else {
         console.warn(`Edge target with ID ${targetId} not found in graph.`);
       }
@@ -520,11 +532,16 @@ class EdgeNode extends AbstractNode {
    * @returns {Availability}
    */
   getAvailability(subjects = []) {
-    return this.#config.availabilities.findLast(a =>
-      this.#targets.every(target =>
-        target.getAvailability(subjects)?.id === a.id
-      )
-    ) ?? this.#config.availabilities[0];
+    let last = this.#config.availabilities[0];
+
+    for (const [idx, a] of this.#config.availabilities.entries()) {
+      if (this.#targets.some(target => this.#config.availabilities.indexOf(target.getAvailability(subjects)) < idx)) {
+        break;
+      }
+      last = a;
+    }
+
+    return last;
   }
 
   /**
@@ -533,7 +550,7 @@ class EdgeNode extends AbstractNode {
    * @returns {Array<Prerequisite>}
    */
   getPrerequisitesById(availabilityId) {
-    return this.#targets.flatMap(target => target.getPrerequisitesById(availabilityId));
+    return this.#targets.flatMap(target => target.from.getPrerequisitesById(availabilityId));
   }
 }
 
@@ -565,7 +582,7 @@ class Link {
    * @param {Drawer} drawer
    */
   render(drawer) {
-    const availability = this.#getAvailability();
+    const availability = this.getAvailability();
     if (!availability) {
       console.warn('Availability not found for link rendering.');
       return;
@@ -583,41 +600,19 @@ class Link {
   /**
    * Get the availability that the source contributes to the target.
    * Arrow color reflects what the source provides, not the target's overall availability.
+   * @param {Array<string>} [subjects=[]] - Subgroup of subjects to consider. If empty, consider all.
+   * @returns {Availability}
    */
-  #getAvailability() {
-    const sourceSubjects = Array.from(this.from.getAllSubjects());
-    const sourceIds = sourceSubjects.map(s => s.id);
+  getAvailability(subjects = Array.from(this.from.getAllSubjects()).map(s => s.id)) {
+    let last = this.#config.availabilities[0];
     
-    // Find the highest availability that the source satisfies for the target
-    const result = this.#config.availabilities.findLast(availability => {
-      // Get the target's prerequisites for this availability level (may be multiple for EdgeNode)
-      const prereqsList = this.#to.getPrerequisitesById(availability.id);
-      if (prereqsList.length === 0) return false;
-      
-      // Check if source subjects satisfy their required statuses in ALL prerequisites
-      return prereqsList.every(prereqs => {
-        // Get all subjects from source that are mentioned in this prereq's dependencies
-        const relevantDeps = prereqs.dependencies.filter(dep =>
-          dep.subjects.some(subjectId => sourceIds.includes(subjectId))
-        );
-        
-        // If no source subjects are mentioned in prereqs, this availability is not satisfied by source
-        if (relevantDeps.length === 0) return false;
-        
-        // Check that all relevant source subjects meet their required status
-        return relevantDeps.every(dep =>
-          dep.subjects
-            .filter(subjectId => sourceIds.includes(subjectId))
-            .every(subjectId => {
-              const sourceSubject = sourceSubjects.find(s => s.id === subjectId);
-              return this.#config.statuses.findIndex(s => s.id === sourceSubject?.status) >=
-                     this.#config.statuses.findIndex(s => s.id === dep.statusId);
-            })
-        );
-      });
-    });
+    for (const [idx, a] of this.#config.availabilities.entries()) {
+      if (this.#config.availabilities.indexOf(this.#to.getAvailability(subjects)) < idx) {
+        break;
+      }
+      last = a;
+    }
     
-    // If no availability matched, return the lowest (INACTIVE)
-    return result ?? this.#config.availabilities[0];
+    return last;
   }
 }
