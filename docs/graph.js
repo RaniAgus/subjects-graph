@@ -166,6 +166,36 @@ class SubjectNode extends AbstractNode {
         }
       });
   }
+
+  /**
+   * @param {AvailabilityId}
+   */
+  satisfies(availabilityId) {
+    const prerequisite = this.data.prerequisites
+      .find(p => p.availabilityId === availabilityId);
+
+    if (!prerequisite) {
+      return true;
+    }
+
+    return prerequisite.dependencies.every(d =>
+      d.subjects.every(subjectId => this.hasDependency(subjectId, d.statusId))
+    );
+  }
+
+  /**
+   * @param {string} subjectId
+   * @param {StatusId} statusId
+   * @returns {boolean}
+   */
+  hasDependency(subjectId, statusId) {
+    if (this.data.id === subjectId) {
+      return this.data.status === statusId;
+    }
+
+    return Array.from(this.dependencies)
+      .some(link => link.from.hasDependency(subjectId, statusId));
+  }
 }
 
 class EdgeNode extends AbstractNode {
