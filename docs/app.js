@@ -4,8 +4,7 @@ import { Graph } from './graph.js';
 (function() {
   'use strict';
 
-  // Variant storage key
-  const VARIANT_STORAGE_KEY = 'selectedVariant';
+  const VARIANT_PARAM = 'variant';
 
   // State management
   let cy = null; // Cytoscape instance
@@ -182,10 +181,11 @@ import { Graph } from './graph.js';
       variantSelect.appendChild(option);
     });
 
-    // Load selected variant from localStorage or use default
-    const savedVariant = localStorage.getItem(VARIANT_STORAGE_KEY);
-    currentVariant = (savedVariant && appData.variants[savedVariant])
-      ? savedVariant
+    // Load selected variant from URL query param or use default
+    const urlParams = new URLSearchParams(window.location.search);
+    const variantParam = urlParams.get(VARIANT_PARAM);
+    currentVariant = (variantParam && appData.variants[variantParam])
+      ? variantParam
       : appData.defaultVariant;
 
     // Set dropdown to current variant
@@ -491,8 +491,9 @@ import { Graph } from './graph.js';
     document.getElementById('variant-select').addEventListener('change', (e) => {
       const newVariant = e.target.value;
       if (appData.variants[newVariant]) {
-        localStorage.setItem(VARIANT_STORAGE_KEY, newVariant);
-        location.reload();
+        const url = new URL(window.location);
+        url.searchParams.set(VARIANT_PARAM, newVariant);
+        window.location.href = url.toString();
       }
     });
 
@@ -585,7 +586,7 @@ import { Graph } from './graph.js';
           canvas.toBlob(blob => {
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.download = 'subjects-graph.png';
+            link.download = `subjects-graph-${currentVariant}.png`;
             link.href = url;
             link.click();
             URL.revokeObjectURL(url);
