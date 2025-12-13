@@ -337,7 +337,8 @@ header h1 {
 .btn-fit,
 .btn-export,
 .btn-import,
-.btn-screenshot {
+.btn-screenshot,
+.btn-drag {
   width: auto;
   min-width: 40px;
   height: 40px;
@@ -362,7 +363,8 @@ header h1 {
 .btn-fit svg,
 .btn-export svg,
 .btn-import svg,
-.btn-screenshot svg {
+.btn-screenshot svg,
+.btn-drag svg {
   width: 18px;
   height: 18px;
 }
@@ -371,7 +373,8 @@ header h1 {
 .btn-fit:hover,
 .btn-export:hover,
 .btn-import:hover,
-.btn-screenshot:hover {
+.btn-screenshot:hover,
+.btn-drag:hover {
   background: var(--accent-blue-light);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -381,7 +384,8 @@ header h1 {
 .btn-fit:active,
 .btn-export:active,
 .btn-import:active,
-.btn-screenshot:active {
+.btn-screenshot:active,
+.btn-drag:active {
   transform: translateY(0);
 }
 
@@ -428,6 +432,18 @@ header h1 {
 
 .btn-screenshot:hover {
   background: var(--accent-blue-light);
+}
+
+.btn-drag {
+  background: var(--btn-secondary);
+}
+
+.btn-drag:hover {
+  background: var(--btn-secondary-hover);
+}
+
+.btn-drag.active {
+  background: #6b7280;
 }
 
 /* Responsive Design */
