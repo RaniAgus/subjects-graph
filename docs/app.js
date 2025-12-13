@@ -50,9 +50,10 @@ import { Graph } from './graph.js';
     constructor() {
       this.nodes = [];
       this.edges = [];
+      this.positions = new Set();
     }
 
-    drawCircle({ id, label, tooltip, position, fillColor, borderColor }) {
+    drawCircle({ id, label, tooltip, position: { x, y }, fillColor, borderColor }) {
       this.nodes.push({
         data: {
           id,
@@ -62,12 +63,13 @@ import { Graph } from './graph.js';
           status: this._getStatusIdByColor(fillColor),
           borderState: this._getAvailabilityIdByColor(borderColor),
         },
-        position: { x: position.x, y: position.y },
+        position: { x, y },
         locked: true,
       });
+      this.#addPosition({ x, y });
     }
 
-    drawDiamond({ id, position, borderColor }) {
+    drawDiamond({ id, position: { x, y }, borderColor }) {
       this.nodes.push({
         data: {
           id,
@@ -75,22 +77,25 @@ import { Graph } from './graph.js';
           isInvisible: false,
           borderState: this._getAvailabilityIdByColor(borderColor),
         },
-        position: { x: position.x, y: position.y },
+        position: { x, y },
         locked: true,
       });
+      this.#addPosition({ x, y });
     }
 
-    drawEdge({ id, position }) {
+    drawEdge({ id, position: { x, y } }) {
       this.nodes.push({
         data: {
           id,
           nodeType: 'connector',
           isInvisible: true,
+          withGap: this.#hasPosition({ x, y }),
           borderState: config.availabilities[0].id,
         },
-        position: { x: position.x, y: position.y },
+        position: { x, y },
         locked: true,
       });
+      this.#addPosition({ x, y });
     }
 
     drawArrow({ id, from, to, color }) {
@@ -117,6 +122,14 @@ import { Graph } from './graph.js';
 
     getElements() {
       return { nodes: this.nodes, edges: this.edges };
+    }
+
+    #addPosition({ x, y }) {
+      this.positions.add(`${x},${y}`);
+    }
+
+    #hasPosition({ x, y }) {
+      return this.positions.has(`${x},${y}`);
     }
   }
 
@@ -293,9 +306,18 @@ import { Graph } from './graph.js';
         selector: 'node[?isInvisible]',
         style: {
           'opacity': 0,
-          'width': 1,
-          'height': 1,
+          'width': 0.1,
+          'height': 0.1,
           'label': ''
+        }
+      },
+
+      // Invisible connector with gap (larger size)
+      {
+        selector: 'node[?isInvisible][?withGap]',
+        style: {
+          'width': 20,
+          'height': 20
         }
       },
 
