@@ -68,7 +68,7 @@ describe('Graph rendering (Q, F2 -> TdC)', () => {
   // - APPROVED: Q at APPROVED
   // As it depends on 2 subjects with no common edge, it should show the color of the source's contribution to the target's availability
   // without interfering with the other source's contribution to the target's availability
-  
+
   // All 9 combinations (3x3) for Q and F2
   // F2 needs APPROVED for TdC's FINAL_EXAM_PENDING availability
   const testCases = [
@@ -203,109 +203,218 @@ describe('Transitive deduplication', () => {
   });
 });
 
-describe('Edge nodes (AGA + AM1 -> link3 -> AM2, PyE)', () => {
-  // link3 connects AGA + AM1 to AM2 and PyE (two targets)
-  // Both AM2 and PyE need AGA and AM1 (FINAL_EXAM_PENDING for FEP, APPROVED for APPROVED)
-  // All 9 combinations (3x3) for AGA and AM1 statuses
-  const testCases = [
-    // Both PENDING -> edge NOT_AVAILABLE, targets NOT_AVAILABLE
-    { statuses: ['PENDING', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
-    // One FEP, one PENDING -> edge NOT_AVAILABLE
-    { statuses: ['FINAL_EXAM_PENDING', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
-    { statuses: ['PENDING', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
-    // Both FEP -> edge ENROLL_AVAILABLE, targets ENROLL_AVAILABLE
-    { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
-    // One APPROVED, one PENDING -> edge NOT_AVAILABLE
-    { statuses: ['APPROVED', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
-    { statuses: ['PENDING', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
-    // One APPROVED, one FEP -> edge ENROLL_AVAILABLE (minimum)
-    { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
-    { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
-    // Both APPROVED -> edge FINAL_EXAM_AVAILABLE, targets FINAL_EXAM_AVAILABLE
-    { statuses: ['APPROVED', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'FINAL_EXAM_AVAILABLE', 'link3-PyE': 'FINAL_EXAM_AVAILABLE' } },
-  ];
+describe('Edge nodes', () => {
+  describe('Many to many nodes (AGA + AM1 -> AM2, PyE)', () => {
+    // link3 connects AGA + AM1 to AM2 and PyE (two targets)
+    // Both AM2 and PyE need AGA and AM1 (FINAL_EXAM_PENDING for FEP, APPROVED for APPROVED)
+    // All 9 combinations (3x3) for AGA and AM1 statuses
+    const testCases = [
+      // Both PENDING -> edge NOT_AVAILABLE, targets NOT_AVAILABLE
+      { statuses: ['PENDING', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+      // One FEP, one PENDING -> edge NOT_AVAILABLE
+      { statuses: ['FINAL_EXAM_PENDING', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+      { statuses: ['PENDING', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+      // Both FEP -> edge ENROLL_AVAILABLE, targets ENROLL_AVAILABLE
+      { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
+      // One APPROVED, one PENDING -> edge NOT_AVAILABLE
+      { statuses: ['APPROVED', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'NOT_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+      { statuses: ['PENDING', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'NOT_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'NOT_AVAILABLE', 'link3-PyE': 'NOT_AVAILABLE' } },
+      // One APPROVED, one FEP -> edge ENROLL_AVAILABLE (minimum)
+      { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'ENROLL_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
+      { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'ENROLL_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'ENROLL_AVAILABLE', 'link3-PyE': 'ENROLL_AVAILABLE' } },
+      // Both APPROVED -> edge FINAL_EXAM_AVAILABLE, targets FINAL_EXAM_AVAILABLE
+      { statuses: ['APPROVED', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailabilities: { 'AGA-link3': 'FINAL_EXAM_AVAILABLE', 'AM1-link3': 'FINAL_EXAM_AVAILABLE', 'link3-AM2': 'FINAL_EXAM_AVAILABLE', 'link3-PyE': 'FINAL_EXAM_AVAILABLE' } },
+    ];
 
-  testCases.forEach(({ statuses: [agaStatus, am1Status, am2Status, pyeStatus], availabilities: [agaAvail, am1Avail, link3Avail, am2Avail, pyeAvail], arrowAvailabilities }) => {
-    it(`renders with AGA=${agaStatus}, AM1=${am1Status}`, () => {
+    testCases.forEach(({ statuses: [agaStatus, am1Status, am2Status, pyeStatus], availabilities: [agaAvail, am1Avail, link3Avail, am2Avail, pyeAvail], arrowAvailabilities }) => {
+      it(`renders with AGA=${agaStatus}, AM1=${am1Status}`, () => {
+        const testSubjects = subjects(
+          ['AGA', agaStatus],
+          ['AM1', am1Status],
+          ['AM2', am2Status],
+          ['PyE', pyeStatus],
+        );
+        const testEdges = edges(['link3'], ['AGA', 'AM1', 'AM2', 'PyE']);
+
+        const graph = new Graph(config, testSubjects, testEdges);
+        const drawer = createMockDrawer();
+        graph.render(drawer);
+
+        // Should draw 4 circles (subjects) + 1 diamond (edge)
+        expect(drawer.shapes.circles).toHaveLength(4);
+        expect(drawer.shapes.diamonds).toHaveLength(1);
+
+        // Check edge node border
+        expect(drawer.shapes.diamonds).toContainEqual({
+          id: 'link3',
+          position: { x: 900, y: 200 },
+          borderColor: availabilityColor(link3Avail),
+        });
+
+        // Should draw 4 arrows: AGA->link3, AM1->link3, link3->AM2, link3->PyE
+        expect(drawer.shapes.arrows).toHaveLength(4);
+        expect(drawer.shapes.arrows).toContainEqual({
+          id: 'AGA-link3',
+          from: 'AGA',
+          to: 'link3',
+          color: availabilityColor(arrowAvailabilities['AGA-link3']),
+        });
+        expect(drawer.shapes.arrows).toContainEqual({
+          id: 'AM1-link3',
+          from: 'AM1',
+          to: 'link3',
+          color: availabilityColor(arrowAvailabilities['AM1-link3']),
+        });
+        expect(drawer.shapes.arrows).toContainEqual({
+          id: 'link3-AM2',
+          from: 'link3',
+          to: 'AM2',
+          color: availabilityColor(arrowAvailabilities['link3-AM2']),
+        });
+        expect(drawer.shapes.arrows).toContainEqual({
+          id: 'link3-PyE',
+          from: 'link3',
+          to: 'PyE',
+          color: availabilityColor(arrowAvailabilities['link3-PyE']),
+        });
+      });
+    });
+  });
+
+  describe('Many to one node (AyED + MD -> SO) and unrelated link (AdC -> SO)', () => {
+    // link8 connects AyED + MD to SO
+    // SO also depends on AdC (unrelated)
+    // All 9 combinations (3x3) for AyED and MD statuses
+    const testCases = [
+      // Both PENDING -> edge NOT_AVAILABLE
+      { statuses: ['PENDING', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['PENDING', 'PENDING', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['PENDING', 'PENDING', 'APPROVED', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'] },
+      // One FEP, one PENDING -> edge NOT_AVAILABLE
+      { statuses: ['FINAL_EXAM_PENDING', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['PENDING', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['FINAL_EXAM_PENDING', 'PENDING', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['PENDING', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['FINAL_EXAM_PENDING', 'PENDING', 'APPROVED', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['PENDING', 'FINAL_EXAM_PENDING', 'APPROVED', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'] },
+      // Both FEP -> edge ENROLL_AVAILABLE
+      { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'APPROVED', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      // One APPROVED, one PENDING -> edge NOT_AVAILABLE
+      { statuses: ['APPROVED', 'PENDING', 'PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['PENDING', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['APPROVED', 'PENDING', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['PENDING', 'APPROVED', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['APPROVED', 'PENDING', 'APPROVED', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['PENDING', 'APPROVED', 'APPROVED', 'PENDING'], availabilities: ['NOT_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'] },
+      // One APPROVED, one FEP -> edge ENROLL_AVAILABLE
+      { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'PENDING', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      { statuses: ['APPROVED', 'FINAL_EXAM_PENDING', 'APPROVED', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      { statuses: ['FINAL_EXAM_PENDING', 'APPROVED', 'APPROVED', 'PENDING'], availabilities: ['ENROLL_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      // Both APPROVED -> edge FINAL_EXAM_AVAILABLE
+      { statuses: ['APPROVED', 'APPROVED', 'PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['APPROVED', 'APPROVED', 'PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['APPROVED', 'APPROVED', 'PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE', 'NOT_AVAILABLE'] },
+      { statuses: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      { statuses: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      { statuses: ['APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE', 'ENROLL_AVAILABLE'] },
+      { statuses: ['APPROVED', 'APPROVED', 'APPROVED', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'] },
+      { statuses: ['APPROVED', 'APPROVED', 'APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'] },
+      { statuses: ['APPROVED', 'APPROVED', 'APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'] },
+    ];
+
+    testCases.forEach(({ statuses: [ayedStatus, mdStatus, adcStatus, soStatus], availabilities: [edgeAvailability, ayedArrow, mdArrow, link8SoArrow, adCSoArrow, soAvailability] }) => {
+      it(`renders with AyED=${ayedStatus}, MD=${mdStatus}, AdC=${adcStatus}`, () => {
+        const testSubjects = subjects(
+          ['AyED', ayedStatus],
+          ['MD', mdStatus],
+          ['AdC', adcStatus],
+          ['SO', soStatus],
+        );
+        const testEdges = edges(['link8'], ['AyED', 'MD', 'AdC', 'SO']);
+
+        const graph = new Graph(config, testSubjects, testEdges);
+        const drawer = createMockDrawer();
+        graph.render(drawer);
+
+        // Should draw 4 circles (subjects) + 1 diamond (edge)
+        expect(drawer.shapes.circles).toHaveLength(4);
+        expect(drawer.shapes.diamonds).toHaveLength(1);
+
+        // Check edge node border
+        expect(drawer.shapes.diamonds).toContainEqual({
+          id: 'link8',
+          position: { x: 100, y: 500 },
+          borderColor: availabilityColor(edgeAvailability),
+        });
+
+        // Should draw 4 arrows: AyED->link8, MD->link8, link8->SO, AdC->SO
+        expect(drawer.shapes.arrows).toHaveLength(4);
+        expect(drawer.shapes.arrows).toContainEqual({
+          id: 'AyED-link8',
+          from: 'AyED',
+          to: 'link8',
+          color: availabilityColor(ayedArrow),
+        });
+        expect(drawer.shapes.arrows).toContainEqual({
+          id: 'MD-link8',
+          from: 'MD',
+          to: 'link8',
+          color: availabilityColor(mdArrow),
+        });
+        expect(drawer.shapes.arrows).toContainEqual({
+          id: 'link8-SO',
+          from: 'link8',
+          to: 'SO',
+          color: availabilityColor(link8SoArrow),
+        });
+        expect(drawer.shapes.arrows).toContainEqual({
+          id: 'AdC-SO',
+          from: 'AdC',
+          to: 'SO',
+          color: availabilityColor(adCSoArrow),
+        });
+
+        // Check SO border color
+        const soCircle = drawer.shapes.circles.find(c => c.label === 'SO');
+        expect(soCircle).toBeDefined();
+        expect(soCircle?.borderColor).toBe(availabilityColor(soAvailability));
+      });
+    });
+  });
+
+  describe('Invisible edge nodes (F2 -> link19 -> link20 -> link21 -> link22 -> TdC)', () => {
+    // Chain of 1:1 edge nodes that should use drawEdge (invisible) instead of drawDiamond
+    // F2 -> link19 -> link20 -> link21 -> link22 -> TdC
+    // Focus: edge nodes use drawEdge (not drawDiamond) and arrows connect through chain
+    it('uses drawEdge for 1:1 edge nodes and draws arrows through chain', () => {
       const testSubjects = subjects(
-        ['AGA', agaStatus],
-        ['AM1', am1Status],
-        ['AM2', am2Status],
-        ['PyE', pyeStatus],
+        ['F2', 'APPROVED'],
+        ['TdC', 'PENDING'],
       );
-      const testEdges = edges(['link3'], ['AGA', 'AM1', 'AM2', 'PyE']);
+      const testEdges = edges(['link19', 'link20', 'link21', 'link22'], ['F2', 'TdC']);
 
       const graph = new Graph(config, testSubjects, testEdges);
       const drawer = createMockDrawer();
       graph.render(drawer);
 
-      // Should draw 4 circles (subjects) + 1 diamond (edge)
-      expect(drawer.shapes.circles).toHaveLength(4);
-      expect(drawer.shapes.diamonds).toHaveLength(1);
+      // Should draw 2 circles, 0 diamonds, 4 invisible edges
+      expect(drawer.shapes.circles).toHaveLength(2);
+      expect(drawer.shapes.diamonds).toHaveLength(0);
+      expect(drawer.shapes.edges).toHaveLength(4);
 
-      // Check edge node border
-      expect(drawer.shapes.diamonds).toContainEqual({
-        id: 'link3',
-        position: { x: 900, y: 200 },
-        borderColor: availabilityColor(link3Avail),
-      });
-
-      // Should draw 4 arrows: AGA->link3, AM1->link3, link3->AM2, link3->PyE
-      expect(drawer.shapes.arrows).toHaveLength(4);
-      expect(drawer.shapes.arrows).toContainEqual({
-        id: 'AGA-link3',
-        from: 'AGA',
-        to: 'link3',
-        color: availabilityColor(arrowAvailabilities['AGA-link3']),
-      });
-      expect(drawer.shapes.arrows).toContainEqual({
-        id: 'AM1-link3',
-        from: 'AM1',
-        to: 'link3',
-        color: availabilityColor(arrowAvailabilities['AM1-link3']),
-      });
-      expect(drawer.shapes.arrows).toContainEqual({
-        id: 'link3-AM2',
-        from: 'link3',
-        to: 'AM2',
-        color: availabilityColor(arrowAvailabilities['link3-AM2']),
-      });
-      expect(drawer.shapes.arrows).toContainEqual({
-        id: 'link3-PyE',
-        from: 'link3',
-        to: 'PyE',
-        color: availabilityColor(arrowAvailabilities['link3-PyE']),
-      });
+      // Should draw 5 arrows through the chain
+      expect(drawer.shapes.arrows).toHaveLength(5);
+      expect(drawer.shapes.arrows.map(a => a.id)).toEqual(
+        expect.arrayContaining(['F2-link19', 'link19-link20', 'link20-link21', 'link21-link22', 'link22-TdC'])
+      );
     });
   });
-});
 
-describe('Invisible edge nodes (F2 -> link19 -> link20 -> link21 -> link22 -> TdC)', () => {
-  // Chain of 1:1 edge nodes that should use drawEdge (invisible) instead of drawDiamond
-  // F2 -> link19 -> link20 -> link21 -> link22 -> TdC
-  // Focus: edge nodes use drawEdge (not drawDiamond) and arrows connect through chain
-  it('uses drawEdge for 1:1 edge nodes and draws arrows through chain', () => {
-    const testSubjects = subjects(
-      ['F2', 'APPROVED'],
-      ['TdC', 'PENDING'],
-    );
-    const testEdges = edges(['link19', 'link20', 'link21', 'link22'], ['F2', 'TdC']);
-
-    const graph = new Graph(config, testSubjects, testEdges);
-    const drawer = createMockDrawer();
-    graph.render(drawer);
-
-    // Should draw 2 circles, 0 diamonds, 4 invisible edges
-    expect(drawer.shapes.circles).toHaveLength(2);
-    expect(drawer.shapes.diamonds).toHaveLength(0);
-    expect(drawer.shapes.edges).toHaveLength(4);
-
-    // Should draw 5 arrows through the chain
-    expect(drawer.shapes.arrows).toHaveLength(5);
-    expect(drawer.shapes.arrows.map(a => a.id)).toEqual(
-      expect.arrayContaining(['F2-link19', 'link19-link20', 'link20-link21', 'link21-link22', 'link22-TdC'])
-    );
-  });
 });
 
 describe('Circular dependency protection', () => {

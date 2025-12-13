@@ -40,13 +40,13 @@
  * @property {StatusId} id
  * @property {string} name
  * @property {string} color
- * 
+ *
  * @typedef {string} StatusId
  *
  * @typedef {string} AvailabilityId
- * 
+ *
  * ---
- * 
+ *
  * @typedef {object} Drawer
  * @property {(params: Circle) => void} drawCircle
  * @property {(params: Diamond) => void} drawDiamond
@@ -353,17 +353,17 @@ class SubjectNode extends AbstractNode {
    * @param {Array<string>} [subjects=[]] - Subgroup of subjects to consider. If empty, consider all.
    * @returns {Availability}
    */
-  getAvailability(subjects = []) {
+  getAvailability(subjects = Array.from(this.getAllSubjects()).map(s => s.id)) {
     let last = this.#config.availabilities[0];
 
     for (const a of this.#config.availabilities) {
       const isSatisfied = this.#data.prerequisites
         .filter(p => p.availabilityId === a.id)
         .every(p => p.dependencies.every(d => d.subjects
-          .filter(subjectId => subjects.length === 0 || subjects.includes(subjectId))
+          .filter(subjectId => subjects.includes(subjectId))
           .every(subjectId => this.satisfies(subjectId, d.statusId))
         ));
-      
+
       if (!isSatisfied) {
         break;
       }
@@ -472,7 +472,7 @@ class EdgeNode extends AbstractNode {
    * @param {Array<string>} [subjects=[]] - Subgroup of subjects to consider. If empty, consider all.
    * @returns {Availability}
    */
-  getAvailability(subjects = []) {
+  getAvailability(subjects = Array.from(this.getAllSubjects()).map(s => s.id)) {
     let last = this.#config.availabilities[0];
 
     for (const [idx, a] of this.#config.availabilities.entries()) {
@@ -535,14 +535,14 @@ class Link {
    */
   getAvailability(subjects = Array.from(this.from.getAllSubjects()).map(s => s.id)) {
     let last = this.#config.availabilities[0];
-    
+
     for (const [idx, a] of this.#config.availabilities.entries()) {
       if (this.#config.availabilities.indexOf(this.#to.getAvailability(subjects)) < idx) {
         break;
       }
       last = a;
     }
-    
+
     return last;
   }
 }
