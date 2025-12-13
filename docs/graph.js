@@ -19,6 +19,7 @@
  * @typedef {object} Subject
  * @property {string} id
  * @property {string} name
+ * @property {string} shortName
  * @property {Position} position
  * @property {StatusId} status
  * @property {Array<Prerequisite>} prerequisites
@@ -69,6 +70,7 @@
  * @property {string} borderColor
  *
  * @typedef {object} Circle
+ * @property {string} id
  * @property {string} label
  * @property {string} tooltip
  * @property {Position} position
@@ -340,7 +342,8 @@ class SubjectNode extends AbstractNode {
   renderNode(drawer) {
     const status = this.#config.statuses.find(s => s.id === this.#data.status) ?? this.#config.statuses[0];
     drawer.drawCircle({
-      label: this.#data.id,
+      id: this.#data.id,
+      label: this.#data.shortName,
       tooltip: this.#data.name,
       position: this.#data.position,
       fillColor: status.color,

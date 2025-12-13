@@ -53,10 +53,10 @@ import { Graph } from './graph.js';
       this.edges = [];
     }
 
-    drawCircle({ label, tooltip, position, fillColor, borderColor }) {
+    drawCircle({ id, label, tooltip, position, fillColor, borderColor }) {
       this.nodes.push({
         data: {
-          id: label,
+          id,
           label,
           name: tooltip,
           nodeType: 'subject',
@@ -437,7 +437,7 @@ import { Graph } from './graph.js';
 
     // Update cytoscape node/edge data
     const elements = drawer.getElements();
-    
+
     // Update nodes
     elements.nodes.forEach(newNode => {
       const cyNode = cy.getElementById(newNode.data.id);

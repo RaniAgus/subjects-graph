@@ -1,5 +1,5 @@
 {
-  "defaultVariant": "frba-k08",
+  "defaultVariant": "frba-k23",
   "colors": {
     "--fill-color-1": "#111827",
     "--fill-color-2": "#374151",
@@ -13,26 +13,14 @@
     "frba-k08": {
       "name": "Ingeniería en Sistemas de Información - UTN FRBA - Plan K08",
       "statuses": [
-        {
-          "id": "PENDING",
-          "name": "Pendiente",
-          "color": "--fill-color-1"
-        },
-        {
-          "id": "IN_PROGRESS",
-          "name": "En curso",
-          "color": "--fill-color-2"
-        },
+        { "id": "PENDING", "name": "Pendiente", "color": "--fill-color-1" },
+        { "id": "IN_PROGRESS", "name": "En curso", "color": "--fill-color-2" },
         {
           "id": "FINAL_EXAM_PENDING",
           "name": "Cursada",
           "color": "--fill-color-3"
         },
-        {
-          "id": "APPROVED",
-          "name": "Aprobada",
-          "color": "--fill-color-4"
-        }
+        { "id": "APPROVED", "name": "Aprobada", "color": "--fill-color-4" }
       ],
       "availabilities": [
         {
@@ -56,10 +44,8 @@
           "id": "IyS",
           "name": "Ingeniería y Sociedad",
           "prerequisites": [],
-          "position": {
-            "x": 100,
-            "y": 100
-          }
+          "position": { "x": 100, "y": 100 },
+          "shortName": "IyS"
         },
         {
           "id": "L",
@@ -72,35 +58,25 @@
                   "statusId": "FINAL_EXAM_PENDING",
                   "subjects": ["IyS", "AdS"]
                 },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AyED", "SyO"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AyED", "SyO"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["IyS", "AdS"]
-                }
+                { "statusId": "APPROVED", "subjects": ["IyS", "AdS"] }
               ]
             }
           ],
-          "position": {
-            "x": 200,
-            "y": 100
-          }
+          "position": { "x": 200, "y": 100 },
+          "shortName": "L"
         },
         {
           "id": "I1",
           "name": "Inglés I",
           "prerequisites": [],
-          "position": {
-            "x": 400,
-            "y": 100
-          }
+          "position": { "x": 400, "y": 100 },
+          "shortName": "I1"
         },
         {
           "id": "I2",
@@ -109,35 +85,23 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["I1"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["I1"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
-              "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["I1"]
-                }
-              ]
+              "dependencies": [{ "statusId": "APPROVED", "subjects": ["I1"] }]
             }
           ],
-          "position": {
-            "x": 500,
-            "y": 100
-          }
+          "position": { "x": 500, "y": 100 },
+          "shortName": "I2"
         },
         {
           "id": "SdR",
           "name": "Sistemas de Representación",
           "prerequisites": [],
-          "position": {
-            "x": 600,
-            "y": 100
-          }
+          "position": { "x": 600, "y": 100 },
+          "shortName": "SdR"
         },
         {
           "id": "TdC",
@@ -146,57 +110,40 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["Q", "MS"]
-                },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AM2", "F2"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["Q", "MS"] },
+                { "statusId": "APPROVED", "subjects": ["AM2", "F2"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["Q", "MS"]
-                }
+                { "statusId": "APPROVED", "subjects": ["Q", "MS"] }
               ]
             }
           ],
-          "position": {
-            "x": 700,
-            "y": 100
-          }
+          "position": { "x": 700, "y": 100 },
+          "shortName": "TdC"
         },
         {
           "id": "Q",
           "name": "Química",
           "prerequisites": [],
-          "position": {
-            "x": 800,
-            "y": 100
-          }
+          "position": { "x": 800, "y": 100 },
+          "shortName": "Q"
         },
         {
           "id": "AGA",
           "name": "Álgebra y Geometría Analítica",
           "prerequisites": [],
-          "position": {
-            "x": 900,
-            "y": 100
-          }
+          "position": { "x": 900, "y": 100 },
+          "shortName": "AGA"
         },
         {
           "id": "SyO",
           "name": "Sistemas y Organizaciones",
           "prerequisites": [],
-          "position": {
-            "x": 100,
-            "y": 200
-          }
+          "position": { "x": 100, "y": 200 },
+          "shortName": "SyO"
         },
         {
           "id": "AdS",
@@ -214,17 +161,12 @@
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AyED", "SyO"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AyED", "SyO"] }
               ]
             }
           ],
-          "position": {
-            "x": 200,
-            "y": 200
-          }
+          "position": { "x": 200, "y": 200 },
+          "shortName": "AdS"
         },
         {
           "id": "E",
@@ -233,30 +175,17 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["AdS"]
-                },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AyED", "SyO"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["AdS"] },
+                { "statusId": "APPROVED", "subjects": ["AyED", "SyO"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
-              "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AdS"]
-                }
-              ]
+              "dependencies": [{ "statusId": "APPROVED", "subjects": ["AdS"] }]
             }
           ],
-          "position": {
-            "x": 300,
-            "y": 200
-          }
+          "position": { "x": 300, "y": 200 },
+          "shortName": "E"
         },
         {
           "id": "AdR",
@@ -278,17 +207,12 @@
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["E", "SO", "DDS"]
-                }
+                { "statusId": "APPROVED", "subjects": ["E", "SO", "DDS"] }
               ]
             }
           ],
-          "position": {
-            "x": 400,
-            "y": 200
-          }
+          "position": { "x": 400, "y": 200 },
+          "shortName": "AdR"
         },
         {
           "id": "AG",
@@ -297,10 +221,7 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["IO", "AdR"]
-                },
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["IO", "AdR"] },
                 {
                   "statusId": "APPROVED",
                   "subjects": ["PyE", "SO", "DDS", "MS", "E"]
@@ -310,17 +231,12 @@
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["IO", "AdR"]
-                }
+                { "statusId": "APPROVED", "subjects": ["IO", "AdR"] }
               ]
             }
           ],
-          "position": {
-            "x": 500,
-            "y": 200
-          }
+          "position": { "x": 500, "y": 200 },
+          "shortName": "AG"
         },
         {
           "id": "IO",
@@ -329,30 +245,19 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["PyE", "MS"]
-                },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AM2"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["PyE", "MS"] },
+                { "statusId": "APPROVED", "subjects": ["AM2"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["PyE", "MS"]
-                }
+                { "statusId": "APPROVED", "subjects": ["PyE", "MS"] }
               ]
             }
           ],
-          "position": {
-            "x": 600,
-            "y": 200
-          }
+          "position": { "x": 600, "y": 200 },
+          "shortName": "IO"
         },
         {
           "id": "MS",
@@ -361,30 +266,17 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["AM2"]
-                },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AGA", "AM1"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["AM2"] },
+                { "statusId": "APPROVED", "subjects": ["AGA", "AM1"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
-              "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AM2"]
-                }
-              ]
+              "dependencies": [{ "statusId": "APPROVED", "subjects": ["AM2"] }]
             }
           ],
-          "position": {
-            "x": 700,
-            "y": 200
-          }
+          "position": { "x": 700, "y": 200 },
+          "shortName": "MS"
         },
         {
           "id": "AM2",
@@ -393,26 +285,18 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["AGA", "AM1"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["AGA", "AM1"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AGA", "AM1"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AGA", "AM1"] }
               ]
             }
           ],
-          "position": {
-            "x": 800,
-            "y": 200
-          }
+          "position": { "x": 800, "y": 200 },
+          "shortName": "AM2"
         },
         {
           "id": "DDS",
@@ -425,26 +309,18 @@
                   "statusId": "FINAL_EXAM_PENDING",
                   "subjects": ["AdS", "PdP"]
                 },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AyED", "MD", "SyO"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AyED", "MD", "SyO"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AdS", "PdP"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AdS", "PdP"] }
               ]
             }
           ],
-          "position": {
-            "x": 400,
-            "y": 300
-          }
+          "position": { "x": 400, "y": 300 },
+          "shortName": "DDS"
         },
         {
           "id": "SdG",
@@ -466,35 +342,26 @@
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AdR", "IO", "S"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AdR", "IO", "S"] }
               ]
             }
           ],
-          "position": {
-            "x": 500,
-            "y": 300
-          }
+          "position": { "x": 500, "y": 300 },
+          "shortName": "SdG"
         },
         {
           "id": "AM1",
           "name": "Análisis Matemático I",
           "prerequisites": [],
-          "position": {
-            "x": 900,
-            "y": 300
-          }
+          "position": { "x": 900, "y": 300 },
+          "shortName": "AM1"
         },
         {
           "id": "AyED",
           "name": "Algoritmos y Estructuras de Datos",
           "prerequisites": [],
-          "position": {
-            "x": 100,
-            "y": 400
-          }
+          "position": { "x": 100, "y": 400 },
+          "shortName": "AyED"
         },
         {
           "id": "PdP",
@@ -503,26 +370,18 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["AyED", "MD"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["AyED", "MD"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AyED", "MD"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AyED", "MD"] }
               ]
             }
           ],
-          "position": {
-            "x": 200,
-            "y": 400
-          }
+          "position": { "x": 200, "y": 400 },
+          "shortName": "PdP"
         },
         {
           "id": "IA",
@@ -531,30 +390,19 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["IO", "S"]
-                },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["DDS", "MS", "PyE"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["IO", "S"] },
+                { "statusId": "APPROVED", "subjects": ["DDS", "MS", "PyE"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["IO", "S"]
-                }
+                { "statusId": "APPROVED", "subjects": ["IO", "S"] }
               ]
             }
           ],
-          "position": {
-            "x": 500,
-            "y": 400
-          }
+          "position": { "x": 500, "y": 400 },
+          "shortName": "IA"
         },
         {
           "id": "S",
@@ -563,30 +411,19 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["MS", "PyE"]
-                },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AM2"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["MS", "PyE"] },
+                { "statusId": "APPROVED", "subjects": ["AM2"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["MS", "PyE"]
-                }
+                { "statusId": "APPROVED", "subjects": ["MS", "PyE"] }
               ]
             }
           ],
-          "position": {
-            "x": 600,
-            "y": 400
-          }
+          "position": { "x": 600, "y": 400 },
+          "shortName": "S"
         },
         {
           "id": "PyE",
@@ -595,26 +432,18 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["AGA", "AM1"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["AGA", "AM1"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AGA", "AM1"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AGA", "AM1"] }
               ]
             }
           ],
-          "position": {
-            "x": 700,
-            "y": 400
-          }
+          "position": { "x": 700, "y": 400 },
+          "shortName": "PyE"
         },
         {
           "id": "SSL",
@@ -623,26 +452,18 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["AyED", "MD"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["AyED", "MD"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AyED", "MD"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AyED", "MD"] }
               ]
             }
           ],
-          "position": {
-            "x": 200,
-            "y": 500
-          }
+          "position": { "x": 200, "y": 500 },
+          "shortName": "SSL"
         },
         {
           "id": "GDD",
@@ -655,26 +476,18 @@
                   "statusId": "FINAL_EXAM_PENDING",
                   "subjects": ["PdP", "AdS", "SSL"]
                 },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AyED", "MD", "SyO"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AyED", "MD", "SyO"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["PdP", "AdS", "SSL"]
-                }
+                { "statusId": "APPROVED", "subjects": ["PdP", "AdS", "SSL"] }
               ]
             }
           ],
-          "position": {
-            "x": 400,
-            "y": 500
-          }
+          "position": { "x": 400, "y": 500 },
+          "shortName": "GDD"
         },
         {
           "id": "IeS",
@@ -687,26 +500,18 @@
                   "statusId": "FINAL_EXAM_PENDING",
                   "subjects": ["DDS", "GDD", "PyE"]
                 },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AdS", "PdP", "SSL"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AdS", "PdP", "SSL"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["DDS", "GDD", "PyE"]
-                }
+                { "statusId": "APPROVED", "subjects": ["DDS", "GDD", "PyE"] }
               ]
             }
           ],
-          "position": {
-            "x": 500,
-            "y": 500
-          }
+          "position": { "x": 500, "y": 500 },
+          "shortName": "IeS"
         },
         {
           "id": "F2",
@@ -715,44 +520,32 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["F1", "AM1"]
-                }
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["F1", "AM1"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["F1", "AM1"]
-                }
+                { "statusId": "APPROVED", "subjects": ["F1", "AM1"] }
               ]
             }
           ],
-          "position": {
-            "x": 800,
-            "y": 500
-          }
+          "position": { "x": 800, "y": 500 },
+          "shortName": "F2"
         },
         {
           "id": "F1",
           "name": "Física I",
           "prerequisites": [],
-          "position": {
-            "x": 900,
-            "y": 500
-          }
+          "position": { "x": 900, "y": 500 },
+          "shortName": "F1"
         },
         {
           "id": "MD",
           "name": "Matemática Discreta",
           "prerequisites": [],
-          "position": {
-            "x": 100,
-            "y": 600
-          }
+          "position": { "x": 100, "y": 600 },
+          "shortName": "MD"
         },
         {
           "id": "SO",
@@ -770,17 +563,12 @@
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["MD", "AyED", "AdC"]
-                }
+                { "statusId": "APPROVED", "subjects": ["MD", "AyED", "AdC"] }
               ]
             }
           ],
-          "position": {
-            "x": 200,
-            "y": 600
-          }
+          "position": { "x": 200, "y": 600 },
+          "shortName": "SO"
         },
         {
           "id": "RdI",
@@ -789,10 +577,7 @@
             {
               "availabilityId": "ENROLL_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": ["SO", "C"]
-                },
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["SO", "C"] },
                 {
                   "statusId": "APPROVED",
                   "subjects": ["AM2", "AdC", "AyED", "F2", "MD"]
@@ -802,17 +587,12 @@
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["SO", "C"]
-                }
+                { "statusId": "APPROVED", "subjects": ["SO", "C"] }
               ]
             }
           ],
-          "position": {
-            "x": 500,
-            "y": 600
-          }
+          "position": { "x": 500, "y": 600 },
+          "shortName": "RdI"
         },
         {
           "id": "C",
@@ -825,228 +605,666 @@
                   "statusId": "FINAL_EXAM_PENDING",
                   "subjects": ["F2", "AM2", "AdC"]
                 },
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["AGA", "AM1", "F1"]
-                }
+                { "statusId": "APPROVED", "subjects": ["AGA", "AM1", "F1"] }
               ]
             },
             {
               "availabilityId": "FINAL_EXAM_AVAILABLE",
               "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": ["F2", "AM2", "AdC"]
-                }
+                { "statusId": "APPROVED", "subjects": ["F2", "AM2", "AdC"] }
               ]
             }
           ],
-          "position": {
-            "x": 600,
-            "y": 600
-          }
+          "position": { "x": 600, "y": 600 },
+          "shortName": "C"
         },
         {
           "id": "AdC",
           "name": "Arquitectura de Computadores",
           "prerequisites": [],
-          "position": {
-            "x": 400,
-            "y": 700
-          }
+          "position": { "x": 400, "y": 700 },
+          "shortName": "AdC"
         }
       ],
       "edges": [
         {
           "id": "link1",
-          "position": {
-            "x": 600,
-            "y": 500
-          },
+          "position": { "x": 600, "y": 500 },
           "dependencies": ["PyE"],
           "targets": ["IeS"]
         },
         {
           "id": "link3",
-          "position": {
-            "x": 900,
-            "y": 200
-          },
+          "position": { "x": 900, "y": 200 },
           "dependencies": ["AGA", "AM1"],
           "targets": ["AM2", "PyE"]
         },
         {
           "id": "link6",
-          "position": {
-            "x": 600,
-            "y": 300
-          },
+          "position": { "x": 600, "y": 300 },
           "dependencies": ["IO", "S"],
           "targets": ["SdG", "IA"]
         },
         {
           "id": "link7",
-          "position": {
-            "x": 700,
-            "y": 300
-          },
+          "position": { "x": 700, "y": 300 },
           "dependencies": ["MS", "PyE"],
           "targets": ["IO", "S"]
         },
         {
           "id": "link8",
-          "position": {
-            "x": 100,
-            "y": 500
-          },
+          "position": { "x": 100, "y": 500 },
           "dependencies": ["AyED", "MD"],
           "targets": ["PdP", "SSL", "SO"]
         },
         {
           "id": "link9",
-          "position": {
-            "x": 200,
-            "y": 300
-          },
+          "position": { "x": 200, "y": 300 },
           "dependencies": ["AdS", "PdP"],
           "targets": ["GDD", "DDS"]
         },
         {
           "id": "link12",
-          "position": {
-            "x": 300,
-            "y": 700
-          },
+          "position": { "x": 300, "y": 700 },
           "dependencies": ["AdC"],
           "targets": ["SO"]
         },
         {
           "id": "link13",
-          "position": {
-            "x": 500,
-            "y": 700
-          },
+          "position": { "x": 500, "y": 700 },
           "dependencies": ["AdC"],
           "targets": ["C"]
         },
         {
           "id": "link14",
-          "position": {
-            "x": 400,
-            "y": 400
-          },
+          "position": { "x": 400, "y": 400 },
           "dependencies": ["DDS"],
           "targets": ["IeS"]
         },
         {
           "id": "link15",
-          "position": {
-            "x": 800,
-            "y": 400
-          },
+          "position": { "x": 800, "y": 400 },
           "dependencies": ["AM2"],
           "targets": ["C"]
         },
         {
           "id": "link16",
-          "position": {
-            "x": 700,
-            "y": 600
-          },
+          "position": { "x": 700, "y": 600 },
           "dependencies": ["F2"],
           "targets": ["C"]
         },
         {
           "id": "link17",
-          "position": {
-            "x": 100,
-            "y": 300
-          },
+          "position": { "x": 100, "y": 300 },
           "dependencies": ["AyED"],
           "targets": ["AdS"]
         },
         {
           "id": "link18",
-          "position": {
-            "x": 900,
-            "y": 400
-          },
+          "position": { "x": 900, "y": 400 },
           "dependencies": ["AM1"],
           "targets": ["F2"]
         },
         {
           "id": "link19",
-          "position": {
-            "x": 900,
-            "y": 600
-          },
+          "position": { "x": 900, "y": 600 },
           "dependencies": ["F2"],
           "targets": ["link20"]
         },
         {
           "id": "link20",
-          "position": {
-            "x": 1000,
-            "y": 600
-          },
+          "position": { "x": 1000, "y": 600 },
           "dependencies": ["link19"],
           "targets": ["link21"]
         },
         {
           "id": "link21",
-          "position": {
-            "x": 1000,
-            "y": 0
-          },
+          "position": { "x": 1000, "y": 0 },
           "dependencies": ["link20"],
           "targets": ["link22"]
         },
         {
           "id": "link22",
-          "position": {
-            "x": 800,
-            "y": 0
-          },
+          "position": { "x": 800, "y": 0 },
           "dependencies": ["link21"],
           "targets": ["TdC"]
         },
         {
           "id": "link23",
-          "position": {
-            "x": 100,
-            "y": 700
-          },
+          "position": { "x": 100, "y": 700 },
           "dependencies": ["SO"],
           "targets": ["link24"]
         },
         {
           "id": "link24",
-          "position": {
-            "x": 0,
-            "y": 700
-          },
+          "position": { "x": 0, "y": 700 },
           "dependencies": ["link23"],
           "targets": ["link25"]
         },
         {
           "id": "link25",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
+          "position": { "x": 0, "y": 0 },
           "dependencies": ["link24"],
           "targets": ["link26"]
         },
         {
           "id": "link26",
-          "position": {
-            "x": 200,
-            "y": 0
-          },
+          "position": { "x": 200, "y": 0 },
           "dependencies": ["link25"],
           "targets": ["AdR"]
         }
       ]
+    },
+    "frba-k23": {
+      "name": "Ingeniería en Sistemas de Información - UTN FRBA - Plan K23",
+      "statuses": [
+        { "id": "PENDING", "name": "Pendiente", "color": "--fill-color-1" },
+        { "id": "IN_PROGRESS", "name": "En curso", "color": "--fill-color-2" },
+        {
+          "id": "FINAL_EXAM_PENDING",
+          "name": "Cursada",
+          "color": "--fill-color-3"
+        },
+        { "id": "APPROVED", "name": "Aprobada", "color": "--fill-color-4" }
+      ],
+      "availabilities": [
+        {
+          "id": "NOT_AVAILABLE",
+          "name": "No disponible",
+          "color": "--border-color-2"
+        },
+        {
+          "id": "FINAL_EXAM_AVAILABLE",
+          "name": "Disponible para aprobar",
+          "color": "--border-color-4"
+        }
+      ],
+      "subjects": [
+        {
+          "id": "1",
+          "name": "Análisis Matemático I",
+          "prerequisites": [],
+          "position": { "x": 900, "y": 300 },
+          "shortName": "AM1"
+        },
+        {
+          "id": "2",
+          "name": "Álgebra y Geometría Analítica",
+          "prerequisites": [],
+          "position": { "x": 900, "y": 100 },
+          "shortName": "AGA"
+        },
+        {
+          "id": "3",
+          "name": "Física I",
+          "prerequisites": [],
+          "position": { "x": 900, "y": 500 },
+          "shortName": "F1"
+        },
+        {
+          "id": "4",
+          "name": "Inglés I",
+          "prerequisites": [],
+          "position": { "x": 300, "y": 100 },
+          "shortName": "I1"
+        },
+        {
+          "id": "5",
+          "name": "Lógica y Estructuras Discretas",
+          "prerequisites": [],
+          "position": { "x": 100, "y": 600 },
+          "shortName": "LyED"
+        },
+        {
+          "id": "6",
+          "name": "Algoritmos y Estructuras de Datos",
+          "prerequisites": [],
+          "position": { "x": 100, "y": 200 },
+          "shortName": "AyED"
+        },
+        {
+          "id": "7",
+          "name": "Arquitectura de Computadoras",
+          "prerequisites": [],
+          "position": { "x": 400, "y": 700 },
+          "shortName": "AdC"
+        },
+        {
+          "id": "8",
+          "name": "Sistemas y Procesos de Negocio",
+          "prerequisites": [],
+          "position": { "x": 200, "y": 300 },
+          "shortName": "SyPN"
+        },
+        {
+          "id": "9",
+          "name": "Análisis Matemático II",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["1", "2"] }
+              ]
+            }
+          ],
+          "position": { "x": 800, "y": 200 },
+          "shortName": "AM2"
+        },
+        {
+          "id": "10",
+          "name": "Física II",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["1", "3"] }
+              ]
+            }
+          ],
+          "position": { "x": 800, "y": 500 },
+          "shortName": "F2"
+        },
+        {
+          "id": "11",
+          "name": "Ingeniería y Sociedad",
+          "prerequisites": [],
+          "position": { "x": 100, "y": 100 },
+          "shortName": "IyS"
+        },
+        {
+          "id": "12",
+          "name": "Inglés II",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["4"] }
+              ]
+            }
+          ],
+          "position": { "x": 500, "y": 100 },
+          "shortName": "I2"
+        },
+        {
+          "id": "13",
+          "name": "Sintaxis y Semántica de los Lenguajes",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["5", "6"] }
+              ]
+            }
+          ],
+          "position": { "x": 200, "y": 500 },
+          "shortName": "SSL"
+        },
+        {
+          "id": "14",
+          "name": "Paradigmas de Programación",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["5", "6"] }
+              ]
+            }
+          ],
+          "position": { "x": 200, "y": 200 },
+          "shortName": "PdP"
+        },
+        {
+          "id": "15",
+          "name": "Sistemas Operativos",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_PENDING",
+                  "subjects": ["7"]
+                }
+              ]
+            }
+          ],
+          "position": { "x": 200, "y": 600 },
+          "shortName": "SO"
+        },
+        {
+          "id": "16",
+          "name": "Análisis de Sistemas de Información",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_PENDING",
+                  "subjects": ["6", "8"]
+                }
+              ]
+            }
+          ],
+          "position": { "x": 200, "y": 400 },
+          "shortName": "AdSdI"
+        },
+        {
+          "id": "17",
+          "name": "Probabilidad y Estadística",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["1", "2"] }
+              ]
+            }
+          ],
+          "position": { "x": 700, "y": 400 },
+          "shortName": "PyE"
+        },
+        {
+          "id": "18",
+          "name": "Economía",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "APPROVED", "subjects": ["1", "2"] }
+              ]
+            }
+          ],
+          "position": { "x": 600, "y": 400 },
+          "shortName": "Ec"
+        },
+        {
+          "id": "19",
+          "name": "Bases de Datos",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_PENDING",
+                  "subjects": ["13", "16"]
+                },
+                { "statusId": "APPROVED", "subjects": ["5", "6"] }
+              ]
+            }
+          ],
+          "position": { "x": 400, "y": 500 },
+          "shortName": "BDD"
+        },
+        {
+          "id": "20",
+          "name": "Desarrollo de Software",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_PENDING",
+                  "subjects": ["14", "16"]
+                },
+                { "statusId": "APPROVED", "subjects": ["5", "6"] }
+              ]
+            }
+          ],
+          "position": { "x": 300, "y": 500 },
+          "shortName": "DdS"
+        },
+        {
+          "id": "21",
+          "name": "Comunicación de Datos",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "APPROVED",
+                  "subjects": ["3", "7"]
+                }
+              ]
+            }
+          ],
+          "position": { "x": 600, "y": 600 },
+          "shortName": "CdD"
+        },
+        {
+          "id": "22",
+          "name": "Análisis Numérico",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["9"] },
+                { "statusId": "APPROVED", "subjects": ["1", "2"] }
+              ]
+            }
+          ],
+          "position": { "x": 700, "y": 200 },
+          "shortName": "MS"
+        },
+        {
+          "id": "23",
+          "name": "Diseño de Sistemas de Información",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_AVAILABLE",
+                  "subjects": ["14", "16"]
+                },
+                { "statusId": "APPROVED", "subjects": ["4", "6", "8"] }
+              ]
+            }
+          ],
+          "position": { "x": 400, "y": 300 },
+          "shortName": "DdSI"
+        },
+        {
+          "id": "24",
+          "name": "Legislación",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_PENDING",
+                  "subjects": ["11"]
+                }
+              ]
+            }
+          ],
+          "position": { "x": 200, "y": 100 },
+          "shortName": "L"
+        },
+        {
+          "id": "25",
+          "name": "Ingeniería y Calidad de Software",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_PENDING",
+                  "subjects": ["19", "20", "23"]
+                },
+                { "statusId": "APPROVED", "subjects": ["13", "14"] }
+              ]
+            }
+          ],
+          "position": { "x": 400, "y": 400 },
+          "shortName": "IyCdS"
+        },
+        {
+          "id": "26",
+          "name": "Redes de Datos",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["15", "21"] }
+              ]
+            }
+          ],
+          "position": { "x": 500, "y": 600 },
+          "shortName": "RdD"
+        },
+        {
+          "id": "27",
+          "name": "Investigación Operativa",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["17"] },
+                { "statusId": "APPROVED", "subjects": ["9"] }
+              ]
+            }
+          ],
+          "position": { "x": 600, "y": 200 },
+          "shortName": "IO"
+        },
+        {
+          "id": "28",
+          "name": "Simulación",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["17"] },
+                { "statusId": "APPROVED", "subjects": ["9"] }
+              ]
+            }
+          ],
+          "position": { "x": 500, "y": 300 },
+          "shortName": "S"
+        },
+        {
+          "id": "28",
+          "name": "Tecnologías para la Automatización",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["10", "22"] },
+                { "statusId": "APPROVED", "subjects": ["9"] }
+              ]
+            }
+          ],
+          "position": { "x": 600, "y": 400 },
+          "shortName": "TpA"
+        },
+        {
+          "id": "29",
+          "name": "Administración de Sistemas de Información",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_PENDING",
+                  "subjects": ["18", "23"]
+                },
+                {
+                  "statusId": "APPROVED",
+                  "subjects": ["16"]
+                }
+              ]
+            }
+          ],
+          "position": { "x": 400, "y": 200 },
+          "shortName": "AdSI"
+        },
+        {
+          "id": "31",
+          "name": "Inteligencia Artificial",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["28"] },
+                { "statusId": "APPROVED", "subjects": ["17", "22"] }
+              ]
+            }
+          ],
+          "position": { "x": 500, "y": 400 },
+          "shortName": "IA"
+        },
+        {
+          "id": "32",
+          "name": "Ciencia de Datos",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["28"] },
+                { "statusId": "APPROVED", "subjects": ["17", "19"] }
+              ]
+            }
+          ],
+          "position": { "x": 500, "y": 500 },
+          "shortName": "CdD"
+        },
+        {
+          "id": "33",
+          "name": "Sistemas de Gestión",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "FINAL_EXAM_PENDING",
+                  "subjects": ["18", "27"]
+                },
+                {
+                  "statusId": "APPROVED",
+                  "subjects": ["23"]
+                }
+              ]
+            }
+          ],
+          "position": { "x": 500, "y": 300 },
+          "shortName": "SdG"
+        },
+        {
+          "id": "34",
+          "name": "Gestión Gerencial",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["24", "30"] },
+                {
+                  "statusId": "APPROVED",
+                  "subjects": ["18"]
+                }
+              ]
+            }
+          ],
+          "position": { "x": 600, "y": 500 },
+          "shortName": "GG"
+        },
+        {
+          "id": "35",
+          "name": "Seguridad en los Sistemas de Información",
+          "prerequisites": [
+            {
+              "availabilityId": "FINAL_EXAM_AVAILABLE",
+              "dependencies": [
+                { "statusId": "FINAL_EXAM_PENDING", "subjects": ["26", "30"] },
+                {
+                  "statusId": "APPROVED",
+                  "subjects": ["20", "21"]
+                }
+              ]
+            }
+          ],
+          "position": { "x": 700, "y": 500 },
+          "shortName": "SSI"
+        }
+      ],
+      "edges": []
     }
   }
 }
