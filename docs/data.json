@@ -910,7 +910,7 @@
               ]
             }
           ],
-          "position": { "x": 800, "y": 400 },
+          "position": { "x": 800, "y": 500 },
           "shortName": "PdeP"
         },
         {
@@ -1025,7 +1025,7 @@
               ]
             }
           ],
-          "position": { "x": 500, "y": 200 },
+          "position": { "x": 400, "y": 200 },
           "shortName": "Com"
         },
         {
@@ -1295,12 +1295,6 @@
           "targets": ["18"]
         },
         {
-          "id": "AyED,LyED:PdeP",
-          "position": { "x": 800, "y": 500 },
-          "dependencies": ["6", "5"],
-          "targets": ["14"]
-        },
-        {
           "id": "SSL:BDD",
           "position": { "x": 500, "y": 500 },
           "dependencies": ["13"],
@@ -1331,10 +1325,16 @@
           "targets": ["33"]
         },
         {
-          "id": "ASI,PdP:DdS,DSI",
+          "id": "ASI,PdeP:DdS,DSI",
           "position": { "x": 700, "y": 300 },
           "dependencies": ["16", "14"],
           "targets": ["20", "23"]
+        },
+        {
+          "id": "PdeP:ASI,PdeP:DdS,DSI",
+          "position": { "x": 800, "y": 400 },
+          "dependencies": ["14"],
+          "targets": ["ASI,PdeP:DdS,DSI"]
         },
         {
           "id": "F1:Com:1",
@@ -1395,6 +1395,12 @@
           "position": { "x": 700, "y": 200 },
           "dependencies": ["23"],
           "targets": ["25"]
+        },
+        {
+          "id": "Com:RdD",
+          "position": { "x": 500, "y": 200 },
+          "dependencies": ["21"],
+          "targets": ["26"]
         }
       ]
     }
