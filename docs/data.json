@@ -1356,20 +1356,14 @@
         },
         {
           "id": "PyE:IO:3",
-          "position": { "x": 0, "y": 100 },
+          "position": { "x": 0, "y": 0 },
           "dependencies": ["PyE:IO:2"],
           "targets": ["PyE:IO:4"]
         },
         {
           "id": "PyE:IO:4",
-          "position": { "x": 100, "y": 0 },
-          "dependencies": ["PyE:IO:3"],
-          "targets": ["PyE:IO:5"]
-        },
-        {
-          "id": "PyE:IO:5",
           "position": { "x": 200, "y": 0 },
-          "dependencies": ["PyE:IO:4"],
+          "dependencies": ["PyE:IO:3"],
           "targets": ["27"]
         }
       ]
