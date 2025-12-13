@@ -13,6 +13,7 @@ import { Graph } from './graph.js';
   let appData = null; // Loaded from data.json
   let currentVariant = null;
   let config = null; // { statuses, availabilities }
+  let nodesDraggable = false; // Whether nodes are draggable
 
   // Color lookup from variant's colors property
   let colors = null;
@@ -48,9 +49,10 @@ import { Graph } from './graph.js';
 
   // CytoscapeDrawer - implements drawer interface for Graph
   class CytoscapeDrawer {
-    constructor() {
+    constructor(nodesDraggable) {
       this.nodes = [];
       this.edges = [];
+      this.nodesDraggable = nodesDraggable;
     }
 
     drawCircle({ label, tooltip, position, fillColor, borderColor }) {
@@ -64,7 +66,7 @@ import { Graph } from './graph.js';
           borderState: this._getAvailabilityIdByColor(borderColor),
         },
         position: { x: position.x, y: position.y },
-        locked: true,
+        locked: !this.nodesDraggable,
       });
     }
 
@@ -77,7 +79,7 @@ import { Graph } from './graph.js';
           borderState: this._getAvailabilityIdByColor(borderColor),
         },
         position: { x: position.x, y: position.y },
-        locked: true,
+        locked: !this.nodesDraggable,
       });
     }
 
@@ -90,18 +92,21 @@ import { Graph } from './graph.js';
           borderState: config.availabilities[0].id,
         },
         position: { x: position.x, y: position.y },
-        locked: true,
+        locked: !this.nodesDraggable,
       });
     }
 
     drawArrow({ id, from, to, color }) {
+      const fromNode = this.nodes.find(n => n.data.id === from);
       const toNode = this.nodes.find(n => n.data.id === to);
+      const fromInvisible = fromNode?.data.isInvisible ?? false;
       const toInvisible = toNode?.data.isInvisible ?? false;
       this.edges.push({
         data: {
           id,
           source: from,
           target: to,
+          fromInvisible,
           toInvisible,
           edgeColor: this._getAvailabilityIdByColor(color),
         },
@@ -191,6 +196,13 @@ import { Graph } from './graph.js';
     // Set dropdown to current variant
     variantSelect.value = currentVariant;
 
+    // Read saved draggable setting for this variant
+    try {
+      nodesDraggable = localStorage.getItem(`dragging-${currentVariant}`) === 'true';
+    } catch (err) {
+      nodesDraggable = false;
+    }
+
     // Load variant data
     const variantData = appData.variants[currentVariant];
     colors = appData.colors;
@@ -214,11 +226,13 @@ import { Graph } from './graph.js';
 
     // Create Graph and render
     graph = new Graph(config, subjects, variantData.edges);
-    const drawer = new CytoscapeDrawer();
+    const drawer = new CytoscapeDrawer(nodesDraggable);
     graph.render(drawer);
 
     // Initialize Cytoscape with drawer's elements
     initCytoscape(drawer.getElements());
+    // Apply dragging state to Cytoscape nodes
+    applyNodeDragging(nodesDraggable);
     setupEventListeners();
     registerServiceWorkerIfInstalled();
   }
@@ -293,8 +307,8 @@ import { Graph } from './graph.js';
         selector: 'node[?isInvisible]',
         style: {
           'opacity': 0,
-          'width': 1,
-          'height': 1,
+          'width': 20,
+          'height': 20,
           'label': ''
         }
       },
@@ -303,7 +317,7 @@ import { Graph } from './graph.js';
       {
         selector: 'edge',
         style: {
-          'width': 3,
+          'width': 4,
           'line-color': defaultAvailColor,
           'target-arrow-color': defaultAvailColor,
           'target-arrow-shape': 'vee',
@@ -318,7 +332,16 @@ import { Graph } from './graph.js';
       {
         selector: 'edge[?toInvisible]',
         style: {
-          'target-arrow-shape': 'none'
+          'target-arrow-shape': 'none',
+          'target-endpoint': [0, 0]
+        }
+      }
+      ,
+      // Edges originating from invisible connectors: align source endpoint to center
+      {
+        selector: 'edge[?fromInvisible]',
+        style: {
+          'source-endpoint': [0, 0]
         }
       }
     ];
@@ -384,14 +407,15 @@ import { Graph } from './graph.js';
     const tooltip = document.createElement('div');
     tooltip.className = 'cy-tooltip';
     container.appendChild(tooltip);
+    container.style.cursor = 'grab'; // Background is always pannable
 
     cy.on('mouseover', 'node[nodeType="subject"]', function(e) {
-      container.style.cursor = 'pointer';
+      container.style.cursor = nodesDraggable ? 'all-scroll' : 'pointer';
       tooltip.textContent = e.target.data('name');
       tooltip.style.display = 'block';
     });
     cy.on('mouseover', 'node[nodeType="connector"]', function() {
-      container.style.cursor = 'default';
+      container.style.cursor = nodesDraggable ? 'all-scroll' : 'default';
     });
     cy.on('mousemove', 'node[nodeType="subject"]', function(e) {
       const pos = e.renderedPosition;
@@ -399,8 +423,16 @@ import { Graph } from './graph.js';
       tooltip.style.top = (pos.y + 15) + 'px';
     });
     cy.on('mouseout', 'node', function() {
-      container.style.cursor = 'default';
+      container.style.cursor = 'grab';
       tooltip.style.display = 'none';
+    });
+
+    // Edge hover for testing hitbox
+    cy.on('mouseover', 'edge', function() {
+      container.style.cursor = 'pointer';
+    });
+    cy.on('mouseout', 'edge', function() {
+      container.style.cursor = 'grab';
     });
 
     // Handle appinstalled event
@@ -432,12 +464,12 @@ import { Graph } from './graph.js';
 
     // Re-create graph and render
     graph = new Graph(config, subjects, variantData.edges);
-    const drawer = new CytoscapeDrawer();
+    const drawer = new CytoscapeDrawer(nodesDraggable);
     graph.render(drawer);
 
     // Update cytoscape node/edge data
     const elements = drawer.getElements();
-    
+
     // Update nodes
     elements.nodes.forEach(newNode => {
       const cyNode = cy.getElementById(newNode.data.id);
@@ -456,6 +488,7 @@ import { Graph } from './graph.js';
     });
 
     updateProgress();
+    applyNodeDragging(nodesDraggable);
   }
 
   // Update progress percentages
@@ -485,6 +518,19 @@ import { Graph } from './graph.js';
     document.getElementById('progress-pending').style.strokeDashoffset = circumference - (circumference * pendingPercent / 100);
   }
 
+  // Toggle or apply the draggable behavior to all nodes
+  function applyNodeDragging(enabled) {
+    if (!cy) return;
+    const nodes = cy.nodes();
+    if (enabled) {
+      nodes.unlock();
+      nodes.grabify();
+    } else {
+      nodes.lock();
+      nodes.ungrabify();
+    }
+  }
+
   // Setup event listeners
   function setupEventListeners() {
     // Variant selector
@@ -506,6 +552,24 @@ import { Graph } from './graph.js';
     document.getElementById('fit-btn').addEventListener('click', () => {
       cy.fit(50);
     });
+
+    // Drag toggle button
+    const dragBtn = document.getElementById('drag-btn');
+    if (dragBtn) {
+      // Initialize button state
+      dragBtn.classList.toggle('active', nodesDraggable);
+      dragBtn.setAttribute('aria-pressed', nodesDraggable ? 'true' : 'false');
+      dragBtn.title = nodesDraggable ? 'Deshabilitar arrastre de nodos' : 'Habilitar arrastre de nodos';
+
+      dragBtn.addEventListener('click', () => {
+        nodesDraggable = !nodesDraggable;
+        try { localStorage.setItem(`dragging-${currentVariant}`, nodesDraggable ? 'true' : 'false'); } catch (err) {}
+        applyNodeDragging(nodesDraggable);
+        dragBtn.classList.toggle('active', nodesDraggable);
+        dragBtn.setAttribute('aria-pressed', nodesDraggable ? 'true' : 'false');
+        dragBtn.title = nodesDraggable ? 'Deshabilitar arrastre de nodos' : 'Habilitar arrastre de nodos';
+      });
+    }
 
     // Export button - exports statuses for current variant
     document.getElementById('export-btn').addEventListener('click', () => {
