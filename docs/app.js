@@ -4,6 +4,7 @@ import { Graph } from './graph.js';
 (function() {
   'use strict';
 
+  const VARIANT_STORAGE_KEY = 'selectedVariant';
   const VARIANT_PARAM = 'variant';
 
   // State management
@@ -205,9 +206,21 @@ import { Graph } from './graph.js';
     // Load selected variant from URL query param or use default
     const urlParams = new URLSearchParams(window.location.search);
     const variantParam = urlParams.get(VARIANT_PARAM);
+    const variantInStorage = localStorage.getItem(VARIANT_STORAGE_KEY);
+
     currentVariant = (variantParam && appData.variants[variantParam])
       ? variantParam
-      : appData.defaultVariant;
+      : (variantInStorage && appData.variants[variantInStorage])
+        ? variantInStorage
+        : appData.defaultVariant;
+
+    if (currentVariant !== variantInStorage) {
+      try {
+        localStorage.setItem(VARIANT_STORAGE_KEY, currentVariant);
+      } catch (err) {
+        console.warn('Could not save selected variant to localStorage:', err);
+      }
+    }
 
     // Set dropdown to current variant
     variantSelect.value = currentVariant;

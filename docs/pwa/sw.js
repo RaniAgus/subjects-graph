@@ -1,4 +1,4 @@
-const CACHE_NAME = 'subjects-graph-cache-5dc1cac';
+const CACHE_NAME = 'subjects-graph-cache-710c7da';
 const ASSETS_TO_CACHE = [
   '../',
   '../index.html',
