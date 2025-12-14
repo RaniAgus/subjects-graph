@@ -28,9 +28,20 @@ import { Graph } from './graph.js';
     return `graphStatus-${currentVariant}`;
   }
 
+  // Get positions storage key for current variant
+  function getPositionsStorageKey() {
+    return `graphPositions-${currentVariant}`;
+  }
+
   // Load subject statuses from localStorage
   function loadStatuses() {
     const saved = localStorage.getItem(getStorageKey());
+    return saved ? JSON.parse(saved) : {};
+  }
+
+  // Load saved subject positions from localStorage
+  function loadPositions() {
+    const saved = localStorage.getItem(getPositionsStorageKey());
     return saved ? JSON.parse(saved) : {};
   }
 
@@ -47,16 +58,30 @@ import { Graph } from './graph.js';
     localStorage.setItem(getStorageKey(), JSON.stringify(statuses));
   }
 
+  // Save subject positions to localStorage
+  function savePositions() {
+    if (!cy) return;
+    const positions = {};
+    // Save positions for all nodes (subjects and connectors)
+    cy.nodes().forEach(node => {
+      const pos = node.position();
+      positions[node.id()] = { x: Math.round(pos.x), y: Math.round(pos.y) };
+    });
+    localStorage.setItem(getPositionsStorageKey(), JSON.stringify(positions));
+  }
+
   // CytoscapeDrawer - implements drawer interface for Graph
   class CytoscapeDrawer {
-    constructor(nodesDraggable) {
+    constructor(nodesDraggable, savedPositions = {}) {
       this.nodes = [];
       this.edges = [];
       this.positions = new Set();
       this.nodesDraggable = nodesDraggable;
+      this.savedPositions = savedPositions;
     }
 
-    drawCircle({ id, label, tooltip, position: { x, y }, fillColor, borderColor, textColor }) {
+    drawCircle({ id, label, tooltip, position, fillColor, borderColor, textColor }) {
+      const { x, y } = this.savedPositions[id] ?? { x: position.x, y: position.y };
       this.nodes.push({
         data: {
           id,
@@ -74,7 +99,8 @@ import { Graph } from './graph.js';
       this.#addPosition({ x, y });
     }
 
-    drawDiamond({ id, position: { x, y }, borderColor }) {
+    drawDiamond({ id, position, borderColor }) {
+      const { x, y } = this.savedPositions[id] ?? position;
       this.nodes.push({
         data: {
           id,
@@ -88,7 +114,8 @@ import { Graph } from './graph.js';
       this.#addPosition({ x, y });
     }
 
-    drawEdge({ id, position: { x, y } }) {
+    drawEdge({ id, position }) {
+      const { x, y } = this.savedPositions[id] ?? { x: position.x, y: position.y };
       this.nodes.push({
         data: {
           id,
@@ -250,15 +277,17 @@ import { Graph } from './graph.js';
 
     // Load saved statuses from localStorage and merge with subjects
     const savedStatuses = loadStatuses();
+    const savedPositions = loadPositions();
     const defaultStatus = config.statuses[0].id;
     const subjects = variantData.subjects.map(s => ({
       ...s,
       status: savedStatuses[s.id] || s.status || defaultStatus,
+      position: savedPositions[s.id] || s.position,
     }));
 
     // Create Graph and render
     graph = new Graph(config, subjects, variantData.edges);
-    const drawer = new CytoscapeDrawer(nodesDraggable);
+    const drawer = new CytoscapeDrawer(nodesDraggable, savedPositions);
     graph.render(drawer);
 
     // Initialize Cytoscape with drawer's elements
@@ -409,6 +438,16 @@ import { Graph } from './graph.js';
     // Update progress on initial load
     updateProgress();
 
+    // Save positions when any node drag finishes (subjects or connectors)
+    cy.on('dragfree', 'node', function() {
+      savePositions();
+    });
+
+    // Fallback: save positions on page unload
+    window.addEventListener('beforeunload', () => {
+      try { savePositions(); } catch (e) {}
+    });
+
     // Click handler to cycle through statuses
     cy.on('tap', 'node[nodeType="subject"]', function(evt) {
       const node = evt.target;
@@ -488,7 +527,8 @@ import { Graph } from './graph.js';
 
     // Re-create graph and render
     graph = new Graph(config, subjects, variantData.edges);
-    const drawer = new CytoscapeDrawer(nodesDraggable);
+    const savedPositions = loadPositions();
+    const drawer = new CytoscapeDrawer(nodesDraggable, savedPositions);
     graph.render(drawer);
 
     // Update cytoscape node/edge data
@@ -569,9 +609,12 @@ import { Graph } from './graph.js';
       }
     });
 
-    // Reset button
+    // Reset button: clear saved statuses, positions, dragging state (for current variant)
     document.getElementById('reset-btn').addEventListener('click', () => {
-      localStorage.removeItem(getStorageKey());
+      try { localStorage.removeItem(getStorageKey()); } catch (e) {}
+      try { localStorage.removeItem(getPositionsStorageKey()); } catch (e) {}
+      try { localStorage.removeItem(`dragging-${currentVariant}`); } catch (e) {}
+      // Ensure we re-render using the currently chosen variant template (no saved data)
       location.reload();
     });
 
