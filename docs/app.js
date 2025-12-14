@@ -267,8 +267,6 @@ import { Graph } from './graph.js';
 
   // Build dynamic stylesheet based on config
   function buildStylesheet() {
-    const defaultAvailColor = config.availabilities[0].color;
-
     const styles = [
       // Base node style (for subject nodes)
       {
@@ -315,8 +313,9 @@ import { Graph } from './graph.js';
         selector: 'node[?isInvisible]',
         style: {
           'opacity': 0,
-          'width': 0.1,
-          'height': 0.1,
+          'width': 0.0001,
+          'height': 0.0001,
+          'border-width': 0,
           'label': ''
         }
       },
