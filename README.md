@@ -70,30 +70,29 @@ cd subjects-graph
 
 ### Running Locally
 
-Serve the `docs/` folder with any static file server:
+Serve the `public/` folder with any static file server:
 
 ```bash
-# Python 3 - serve the `docs/` folder
-python -m http.server 8000 -d docs
-
-# Node.js (serve) - serve the `docs/` folder
-npx serve docs
+# Python 3 - serve the `public/` folder
+python -m http.server 8000 -d public
+# Node.js (serve) - serve the `public/` folder
+npx serve public
 
 # VS Code Live Server
-# Open docs/index.html and click "Go Live"
+# Open public/index.html and click "Go Live"
 ```
 
 ### GitHub Pages
 
-The `docs/` folder is configured for GitHub Pages deployment.
+The `public/` folder is configured for GitHub Pages deployment.
 
 ## Progressive Web App (PWA) Support
 
 This project implements a basic PWA. It includes:
 
-- `docs/manifest.webmanifest` - Web App Manifest (name, short_name, icons, theme)
-- `docs/sw.js` - Service Worker that precaches the app shell and assets (index, CSS, JS, JSON, libraries)
-- `docs/offline.html` - a fallback offline page when the app shell can't be served
+- `manifest.webmanifest` - Web App Manifest (name, short_name, icons, theme)
+- `sw.js` - Service Worker that precaches the app shell and assets (index, CSS, JS, JSON, libraries)
+- `offline.html` - a fallback offline page when the app shell can't be served
 
 ### Offline behavior
 
@@ -117,7 +116,7 @@ Notes: iOS Safari has limited Service Worker support and may not provide the ful
 
 ```
 subjects-graph/
-├── docs/
+├── public/
 │   ├── index.html           # Main HTML
 │   ├── app.js               # Application logic (UI, events)
 │   ├── graph.js             # Graph rendering logic
@@ -140,7 +139,7 @@ subjects-graph/
 
 ### Adding a New Variant
 
-Edit `docs/data.json`:
+Edit `public/data.json`:
 
 ```json
 {
@@ -246,7 +245,7 @@ Contributions are welcome! You can help by:
 ### Adding Your University's Curriculum
 
 1. Fork the repository
-2. Add your variant to `docs/data.json` following the existing format
+2. Add your variant to `public/data.json` following the existing format
 3. Submit a pull request with your curriculum name in the title
 
 ## License

@@ -11,9 +11,9 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["vitest/globals"],
     "paths": {
-      "~/*": ["./docs/*"]
+      "~/*": ["./public/*"]
     }
   },
-  "include": ["docs/graph.js", "tests/**/*.js"],
-  "exclude": ["docs/cytoscape.min.js", "docs/lucide.min.js", "node_modules"]
+  "include": ["public/graph.js", "tests/**/*.js"],
+  "exclude": ["public/cytoscape.min.js", "public/lucide.min.js", "node_modules"]
 }
