@@ -60,9 +60,10 @@ import { Graph } from './graph.js';
           label,
           name: tooltip,
           nodeType: 'subject',
-          status: this._getStatusIdByColor(fillColor),
-          borderState: this._getAvailabilityIdByColor(borderColor),
-          isLeaf: textColor === '#FFD700',
+          status: this._getStatusIdByColor(fillColor),  // Keep for cycling logic
+          fillColor,
+          borderColor,
+          textColor,
         },
         position: { x, y },
         locked: true,
@@ -76,7 +77,7 @@ import { Graph } from './graph.js';
           id,
           nodeType: 'connector',
           isInvisible: false,
-          borderState: this._getAvailabilityIdByColor(borderColor),
+          borderColor,
         },
         position: { x, y },
         locked: true,
@@ -91,7 +92,7 @@ import { Graph } from './graph.js';
           nodeType: 'connector',
           isInvisible: true,
           withGap: this.#hasPosition({ x, y }),
-          borderState: config.availabilities[0].id,
+          borderColor: config.availabilities[0].color,
         },
         position: { x, y },
         locked: true,
@@ -118,18 +119,13 @@ import { Graph } from './graph.js';
           source: from,
           target: to,
           toInvisible: toNode.data.isInvisible ?? false,
-          edgeColor: this._getAvailabilityIdByColor(color),
+          color,
         },
       });
-      fromNode.data.isLeaf = false;
     }
 
     _getStatusIdByColor(color) {
       return config.statuses.find(s => s.color === color)?.id ?? config.statuses[0].id;
-    }
-
-    _getAvailabilityIdByColor(color) {
-      return config.availabilities.find(a => a.color === color)?.id ?? config.availabilities[0].id;
     }
 
     getElements() {
@@ -284,24 +280,17 @@ import { Graph } from './graph.js';
           'label': 'data(label)',
           'text-valign': 'center',
           'text-halign': 'center',
-          'color': '#ffffff',
+          'color': 'data(textColor)',
           'font-size': '12px',
           'font-weight': 'bold',
           'text-outline-color': '#000',
           'text-outline-width': 1,
           'border-width': 3,
           'border-opacity': 1,
-          'background-color': config.statuses[0].color,
+          'background-color': 'data(fillColor)',
+          'border-color': 'data(borderColor)',
           'transition-property': 'background-color, border-color',
           'transition-duration': '0.3s'
-        }
-      },
-
-      // Leaf subject nodes (gold label)
-      {
-        selector: 'node[?isLeaf]',
-        style: {
-          'color': '#FFD700'
         }
       },
 
@@ -315,7 +304,7 @@ import { Graph } from './graph.js';
           'label': '',
           'background-opacity': 0,
           'border-width': 3,
-          'border-color': defaultAvailColor,
+          'border-color': 'data(borderColor)',
           'transition-property': 'border-color',
           'transition-duration': '0.3s'
         }
@@ -346,8 +335,8 @@ import { Graph } from './graph.js';
         selector: 'edge',
         style: {
           'width': 3,
-          'line-color': defaultAvailColor,
-          'target-arrow-color': defaultAvailColor,
+          'line-color': 'data(color)',
+          'target-arrow-color': 'data(color)',
           'target-arrow-shape': 'vee',
           'curve-style': 'bezier',
           'arrow-scale': 1.5,
@@ -364,26 +353,6 @@ import { Graph } from './graph.js';
         }
       }
     ];
-
-    // Generate status-specific fill color styles
-    config.statuses.forEach(status => {
-      styles.push({
-        selector: `node[status="${status.id}"]`,
-        style: { 'background-color': status.color }
-      });
-    });
-
-    // Generate border/edge color styles for each availability
-    config.availabilities.forEach(avail => {
-      styles.push({
-        selector: `node[borderState="${avail.id}"]`,
-        style: { 'border-color': avail.color }
-      });
-      styles.push({
-        selector: `edge[edgeColor="${avail.id}"]`,
-        style: { 'line-color': avail.color, 'target-arrow-color': avail.color }
-      });
-    });
 
     return styles;
   }
@@ -410,13 +379,16 @@ import { Graph } from './graph.js';
     // Click handler to cycle through statuses
     cy.on('tap', 'node[nodeType="subject"]', function(evt) {
       const node = evt.target;
-      const currentStatus = node.data('status');
-      const currentIndex = config.statuses.findIndex(s => s.id === currentStatus);
+      const currentFillColor = node.data('fillColor');
+      const currentStatusObj = config.statuses.find(s => s.color === currentFillColor);
+      const currentIndex = config.statuses.indexOf(currentStatusObj);
       const nextIndex = (currentIndex + 1) % config.statuses.length;
       const nextStatus = config.statuses[nextIndex].id;
+      const nextFillColor = config.statuses[nextIndex].color;
 
-      // Update status and re-render graph
+      // Update status and colors
       node.data('status', nextStatus);
+      node.data('fillColor', nextFillColor);
       reRenderGraph();
       saveStatuses();
     });
@@ -485,7 +457,9 @@ import { Graph } from './graph.js';
       const cyNode = cy.getElementById(newNode.data.id);
       if (cyNode.length) {
         cyNode.data('status', newNode.data.status);
-        cyNode.data('borderState', newNode.data.borderState);
+        cyNode.data('fillColor', newNode.data.fillColor);
+        cyNode.data('borderColor', newNode.data.borderColor);
+        cyNode.data('textColor', newNode.data.textColor);
       }
     });
 
@@ -493,7 +467,7 @@ import { Graph } from './graph.js';
     elements.edges.forEach(newEdge => {
       const cyEdge = cy.getElementById(newEdge.data.id);
       if (cyEdge.length) {
-        cyEdge.data('edgeColor', newEdge.data.edgeColor);
+        cyEdge.data('color', newEdge.data.color);
       }
     });
 
