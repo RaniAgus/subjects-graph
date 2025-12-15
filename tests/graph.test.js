@@ -3,30 +3,30 @@ import { Graph } from '~/graph.js';
 import { config, subjects, edges, statusColor, availabilityColor, textColor } from './helpers/common.js';
 import { createMockDrawer } from './helpers/mockDrawer.js';
 
-describe('Graph rendering (I1 -> I2)', () => {
-  // I2 depends on I1 (FINAL_EXAM_PENDING for FINAL_EXAM_PENDING, APPROVED for APPROVED)
+describe('Graph rendering (F1 -> F2)', () => {
+  // F2 depends on F1 (FINAL_EXAM_PENDING for FINAL_EXAM_PENDING, APPROVED for APPROVED)
   // Arrow color should reflect the source's contribution to target's availability
   // All 9 combinations (3x3) - EXPECTED behavior (TDD)
   const testCases = [
-    // I1=PENDING -> arrow should be PENDING (source doesn't satisfy any prereq)
+    // F1=PENDING -> arrow should be PENDING (source doesn't satisfy any prereq)
     { statuses: ['PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailability: 'NOT_AVAILABLE' },
     { statuses: ['PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailability: 'NOT_AVAILABLE' },
     { statuses: ['PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'NOT_AVAILABLE'], arrowAvailability: 'NOT_AVAILABLE' },
-    // I1=FINAL_EXAM_PENDING -> arrow should be FINAL_EXAM_PENDING (source satisfies FEP prereq)
+    // F1=FINAL_EXAM_PENDING -> arrow should be FINAL_EXAM_PENDING (source satisfies FEP prereq)
     { statuses: ['FINAL_EXAM_PENDING', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailability: 'ENROLL_AVAILABLE' },
     { statuses: ['FINAL_EXAM_PENDING', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailability: 'ENROLL_AVAILABLE' },
     { statuses: ['FINAL_EXAM_PENDING', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'ENROLL_AVAILABLE'], arrowAvailability: 'ENROLL_AVAILABLE' },
-    // I1=APPROVED -> arrow should be APPROVED (source satisfies APPROVED prereq)
+    // F1=APPROVED -> arrow should be APPROVED (source satisfies APPROVED prereq)
     { statuses: ['APPROVED', 'PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
     { statuses: ['APPROVED', 'FINAL_EXAM_PENDING'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
     { statuses: ['APPROVED', 'APPROVED'], availabilities: ['FINAL_EXAM_AVAILABLE', 'FINAL_EXAM_AVAILABLE'], arrowAvailability: 'FINAL_EXAM_AVAILABLE' },
   ];
 
-  testCases.forEach(({ statuses: [i1Status, i2Status], availabilities: [i1Avail, i2Avail], arrowAvailability }) => {
-    it(`renders with I1=${i1Status}, I2=${i2Status}`, () => {
+  testCases.forEach(({ statuses: [f1Status, f2Status], availabilities: [f1Avail, f2Avail], arrowAvailability }) => {
+    it(`renders with F1=${f1Status}, F2=${f2Status}`, () => {
       const testSubjects = subjects(
-        ['I1', i1Status],
-        ['I2', i2Status],
+        ['F1', f1Status],
+        ['F2', f2Status],
       );
 
       const graph = new Graph(config, testSubjects, []);
@@ -36,30 +36,30 @@ describe('Graph rendering (I1 -> I2)', () => {
       // Should draw 2 circles (one per subject)
       expect(drawer.shapes.circles).toHaveLength(2);
       expect(drawer.shapes.circles).toContainEqual({
-        id: 'I1',
-        label: 'I1',
-        tooltip: 'Inglés I',
-        position: { x: 400, y: 100 },
-        fillColor: statusColor(i1Status),
-        borderColor: availabilityColor(i1Avail),
+        id: 'F1',
+        label: 'F1',
+        tooltip: 'Física I',
+        position: { x: 900, y: 500 },
+        fillColor: statusColor(f1Status),
+        borderColor: availabilityColor(f1Avail),
         textColor: textColor(false),
       });
       expect(drawer.shapes.circles).toContainEqual({
-        id: 'I2',
-        label: 'I2',
-        tooltip: 'Inglés II',
-        position: { x: 500, y: 100 },
-        fillColor: statusColor(i2Status),
-        borderColor: availabilityColor(i2Avail),
+        id: 'F2',
+        label: 'F2',
+        tooltip: 'Física II',
+        position: { x: 800, y: 500 },
+        fillColor: statusColor(f2Status),
+        borderColor: availabilityColor(f2Avail),
         textColor: textColor(true),
       });
 
-      // Should draw 1 arrow from I1 to I2
+      // Should draw 1 arrow from F1 to F2
       expect(drawer.shapes.arrows).toHaveLength(1);
       expect(drawer.shapes.arrows).toContainEqual({
-        id: 'I1-I2',
-        from: 'I1',
-        to: 'I2',
+        id: 'F1-F2',
+        from: 'F1',
+        to: 'F2',
         color: availabilityColor(arrowAvailability),
       });
     });
