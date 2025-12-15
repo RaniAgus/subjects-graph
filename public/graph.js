@@ -379,7 +379,9 @@ class SubjectNode extends AbstractNode {
    * @param {Drawer} drawer
    */
   renderNode(drawer) {
-    const status = this.#config.statuses.find(s => s.id === this.#data.status) ?? this.#config.statuses[0];
+    const statusIndex = this.#config.statuses.findIndex(s => s.id === this.#data.status);
+    const status = this.#config.statuses[statusIndex] ?? this.#config.statuses[0];
+    const isLastStatus = statusIndex === this.#config.statuses.length - 1;
     drawer.drawCircle({
       id: this.#data.id,
       label: this.#data.shortName,
@@ -387,7 +389,7 @@ class SubjectNode extends AbstractNode {
       position: this.#data.position,
       fillColor: status.color,
       borderColor: this.getAvailability().color,
-      textColor: this.#isLeaf ? '#FFD700' : '#FFFFFF',
+      textColor: isLastStatus ? '#0D1117' : this.#isLeaf ? '#FFD700' : '#FFFFFF',
     });
   }
 

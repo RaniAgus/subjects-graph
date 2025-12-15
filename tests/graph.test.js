@@ -42,7 +42,7 @@ describe('Graph rendering (F1 -> F2)', () => {
         position: { x: 900, y: 500 },
         fillColor: statusColor(f1Status),
         borderColor: availabilityColor(f1Avail),
-        textColor: textColor(false),
+        textColor: textColor(f1Status, false),
       });
       expect(drawer.shapes.circles).toContainEqual({
         id: '11',
@@ -51,7 +51,7 @@ describe('Graph rendering (F1 -> F2)', () => {
         position: { x: 800, y: 500 },
         fillColor: statusColor(f2Status),
         borderColor: availabilityColor(f2Avail),
-        textColor: textColor(true),
+        textColor: textColor(f2Status, true),
       });
 
       // Should draw 1 arrow from F1 to F2
@@ -174,7 +174,7 @@ describe('Transitive deduplication', () => {
         position: { x: 100, y: 400 },
         fillColor: statusColor(ayedStatus),
         borderColor: availabilityColor(ayedAvail),
-        textColor: textColor(false),
+        textColor: textColor(ayedStatus, false),
       });
       expect(drawer.shapes.circles).toContainEqual({
         id: '14',
@@ -183,7 +183,7 @@ describe('Transitive deduplication', () => {
         position: { x: 200, y: 400 },
         fillColor: statusColor(pdpStatus),
         borderColor: availabilityColor(pdpAvail),
-        textColor: textColor(false),
+        textColor: textColor(pdpStatus, false),
       });
       expect(drawer.shapes.circles).toContainEqual({
         id: '18',
@@ -192,7 +192,7 @@ describe('Transitive deduplication', () => {
         position: { x: 400, y: 300 },
         fillColor: statusColor(ddsStatus),
         borderColor: availabilityColor(ddsAvail),
-        textColor: textColor(true),
+        textColor: textColor(ddsStatus, true),
       });
 
       // Should draw 2 arrows with correct colors (NOT AyED -> DDS)
