@@ -306,15 +306,19 @@ class AbstractNode {
    * @returns {Set<Subject>}
    */
   getAllSubjects(visited = new Set()) {
-    if (visited.has(this)) return new Set();
+    if (visited.has(this)) {
+      return new Set();
+    }
+
     visited.add(this);
 
     const result = new Set();
-    for (const link of this.#dependencies) {
-      const subjSet = link.from.getAllSubjects(visited);
-      for (const subj of subjSet) result.add(subj);
-    }
-    return result;
+
+    this.#dependencies
+      .forEach(link => link.from.getAllSubjects(visited)
+      .forEach(subj => result.add(subj)));
+
+      return result;
   }
 }
 
@@ -430,9 +434,7 @@ class SubjectNode extends AbstractNode {
    * @returns {Set<Subject>}
    */
   getAllSubjects(visited = new Set()) {
-    const set = new Set([this.#data]);
-    for (const subj of super.getAllSubjects(visited)) set.add(subj);
-    return set;
+    return super.getAllSubjects(visited).add(this.#data);
   }
 }
 
@@ -511,16 +513,11 @@ class EdgeNode extends AbstractNode {
    * @returns {Availability}
    */
   getAvailability(subjects = Array.from(this.getAllSubjects()).map(s => s.id)) {
-    let last = this.#config.availabilities[0];
+    const targetAvailabilities = this.#targets
+      .map(t => t.getAvailability(subjects))
+      .map(a => this.#config.availabilities.indexOf(a));
 
-    for (const [idx, a] of this.#config.availabilities.entries()) {
-      if (this.#targets.some(t => this.#config.availabilities.indexOf(t.getAvailability(subjects)) < idx)) {
-        break;
-      }
-      last = a;
-    }
-
-    return last;
+    return this.#config.availabilities[Math.min(...targetAvailabilities)];
   }
 }
 
@@ -572,15 +569,6 @@ class Link {
    * @returns {Availability}
    */
   getAvailability(subjects = Array.from(this.from.getAllSubjects()).map(s => s.id)) {
-    let last = this.#config.availabilities[0];
-
-    for (const [idx, a] of this.#config.availabilities.entries()) {
-      if (this.#config.availabilities.indexOf(this.#to.getAvailability(subjects)) < idx) {
-        break;
-      }
-      last = a;
-    }
-
-    return last;
+    return this.#to.getAvailability(subjects);
   }
 }
