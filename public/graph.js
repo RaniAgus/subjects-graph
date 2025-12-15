@@ -147,7 +147,6 @@ export class Graph {
   }
 
   /**
-   * Gets a node by its ID.
    * @param {string} id
    * @return {AbstractNode | null}
    */
@@ -176,7 +175,7 @@ class AbstractNode {
   /** @type {Config} */
   #config;
 
-  /** @type {Set<Link>} */
+  /** @type {Set<AbstractNode>} */
   #dependencies;
 
   /**
@@ -197,12 +196,9 @@ class AbstractNode {
 
   /**
    * @param {AbstractNode} node
-   * @returns {Link}
    */
   addDependency(node) {
-    const link = new Link(node, this);
-    this.#dependencies.add(link);
-    return link;
+    this.#dependencies.add(node);
   }
 
   /**
@@ -219,13 +215,13 @@ class AbstractNode {
    */
   simplifyTransitiveDependencies() {
     // Work on a snapshot of current links to avoid mutating during iteration
-    for (const link of Array.from(this.#dependencies)) {
+    for (const node of Array.from(this.#dependencies)) {
       // Temporarily remove the link
-      this.#dependencies.delete(link);
-      if (this.#dependsOn(link.from)) {
+      this.#dependencies.delete(node);
+      if (this.#dependsOn(node)) {
         continue; // This link is redundant
       }
-      this.#dependencies.add(link); // Keep the link if it's not redundant
+      this.#dependencies.add(node); // Keep the link if it's not redundant
     }
   }
 
@@ -235,8 +231,8 @@ class AbstractNode {
    * This can only be determined after all links are established.
    */
   calculateLeafDependencies() {
-    for (const link of this.#dependencies) {
-      link.from.untoggleLeaf();
+    for (const node of this.#dependencies) {
+      node.untoggleLeaf();
     }
   }
 
@@ -257,7 +253,7 @@ class AbstractNode {
     if (visited.has(this)) return false;
     visited.add(this);
     return Array.from(this.#dependencies)
-      .some(link => link.from.#dependsOn(node, visited));
+      .some(dependency => dependency.#dependsOn(node, visited));
   }
 
   /**
@@ -274,8 +270,13 @@ class AbstractNode {
    * @param {Drawer} drawer
    */
   renderLinks(drawer) {
-    for (const link of this.#dependencies) {
-      link.render(drawer);
+    for (const node of this.#dependencies) {
+      drawer.drawArrow({
+        id: `${node.id}-${this.id}`,
+        from: node.id,
+        to: this.id,
+        color: this.getAvailability(node.getAllSubjectIds()).color,
+      });
     }
   }
 
@@ -299,7 +300,7 @@ class AbstractNode {
     if (visited.has(this)) return false;
     visited.add(this);
     return Array.from(this.#dependencies)
-      .some(link => link.from.satisfies(subjectId, statusId, visited));
+      .some(node => node.satisfies(subjectId, statusId, visited));
   }
 
   /**
@@ -316,7 +317,7 @@ class AbstractNode {
     const result = new Set();
 
     this.#dependencies
-      .forEach(link => link.from.getAllSubjectIds(visited)
+      .forEach(node => node.getAllSubjectIds(visited)
       .forEach(subj => result.add(subj)));
 
     return result;
@@ -448,7 +449,7 @@ class EdgeNode extends AbstractNode {
   /** @type {Edge} */
   #data;
 
-  /** @type {Array<Link>} */
+  /** @type {Array<AbstractNode>} */
   #targets;
 
   /**
@@ -481,7 +482,8 @@ class EdgeNode extends AbstractNode {
     this.#data.targets.forEach(targetId => {
       const targetNode = graph.getNodeById(targetId);
       if (targetNode) {
-        this.#targets.push(targetNode.addDependency(this));
+        targetNode.addDependency(this);
+        this.#targets.push(targetNode);
       } else {
         console.warn(`Edge target with ID ${targetId} not found in graph.`);
       }
@@ -517,41 +519,9 @@ class EdgeNode extends AbstractNode {
    */
   getAvailability(subjectIds = this.getAllSubjectIds()) {
     const targetAvailabilities = this.#targets
-      .map(t => t.to.getAvailability(subjectIds))
+      .map(t => t.getAvailability(subjectIds))
       .map(a => this.#config.availabilities.indexOf(a));
 
     return this.#config.availabilities[Math.min(...targetAvailabilities)];
-  }
-}
-
-class Link {
-  /** @type {AbstractNode} */
-  from;
-
-  /** @type {AbstractNode} */
-  to;
-
-  /**
-   * Creates a link between two nodes.
-   * The drawn arrow points from 'from' dependency to 'to' target.
-   * @param {AbstractNode} from
-   * @param {AbstractNode} to
-   */
-  constructor(from, to) {
-    this.from = from;
-    this.to = to;
-  }
-
-  /**
-   * Renders the node and its links.
-   * @param {Drawer} drawer
-   */
-  render(drawer) {
-    drawer.drawArrow({
-      id: `${this.from.id}-${this.to.id}`,
-      from: this.from.id,
-      to: this.to.id,
-      color: this.to.getAvailability(this.from.getAllSubjectIds()).color,
-    });
   }
 }
