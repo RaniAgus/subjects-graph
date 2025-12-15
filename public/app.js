@@ -254,7 +254,7 @@ import { Graph } from './graph.js';
     // Initialize Cytoscape with drawer's elements
     initCytoscape(drawer.getElements());
     setupEventListeners();
-    registerServiceWorkerIfInstalled();
+    registerServiceWorker();
   }
 
   // Detect whether the app is running as an installed PWA
@@ -266,13 +266,12 @@ import { Graph } from './graph.js';
     return isStandalone || isIosStandalone || isAndroidWebAPK || persisted;
   }
 
-  // Register service worker only when in installed mode (Option A)
-  async function registerServiceWorkerIfInstalled() {
+  // Register service worker for offline functionality
+  async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
-    if (!isInstalled()) return; // Only register for installed PWA
     try {
-      const reg = await navigator.serviceWorker.register('./pwa/sw.js');
-      console.log('Service Worker registered (installed PWA):', reg);
+      const reg = await navigator.serviceWorker.register('./sw.js');
+      console.log('Service Worker registered:', reg);
     } catch (err) {
       console.error('Service Worker registration failed:', err);
     }
@@ -435,7 +434,7 @@ import { Graph } from './graph.js';
       try {
         localStorage.setItem('pwaInstalled', 'true');
       } catch (err) {}
-      registerServiceWorkerIfInstalled();
+      registerServiceWorker();
     });
   }
 
