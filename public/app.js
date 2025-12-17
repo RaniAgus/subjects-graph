@@ -198,6 +198,59 @@ import { Graph } from './graph.js';
     });
   }
 
+  // Shared logic to render graph and UI for current variant and theme
+  function renderGraphAndUI() {
+    // Load variant data
+    const variantData = appData.variants[currentVariant];
+
+    // Get current theme colors from window.THEMES
+    const theme = window.THEMES[currentTheme];
+    themeColors = theme?.colors ?? {};
+    applyTheme(theme);
+
+    // Set up config with resolved CSS colors
+    config = {
+      statuses: variantData.statuses.map(s => ({
+        ...s,
+        color: resolveCssColor(s.color),
+        textColor: resolveCssColor(s.textColor),
+        leafTextColor: s.leafTextColor ? resolveCssColor(s.leafTextColor) : null,
+      })),
+      availabilities: variantData.availabilities.map(a => ({ ...a, color: resolveCssColor(a.color) })),
+    };
+
+    // Generate legend
+    generateLegend();
+
+    // Remove skeleton loading state
+    const legendItems = document.querySelector('.legend-items');
+    if (legendItems) {
+      legendItems.classList.remove('skeleton');
+    }
+
+    // Load saved statuses from localStorage and merge with subjects
+    const savedStatuses = loadStatuses();
+    const defaultStatus = config.statuses[0].id;
+    const subjects = variantData.subjects.map(s => ({
+      ...s,
+      status: savedStatuses[s.id] || s.status || defaultStatus,
+    }));
+
+    // Create Graph and render
+    graph = new Graph(config, subjects, variantData.edges);
+    const drawer = new CytoscapeDrawer();
+    graph.render(drawer);
+
+    // Destroy previous Cytoscape instance if exists
+    if (cy) {
+      cy.destroy();
+      cy = null;
+    }
+
+    // Initialize Cytoscape with drawer's elements
+    initCytoscape(drawer.getElements());
+  }
+
   // Initialize the application
   async function init() {
     // Fetch data.json
@@ -246,18 +299,11 @@ import { Graph } from './graph.js';
     // Hide header skeletons
     document.querySelectorAll('.header-skeleton').forEach(el => el.style.display = 'none');
 
-    // Load variant data
-    const variantData = appData.variants[currentVariant];
-
     // Load theme from localStorage or use default (themes defined in index.html)
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
     currentTheme = (savedTheme && window.THEMES[savedTheme])
       ? savedTheme
       : window.DEFAULT_THEME;
-
-    // Get current theme colors from window.THEMES
-    const theme = window.THEMES[currentTheme];
-    themeColors = theme?.colors ?? {};
 
     // Set theme dropdown value and populate options
     const themeSelect = document.getElementById('theme-select');
@@ -273,41 +319,8 @@ import { Graph } from './graph.js';
       themeSelect.style.display = 'block';
     }
 
-    // Set up config with resolved CSS colors
-    config = {
-      statuses: variantData.statuses.map(s => ({
-        ...s,
-        color: resolveCssColor(s.color),
-        textColor: resolveCssColor(s.textColor),
-        leafTextColor: s.leafTextColor ? resolveCssColor(s.leafTextColor) : null,
-      })),
-      availabilities: variantData.availabilities.map(a => ({ ...a, color: resolveCssColor(a.color) })),
-    };
-
-    // Generate legend
-    generateLegend();
-
-    // Remove skeleton loading state
-    const legendItems = document.querySelector('.legend-items');
-    if (legendItems) {
-      legendItems.classList.remove('skeleton');
-    }
-
-    // Load saved statuses from localStorage and merge with subjects
-    const savedStatuses = loadStatuses();
-    const defaultStatus = config.statuses[0].id;
-    const subjects = variantData.subjects.map(s => ({
-      ...s,
-      status: savedStatuses[s.id] || s.status || defaultStatus,
-    }));
-
-    // Create Graph and render
-    graph = new Graph(config, subjects, variantData.edges);
-    const drawer = new CytoscapeDrawer();
-    graph.render(drawer);
-
-    // Initialize Cytoscape with drawer's elements
-    initCytoscape(drawer.getElements());
+    // Render graph and UI for initial load
+    renderGraphAndUI();
     setupEventListeners();
     registerServiceWorker();
   }
@@ -568,18 +581,23 @@ import { Graph } from './graph.js';
 
   // Setup event listeners
   function setupEventListeners() {
-    // Variant selector
-    document.getElementById('variant-select').addEventListener('change', (e) => {
+    // Variant selector (no reload)
+    document.getElementById('variant-select').addEventListener('change', async (e) => {
       const newVariant = e.target.value;
       if (appData.variants[newVariant]) {
+        currentVariant = newVariant;
+        localStorage.setItem(VARIANT_STORAGE_KEY, newVariant);
+        // Update URL without reload
         const url = new URL(window.location);
         url.searchParams.set(VARIANT_PARAM, newVariant);
-        window.location.href = url.toString();
+        window.history.replaceState({}, '', url);
+        // Re-initialize graph and UI for new variant
+        renderGraphAndUI();
       }
     });
 
-    // Theme selector
-    document.getElementById('theme-select').addEventListener('change', (e) => {
+    // Theme selector (no reload)
+    document.getElementById('theme-select').addEventListener('change', async (e) => {
       const newThemeId = e.target.value;
       const newTheme = window.THEMES[newThemeId];
       if (newTheme) {
@@ -587,15 +605,15 @@ import { Graph } from './graph.js';
         themeColors = newTheme.colors;
         applyTheme(newTheme);
         localStorage.setItem(THEME_STORAGE_KEY, newThemeId);
-        // Reload to re-render graph with new colors
-        location.reload();
+        // Re-initialize graph and UI for new theme
+        renderGraphAndUI();
       }
     });
 
     // Reset button
     document.getElementById('reset-btn').addEventListener('click', () => {
       localStorage.removeItem(getStorageKey());
-      location.reload();
+      renderGraphAndUI();
     });
 
     // Fit button
@@ -636,7 +654,7 @@ import { Graph } from './graph.js';
               throw new Error('Formato de datos inválido');
             }
             localStorage.setItem(getStorageKey(), JSON.stringify(data.statuses));
-            location.reload();
+            renderGraphAndUI();
           } catch (err) {
             alert('Error al importar: ' + err.message);
           }
