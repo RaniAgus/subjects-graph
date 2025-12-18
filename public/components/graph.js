@@ -74,7 +74,6 @@
  * @typedef {object} Circle
  * @property {string} id
  * @property {string} label
- * @property {StatusId} status
  * @property {string} tooltip
  * @property {Position} position
  * @property {string} fillColor
@@ -171,11 +170,40 @@ export class Graph {
   }
 
   /**
+   * @param {string} id
+   * @returns {StatusId | null}
+   */
+  getStatusById(id) {
+    const node = this.#nodes.get(id);
+    if (node instanceof SubjectNode) {
+      return node.getStatus();
+    }
+    return null;
+  }
+
+  /**
+   * Returns the status of each subject.
+   * @returns {Record<string, StatusId>}
+   */
+  getStatusBySubject() {
+    const subjects = new Map();
+    for (const [id, node] of this.#nodes) {
+      if (node instanceof SubjectNode) {
+        subjects.set(id, node.getStatus());
+      }
+    }
+    return Object.fromEntries(subjects);
+  }
+
+  /**
    * Toggle the status of a node by id (if supported).
    * @param {string} id
    */
   toggleStatus(id) {
-    this.getNodeById(id)?.toggleStatus();
+    const node = this.#nodes.get(id);
+    if (node instanceof SubjectNode) {
+      node.toggleStatus();
+    }
   }
 }
 
@@ -333,11 +361,6 @@ class AbstractNode {
 
     return result;
   }
-
-  /**
-   * Toggle the status of this node (default: no-op).
-   */
-  toggleStatus() {}
 }
 
 class SubjectNode extends AbstractNode {
@@ -403,7 +426,6 @@ class SubjectNode extends AbstractNode {
       label: this.#data.shortName,
       tooltip: this.#data.name,
       position: this.#data.position,
-      status: status.id,
       fillColor: status.color,
       borderColor: this.getAvailability().color,
       textColor: this.#isLeaf ? status.leafTextColor ?? status.textColor : status.textColor,
@@ -455,6 +477,14 @@ class SubjectNode extends AbstractNode {
    */
   getAllSubjectIds(visited = new Set()) {
     return super.getAllSubjectIds(visited).add(this.#data.id);
+  }
+
+  /**
+   * Gets the status of this subject node.
+   * @returns {StatusId}
+   */
+  getStatus() {
+    return this.#data.status;
   }
 
   /**

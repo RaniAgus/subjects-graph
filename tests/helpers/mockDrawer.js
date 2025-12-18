@@ -1,8 +1,8 @@
-/** @typedef {import('~/graph.js').Drawer} Drawer */
-/** @typedef {import('~/graph.js').Circle} Circle */
-/** @typedef {import('~/graph.js').Diamond} Diamond */
-/** @typedef {import('~/graph.js').Hidden} Hidden */
-/** @typedef {import('~/graph.js').Arrow} Arrow */
+/** @typedef {import('~/components/graph.js').Drawer} Drawer */
+/** @typedef {import('~/components/graph.js').Circle} Circle */
+/** @typedef {import('~/components/graph.js').Diamond} Diamond */
+/** @typedef {import('~/components/graph.js').Hidden} Hidden */
+/** @typedef {import('~/components/graph.js').Arrow} Arrow */
 
 /**
  * @typedef {object} MockShapes

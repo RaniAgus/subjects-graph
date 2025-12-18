@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      cytoscape:
+        specifier: ^3.33.1
+        version: 3.33.1
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -334,6 +337,10 @@ packages:
   chai@6.2.1:
     resolution: {integrity: sha512-p4Z49OGG5W/WBCPSS/dH3jQ73kD6tiMmUM+bckNK6Jr5JHMG3k9bg/BvKR8lKmtVBKmOiuVaV2ws8s9oSbwysg==}
     engines: {node: '>=18'}
+
+  cytoscape@3.33.1:
+    resolution: {integrity: sha512-iJc4TwyANnOGR1OmWhsS9ayRS3s+XQ185FmuHObThD+5AeJCakAAbWv8KimMTt08xCCLNgneQwFp+JRJOr9qGQ==}
+    engines: {node: '>=0.10'}
 
   es-module-lexer@1.7.0:
     resolution: {integrity: sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA==}
@@ -707,6 +714,8 @@ snapshots:
   assertion-error@2.0.1: {}
 
   chai@6.2.1: {}
+
+  cytoscape@3.33.1: {}
 
   es-module-lexer@1.7.0: {}
 

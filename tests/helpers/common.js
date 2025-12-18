@@ -1,9 +1,9 @@
-/** @typedef {import('~/graph.js').Config} Config */
-/** @typedef {import('~/graph.js').Variant} Variant */
-/** @typedef {import('~/graph.js').Subject} Subject */
-/** @typedef {import('~/graph.js').Edge} Edge */
-/** @typedef {import('~/graph.js').StatusId} StatusId */
-/** @typedef {import('~/graph.js').AvailabilityId} AvailabilityId */
+/** @typedef {import('~/components/graph.js').Config} Config */
+/** @typedef {import('~/components/graph.js').Variant} Variant */
+/** @typedef {import('~/components/graph.js').Subject} Subject */
+/** @typedef {import('~/components/graph.js').Edge} Edge */
+/** @typedef {import('~/components/graph.js').StatusId} StatusId */
+/** @typedef {import('~/components/graph.js').AvailabilityId} AvailabilityId */
 
 import data from '~/data.json';
 

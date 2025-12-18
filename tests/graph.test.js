@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Graph } from '~/graph.js';
+import { Graph } from '~/components/graph.js';
 import { config, subjects, edges, statusColor, availabilityColor, textColor } from './helpers/common.js';
 import { createMockDrawer } from './helpers/mockDrawer.js';
 
