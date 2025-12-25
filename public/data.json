@@ -4,10 +4,32 @@
     "frba-k08": {
       "name": "UTN FRBA - Ingeniería en Sistemas de Información - Plan K08",
       "statuses": [
-        { "id": "PENDING", "name": "Pendiente", "color": "--fill-color-1", "textColor": "--text-primary", "leafTextColor": "--accent-color" },
-        { "id": "IN_PROGRESS", "name": "En curso", "color": "--fill-color-2", "textColor": "--text-primary", "leafTextColor": "--accent-color" },
-        { "id": "FINAL_EXAM_PENDING", "name": "Cursada", "color": "--fill-color-3", "textColor": "--text-primary" },
-        { "id": "APPROVED", "name": "Aprobada", "color": "--fill-color-4", "textColor": "--bg-primary" }
+        {
+          "id": "PENDING",
+          "name": "Pendiente",
+          "color": "--fill-color-1",
+          "textColor": "--text-primary",
+          "leafTextColor": "--accent-color"
+        },
+        {
+          "id": "IN_PROGRESS",
+          "name": "En curso",
+          "color": "--fill-color-2",
+          "textColor": "--text-primary",
+          "leafTextColor": "--accent-color"
+        },
+        {
+          "id": "FINAL_EXAM_PENDING",
+          "name": "Cursada",
+          "color": "--fill-color-3",
+          "textColor": "--text-primary"
+        },
+        {
+          "id": "APPROVED",
+          "name": "Aprobada",
+          "color": "--fill-color-4",
+          "textColor": "--bg-primary"
+        }
       ],
       "availabilities": [
         {
@@ -612,7 +634,25 @@
           "id": "AM1,AGA:AM2,PyE",
           "position": { "x": 900, "y": 200 },
           "dependencies": ["1", "2"],
-          "targets": ["10", "17"]
+          "targets": ["10", "AM1,AGA:PyE"]
+        },
+        {
+          "id": "AM2:C:1",
+          "position": { "x": 800, "y": 300 },
+          "dependencies": ["10"],
+          "targets": ["AM2:C:2"]
+        },
+        {
+          "id": "AM2:C:2",
+          "position": { "x": 800, "y": 400 },
+          "dependencies": ["AM2:C:1"],
+          "targets": ["19"]
+        },
+        {
+          "id": "AM1,AGA:PyE",
+          "position": { "x": 800, "y": 300 },
+          "dependencies": ["AM1,AGA:AM2,PyE"],
+          "targets": ["17"]
         },
         {
           "id": "IO,S:SdG,IA",
@@ -655,12 +695,6 @@
           "position": { "x": 400, "y": 400 },
           "dependencies": ["18"],
           "targets": ["29"]
-        },
-        {
-          "id": "AM2:C",
-          "position": { "x": 800, "y": 400 },
-          "dependencies": ["10"],
-          "targets": ["19"]
         },
         {
           "id": "F2:C",
@@ -733,10 +767,32 @@
     "frba-k23": {
       "name": "UTN FRBA - Ingeniería en Sistemas de Información - Plan K23",
       "statuses": [
-        { "id": "PENDING", "name": "Pendiente", "color": "--fill-color-1", "textColor": "--text-primary", "leafTextColor": "--accent-color" },
-        { "id": "IN_PROGRESS", "name": "En curso", "color": "--fill-color-2", "textColor": "--text-primary", "leafTextColor": "--accent-color" },
-        { "id": "FINAL_EXAM_PENDING", "name": "Cursada", "color": "--fill-color-3", "textColor": "--text-primary" },
-        { "id": "APPROVED", "name": "Aprobada", "color": "--fill-color-4", "textColor": "--bg-primary" }
+        {
+          "id": "PENDING",
+          "name": "Pendiente",
+          "color": "--fill-color-1",
+          "textColor": "--text-primary",
+          "leafTextColor": "--accent-color"
+        },
+        {
+          "id": "IN_PROGRESS",
+          "name": "En curso",
+          "color": "--fill-color-2",
+          "textColor": "--text-primary",
+          "leafTextColor": "--accent-color"
+        },
+        {
+          "id": "FINAL_EXAM_PENDING",
+          "name": "Cursada",
+          "color": "--fill-color-3",
+          "textColor": "--text-primary"
+        },
+        {
+          "id": "APPROVED",
+          "name": "Aprobada",
+          "color": "--fill-color-4",
+          "textColor": "--bg-primary"
+        }
       ],
       "availabilities": [
         {
