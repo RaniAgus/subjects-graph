@@ -846,14 +846,20 @@ class GraphApp {
     });
     this.updateProgress();
 
+    // Tap handling with delay to distinguish single vs double tap
+    let tapTimeout = null;
+
     // Click handler for subject nodes - toggle status (only in non-edit mode)
     this.cy.on('tap', 'node[nodeType="subject"]', evt => {
-      if (!this.isEditMode) {
+      // Use timeout to allow double-tap to cancel single tap
+      if (tapTimeout) clearTimeout(tapTimeout);
+      tapTimeout = setTimeout(() => {
         const node = evt.target;
         this.graph.toggleStatus(node.id());
         this.reRenderGraph();
         this.saveStatuses();
-      }
+        tapTimeout = null;
+      }, this.isEditMode ? 200 : 0);
     });
 
     // Drag event for edit mode - update positions
@@ -874,18 +880,24 @@ class GraphApp {
     if (this.isEditMode) {
       // Double-click on subject node to edit
       this.cy.on('dbltap', 'node[nodeType="subject"]', evt => {
+        if (tapTimeout) clearTimeout(tapTimeout);
+        tapTimeout = null;
         const node = evt.target;
         this.openNodeEditor(node.id());
       });
 
       // Double-click on connector node to edit
       this.cy.on('dbltap', 'node[nodeType="connector"]', evt => {
+        if (tapTimeout) clearTimeout(tapTimeout);
+        tapTimeout = null;
         const node = evt.target;
         this.openNodeEditor(node.id());
       });
 
       // Double-click on edge to create a new connector at that position
       this.cy.on('dbltap', 'edge', evt => {
+        if (tapTimeout) clearTimeout(tapTimeout);
+        tapTimeout = null;
         const edge = evt.target;
         const position = evt.position;
         this.openNewEdgeEditor(edge.data('source'), edge.data('target'), position);
@@ -895,6 +907,8 @@ class GraphApp {
       this.cy.on('dbltap', evt => {
         // Only trigger if clicking on background (not on a node or edge)
         if (evt.target === this.cy) {
+          if (tapTimeout) clearTimeout(tapTimeout);
+          tapTimeout = null;
           const position = evt.position;
           this.openNewSubjectEditor(position);
         }
