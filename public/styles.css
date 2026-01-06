@@ -154,6 +154,28 @@ header h1 {
   cursor: grab;
 }
 
+/* Edit mode indicator */
+#cy.edit-mode {
+  border: 2px dashed var(--accent-color);
+  cursor: move;
+}
+
+#cy.edit-mode::after {
+  content: '✏️ Modo Edición - Arrastrá los nodos para cambiar posiciones';
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  z-index: 10;
+  pointer-events: none;
+}
+
 /* Watermark */
 .watermark {
   position: absolute;
@@ -408,7 +430,8 @@ select.skeleton {
 .btn-fit,
 .btn-export,
 .btn-import,
-.btn-screenshot {
+.btn-screenshot,
+.btn-edit-mode {
   width: auto;
   min-width: 40px;
   height: 40px;
@@ -433,7 +456,8 @@ select.skeleton {
 .btn-fit svg,
 .btn-export svg,
 .btn-import svg,
-.btn-screenshot svg {
+.btn-screenshot svg,
+.btn-edit-mode svg {
   width: 18px;
   height: 18px;
 }
@@ -442,7 +466,8 @@ select.skeleton {
 .btn-fit:hover,
 .btn-export:hover,
 .btn-import:hover,
-.btn-screenshot:hover {
+.btn-screenshot:hover,
+.btn-edit-mode:hover {
   background: var(--accent-blue-light);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -452,8 +477,27 @@ select.skeleton {
 .btn-fit:active,
 .btn-export:active,
 .btn-import:active,
-.btn-screenshot:active {
+.btn-screenshot:active,
+.btn-edit-mode:active {
   transform: translateY(0);
+}
+
+.btn-edit-mode {
+  background: var(--btn-secondary);
+}
+
+.btn-edit-mode:hover {
+  background: var(--btn-secondary-hover);
+}
+
+.btn-edit-mode.active {
+  background: var(--accent-color);
+  color: var(--bg-primary);
+}
+
+.btn-edit-mode.active:hover {
+  background: var(--accent-color);
+  opacity: 0.9;
 }
 
 .btn-export,

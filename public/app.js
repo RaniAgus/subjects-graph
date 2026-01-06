@@ -2,10 +2,11 @@ import cytoscape from 'https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.esm.mjs
 import { Graph } from "./graph.js";
 
 class CytoscapeDrawer {
-  constructor() {
+  constructor(draggable = false) {
     this.nodes = [];
     this.edges = [];
     this.positions = new Set();
+    this.draggable = draggable;
   }
   drawCircle({ id, label, tooltip, position: { x, y }, fillColor, borderColor, textColor, status }) {
     this.nodes.push({
@@ -20,7 +21,7 @@ class CytoscapeDrawer {
         textColor,
       },
       position: { x, y },
-      locked: true,
+      locked: !this.draggable,
     });
     this.#addPosition({ x, y });
   }
@@ -33,7 +34,7 @@ class CytoscapeDrawer {
         borderColor,
       },
       position: { x, y },
-      locked: true,
+      locked: !this.draggable,
     });
     this.#addPosition({ x, y });
   }
@@ -47,7 +48,7 @@ class CytoscapeDrawer {
         borderColor: '#FFFFFF',
       },
       position: { x, y },
-      locked: true,
+      locked: !this.draggable,
     });
     this.#addPosition({ x, y });
   }
@@ -91,6 +92,7 @@ class GraphApp {
     this.themeSelect = document.getElementById('theme-select');
     this.resetBtn = document.getElementById('reset-btn');
     this.fitBtn = document.getElementById('fit-btn');
+    this.editModeBtn = document.getElementById('edit-mode-btn');
     this.exportBtn = document.getElementById('export-btn');
     this.importBtn = document.getElementById('import-btn');
     this.screenshotBtn = document.getElementById('screenshot-btn');
@@ -111,9 +113,13 @@ class GraphApp {
     this.currentTheme = null;
     this.config = null;
     this.themeColors = null;
+    this.isCustomVariant = false;
+    this.isEditMode = false;
     this.VARIANT_STORAGE_KEY = 'selectedVariant';
     this.VARIANT_PARAM = 'variant';
     this.THEME_STORAGE_KEY = 'selectedTheme';
+    this.CUSTOM_VARIANT_KEY = 'customVariant';
+    this.CUSTOM_VARIANT_ID = 'custom';
   }
 
   connect() {
@@ -126,6 +132,7 @@ class GraphApp {
     this.themeSelect.addEventListener('change', this.onThemeChange.bind(this));
     this.resetBtn.addEventListener('click', this.reset.bind(this));
     this.fitBtn.addEventListener('click', this.fit.bind(this));
+    this.editModeBtn.addEventListener('click', this.toggleEditMode.bind(this));
     this.exportBtn.addEventListener('click', this.export.bind(this));
     this.importBtn.addEventListener('click', this.import.bind(this));
     this.screenshotBtn.addEventListener('click', this.screenshot.bind(this));
@@ -141,6 +148,9 @@ class GraphApp {
       return;
     }
 
+    // Load custom variant from storage if exists
+    this.loadCustomVariant();
+
     if (this.variantSelect) {
       this.variantSelect.innerHTML = '';
       Object.entries(this.appData.variants).forEach(([id, variant]) => {
@@ -150,10 +160,22 @@ class GraphApp {
         this.variantSelect.appendChild(option);
       });
 
+      // Add custom plan option
+      const customOption = document.createElement('option');
+      customOption.value = this.CUSTOM_VARIANT_ID;
+      customOption.textContent = '📝 Plan Personalizado';
+      this.variantSelect.appendChild(customOption);
+
       const variantInStorage = localStorage.getItem(this.VARIANT_STORAGE_KEY);
-      this.currentVariant = (variantInStorage && this.appData.variants[variantInStorage])
-        ? variantInStorage
-        : this.appData.defaultVariant;
+      // Check if stored variant is custom or a valid variant
+      if (variantInStorage === this.CUSTOM_VARIANT_ID) {
+        this.currentVariant = this.CUSTOM_VARIANT_ID;
+        this.isCustomVariant = true;
+      } else {
+        this.currentVariant = (variantInStorage && this.appData.variants[variantInStorage])
+          ? variantInStorage
+          : this.appData.defaultVariant;
+      }
       this.variantSelect.value = this.currentVariant;
       this.variantSelect.classList.remove('skeleton');
       this.variantSelect.style.display = 'block';
@@ -201,12 +223,17 @@ class GraphApp {
     }
 
     this.renderGraph();
+    this.updateEditModeUI();
     this.registerServiceWorker();
     lucide.createIcons();
   }
 
   renderGraph() {
-    const variantData = this.appData.variants[this.currentVariant];
+    const variantData = this.getVariantData();
+    if (!variantData) {
+      console.error('No variant data found');
+      return;
+    }
     this.config = {
       statuses: variantData.statuses.map(s => ({
         ...s,
@@ -224,18 +251,52 @@ class GraphApp {
       status: savedStatuses[s.id] || s.status || defaultStatus,
     }));
     this.graph = new Graph(this.config, subjects, variantData.edges);
-    const drawer = new CytoscapeDrawer();
+    const drawer = new CytoscapeDrawer(this.isEditMode);
     this.graph.render(drawer);
     this.initCytoscape(drawer.getElements());
   }
 
+  /**
+   * Get variant data for current variant (handles custom variant)
+   */
+  getVariantData() {
+    if (this.currentVariant === this.CUSTOM_VARIANT_ID) {
+      if (!this.appData.variants[this.CUSTOM_VARIANT_ID]) {
+        this.initializeCustomVariant();
+      }
+      return this.appData.variants[this.CUSTOM_VARIANT_ID];
+    }
+    return this.appData.variants[this.currentVariant];
+  }
+
   onVariantChange(e) {
     const newVariant = e.target.value;
-    if (this.appData.variants[newVariant]) {
+    if (newVariant === this.CUSTOM_VARIANT_ID) {
+      this.currentVariant = this.CUSTOM_VARIANT_ID;
+      this.isCustomVariant = true;
+      this.isEditMode = false; // Start with edit mode off
+      localStorage.setItem(this.VARIANT_STORAGE_KEY, this.CUSTOM_VARIANT_ID);
+      // Initialize custom variant if it doesn't exist
+      if (!this.appData.variants[this.CUSTOM_VARIANT_ID]) {
+        this.initializeCustomVariant();
+      }
+      this.renderGraph();
+      this.updateEditModeUI();
+    } else if (this.appData.variants[newVariant]) {
       this.currentVariant = newVariant;
+      this.isCustomVariant = false;
+      this.isEditMode = false;
       localStorage.setItem(this.VARIANT_STORAGE_KEY, newVariant);
       this.renderGraph();
+      this.updateEditModeUI();
     }
+  }
+
+  toggleEditMode() {
+    if (!this.isCustomVariant) return;
+    this.isEditMode = !this.isEditMode;
+    this.renderGraph();
+    this.updateEditModeUI();
   }
 
   onThemeChange(e) {
@@ -245,8 +306,104 @@ class GraphApp {
       this.currentTheme = newThemeId;
       this.themeColors = newTheme.colors;
       this.applyTheme(newTheme);
-      localStorage.setItem(this.THEME_STORAGE_KEY, newThemeId);
+      localStorage.setItem(this.VARIANT_STORAGE_KEY, newThemeId);
       this.renderGraph();
+    }
+  }
+
+  /**
+   * Load custom variant from localStorage into appData
+   */
+  loadCustomVariant() {
+    const saved = localStorage.getItem(this.CUSTOM_VARIANT_KEY);
+    if (saved) {
+      try {
+        const customVariant = JSON.parse(saved);
+        this.appData.variants[this.CUSTOM_VARIANT_ID] = customVariant;
+      } catch (err) {
+        console.error('Error loading custom variant:', err);
+      }
+    }
+  }
+
+  /**
+   * Initialize custom variant from the default variant
+   */
+  initializeCustomVariant() {
+    const defaultVariant = this.appData.variants[this.appData.defaultVariant];
+    const customVariant = JSON.parse(JSON.stringify(defaultVariant)); // Deep clone
+    customVariant.name = 'Variante Personalizada';
+    this.appData.variants[this.CUSTOM_VARIANT_ID] = customVariant;
+    this.saveCustomVariant();
+  }
+
+  /**
+   * Save custom variant to localStorage
+   */
+  saveCustomVariant() {
+    const customVariant = this.appData.variants[this.CUSTOM_VARIANT_ID];
+    if (customVariant) {
+      localStorage.setItem(this.CUSTOM_VARIANT_KEY, JSON.stringify(customVariant));
+    }
+  }
+
+  /**
+   * Update UI elements based on edit mode state
+   */
+  updateEditModeUI() {
+    // Show/hide edit mode button based on whether we're on custom variant
+    if (this.isCustomVariant) {
+      this.editModeBtn.style.display = 'flex';
+      if (this.isEditMode) {
+        this.editModeBtn.classList.add('active');
+        this.editModeBtn.title = 'Desactivar Modo Edición';
+        this.exportBtn.innerHTML = '<i data-lucide="upload"></i> Exportar Plan';
+        this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar Plan';
+        this.exportBtn.title = 'Exportar Plan Personalizado';
+        this.importBtn.title = 'Importar Plan Personalizado';
+        this.cyContainer.classList.add('edit-mode');
+      } else {
+        this.editModeBtn.classList.remove('active');
+        this.editModeBtn.title = 'Activar Modo Edición';
+        this.exportBtn.innerHTML = '<i data-lucide="upload"></i> Exportar';
+        this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar';
+        this.exportBtn.title = 'Exportar Progreso';
+        this.importBtn.title = 'Importar Progreso';
+        this.cyContainer.classList.remove('edit-mode');
+      }
+    } else {
+      this.editModeBtn.style.display = 'none';
+      this.exportBtn.innerHTML = '<i data-lucide="upload"></i> Exportar';
+      this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar';
+      this.exportBtn.title = 'Exportar Progreso';
+      this.importBtn.title = 'Importar Progreso';
+      this.cyContainer.classList.remove('edit-mode');
+    }
+    lucide.createIcons();
+  }
+
+  /**
+   * Update node position in custom variant and save
+   */
+  updateNodePosition(nodeId, position) {
+    if (!this.isEditMode) return;
+
+    const customVariant = this.appData.variants[this.CUSTOM_VARIANT_ID];
+    if (!customVariant) return;
+
+    // Update subject position
+    const subject = customVariant.subjects.find(s => s.id === nodeId);
+    if (subject) {
+      subject.position = { x: Math.round(position.x), y: Math.round(position.y) };
+      this.saveCustomVariant();
+      return;
+    }
+
+    // Update edge (connector) position
+    const edge = customVariant.edges.find(e => e.id === nodeId);
+    if (edge) {
+      edge.position = { x: Math.round(position.x), y: Math.round(position.y) };
+      this.saveCustomVariant();
     }
   }
 
@@ -335,12 +492,22 @@ class GraphApp {
       this.reRenderGraph();
       this.saveStatuses();
     });
+
+    // Drag event for edit mode - update positions
+    if (this.isEditMode) {
+      this.cy.on('dragfree', 'node', evt => {
+        const node = evt.target;
+        const position = node.position();
+        this.updateNodePosition(node.id(), position);
+      });
+    }
+
     // Tooltip
     const tooltip = document.createElement('div');
     tooltip.className = 'cy-tooltip';
     this.cyContainer.appendChild(tooltip);
     this.cy.on('mouseover', 'node[nodeType="subject"]', e => {
-      this.cyContainer.style.cursor = 'pointer';
+      this.cyContainer.style.cursor = this.isEditMode ? 'move' : 'pointer';
       tooltip.textContent = e.target.data('name');
       tooltip.style.display = 'block';
     });
@@ -350,7 +517,7 @@ class GraphApp {
       tooltip.style.top = (pos.y + 15) + 'px';
     });
     this.cy.on('mouseout', 'node', () => {
-      this.cyContainer.style.cursor = 'grab';
+      this.cyContainer.style.cursor = this.isEditMode ? 'move' : 'grab';
       tooltip.style.display = 'none';
     });
   }
@@ -390,17 +557,19 @@ class GraphApp {
           'border-color': 'data(borderColor)',
           'transition-property': 'border-color',
           'transition-duration': '0.3s',
-          'events': 'no',
+          'events': this.isEditMode ? 'yes' : 'no',
         }
       },
       {
         selector: 'node[?isInvisible]',
         style: {
-          'opacity': 0,
-          'width': 0.0001,
-          'height': 0.0001,
-          'border-width': 0,
-          'events': 'no',
+          'opacity': this.isEditMode ? 0.5 : 0,
+          'width': this.isEditMode ? 15 : 0.0001,
+          'height': this.isEditMode ? 15 : 0.0001,
+          'border-width': this.isEditMode ? 2 : 0,
+          'border-color': 'var(--accent-color)',
+          'border-style': 'dashed',
+          'events': this.isEditMode ? 'yes' : 'no',
           'label': '',
         }
       },
@@ -488,8 +657,18 @@ class GraphApp {
   }
 
   reset(e) {
-    localStorage.removeItem(this.getStorageKey());
-    this.renderGraph();
+    if (this.isCustomVariant && this.isEditMode) {
+      if (confirm('¿Estás seguro de que querés reiniciar el plan personalizado? Se perderán todos los cambios de posiciones.')) {
+        localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
+        delete this.appData.variants[this.CUSTOM_VARIANT_ID];
+        this.initializeCustomVariant();
+        localStorage.removeItem(this.getStorageKey());
+        this.renderGraph();
+      }
+    } else {
+      localStorage.removeItem(this.getStorageKey());
+      this.renderGraph();
+    }
   }
 
   fit(e) {
@@ -497,19 +676,36 @@ class GraphApp {
   }
 
   export(e) {
-    const statuses = this.loadStatuses();
-    if (Object.keys(statuses).length === 0) {
-      alert('No hay progreso para exportar.');
-      return;
+    if (this.isCustomVariant && this.isEditMode) {
+      // Export custom variant/plan
+      const customVariant = this.appData.variants[this.CUSTOM_VARIANT_ID];
+      if (!customVariant) {
+        alert('No hay plan personalizado para exportar.');
+        return;
+      }
+      const blob = new Blob([JSON.stringify(customVariant, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'custom-plan.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      // Export progress statuses
+      const statuses = this.loadStatuses();
+      if (Object.keys(statuses).length === 0) {
+        alert('No hay progreso para exportar.');
+        return;
+      }
+      const exportData = { variant: this.currentVariant, statuses };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `progress-${this.currentVariant}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
     }
-    const exportData = { variant: this.currentVariant, statuses };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `progress-${this.currentVariant}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   import(e) {
@@ -523,11 +719,24 @@ class GraphApp {
       reader.onload = (e) => {
         try {
           const data = JSON.parse(e.target.result);
-          if (!data.statuses || typeof data.statuses !== 'object') {
-            throw new Error('Formato de datos inválido');
+
+          if (this.isCustomVariant && this.isEditMode) {
+            // Import custom variant/plan
+            if (!data.subjects || !data.statuses || !data.availabilities) {
+              throw new Error('Formato de plan inválido. Debe contener subjects, statuses y availabilities.');
+            }
+            this.appData.variants[this.CUSTOM_VARIANT_ID] = data;
+            this.saveCustomVariant();
+            this.renderGraph();
+            alert('Plan personalizado importado correctamente.');
+          } else {
+            // Import progress statuses
+            if (!data.statuses || typeof data.statuses !== 'object') {
+              throw new Error('Formato de datos inválido');
+            }
+            localStorage.setItem(this.getStorageKey(), JSON.stringify(data.statuses));
+            this.renderGraph();
           }
-          localStorage.setItem(this.getStorageKey(), JSON.stringify(data.statuses));
-          this.renderGraph();
         } catch (err) {
           alert('Error al importar: ' + err.message);
         }
