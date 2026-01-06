@@ -157,10 +157,18 @@
                 </div>
 
                 <div class="controls">
-                    <h3>Controles</h3>
-                    <p class="control-description">• Click en un nodo: cambiar estado</p>
-                    <p class="control-description">• Scroll: zoom</p>
-                    <p class="control-description">• Arrastrar: mover vista</p>
+                    <h3 id="controls-title">Controles</h3>
+                    <div id="normal-mode-controls">
+                        <p class="control-description">• Click en un nodo: cambiar estado</p>
+                        <p class="control-description">• Scroll: zoom</p>
+                        <p class="control-description">• Arrastrar: mover vista</p>
+                    </div>
+                    <div id="edit-mode-controls" style="display: none;">
+                        <p class="control-description">• Arrastrar nodo: mover posición</p>
+                        <p class="control-description">• Doble click en nodo: editar</p>
+                        <p class="control-description">• Doble click en flecha: crear conector</p>
+                        <p class="control-description">• Doble click en fondo: crear materia</p>
+                    </div>
                     <div class="button-row">
                         <button id="import-btn" class="btn-import" title="Importar Datos"><i data-lucide="download"></i> Importar</button>
                         <button id="export-btn" class="btn-export" title="Exportar Datos"><i data-lucide="upload"></i> Exportar</button>

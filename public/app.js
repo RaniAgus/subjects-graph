@@ -104,6 +104,9 @@ class GraphApp {
     this.cyContainer = document.getElementById('cy');
     this.progressApproved = document.getElementById('progress-approved');
     this.progressPending = document.getElementById('progress-pending');
+    this.controlsTitle = document.getElementById('controls-title');
+    this.normalModeControls = document.getElementById('normal-mode-controls');
+    this.editModeControls = document.getElementById('edit-mode-controls');
 
     // Node editor modal elements
     this.nodeEditorModal = document.getElementById('node-editor-modal');
@@ -415,6 +418,9 @@ class GraphApp {
         this.exportBtn.title = 'Exportar Plan Personalizado';
         this.importBtn.title = 'Importar Plan Personalizado';
         this.cyContainer.classList.add('edit-mode');
+        this.controlsTitle.textContent = 'Modo edición';
+        this.normalModeControls.style.display = 'none';
+        this.editModeControls.style.display = 'block';
       } else {
         this.editModeBtn.classList.remove('active');
         this.editModeBtn.title = 'Activar Modo Edición';
@@ -423,6 +429,9 @@ class GraphApp {
         this.exportBtn.title = 'Exportar Progreso';
         this.importBtn.title = 'Importar Progreso';
         this.cyContainer.classList.remove('edit-mode');
+        this.controlsTitle.textContent = 'Controles';
+        this.normalModeControls.style.display = 'block';
+        this.editModeControls.style.display = 'none';
       }
     } else {
       this.editModeBtn.style.display = 'none';
@@ -431,6 +440,9 @@ class GraphApp {
       this.exportBtn.title = 'Exportar Progreso';
       this.importBtn.title = 'Importar Progreso';
       this.cyContainer.classList.remove('edit-mode');
+      this.controlsTitle.textContent = 'Controles';
+      this.normalModeControls.style.display = 'block';
+      this.editModeControls.style.display = 'none';
     }
     lucide.createIcons();
   }
