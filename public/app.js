@@ -127,6 +127,7 @@ class GraphApp {
     this.isEditMode = false;
     this.editingNodeId = null; // Currently editing node ID
     this.editingNodeType = null; // 'subject' or 'edge'
+    this.isCreatingNode = false; // Are we creating a new node?
     this.VARIANT_STORAGE_KEY = 'selectedVariant';
     this.VARIANT_PARAM = 'variant';
     this.THEME_STORAGE_KEY = 'selectedTheme';
@@ -488,12 +489,74 @@ class GraphApp {
   }
 
   /**
+   * Open the node editor to create a new subject
+   */
+  openNewSubjectEditor(position) {
+    if (!this.isEditMode || !this.customVariantData) return;
+
+    // Generate a new unique ID
+    const existingIds = this.customVariantData.subjects.map(s => parseInt(s.id)).filter(id => !isNaN(id));
+    const newId = existingIds.length > 0 ? String(Math.max(...existingIds) + 1) : '1';
+
+    const newSubject = {
+      id: newId,
+      name: 'Nueva Materia',
+      shortName: 'NM',
+      position: { x: Math.round(position.x), y: Math.round(position.y) },
+      prerequisites: []
+    };
+
+    this.editingNodeType = 'subject';
+    this.editingNodeId = null; // null means creating new
+    this.isCreatingNode = true;
+    this.nodeEditorTitle.textContent = 'Crear Nueva Materia';
+    this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#materias-y-correlativas';
+    this.nodeEditorTextarea.value = JSON.stringify(newSubject, null, 2);
+    this.nodeEditorError.style.display = 'none';
+    this.nodeEditorModal.style.display = 'flex';
+    this.nodeEditorTextarea.focus();
+    lucide.createIcons();
+  }
+
+  /**
+   * Open the node editor to create a new edge/connector
+   */
+  openNewEdgeEditor(sourceId, targetId, position) {
+    if (!this.isEditMode || !this.customVariantData) return;
+
+    // Get short names for readable ID
+    const sourceNode = this.customVariantData.subjects.find(s => s.id === sourceId);
+    const targetNode = this.customVariantData.subjects.find(s => s.id === targetId);
+    const sourceName = sourceNode?.shortName || sourceId;
+    const targetName = targetNode?.shortName || targetId;
+
+    const newEdge = {
+      id: `${sourceName}:${targetName}`,
+      position: { x: Math.round(position.x), y: Math.round(position.y) },
+      dependencies: [sourceId],
+      targets: [targetId]
+    };
+
+    this.editingNodeType = 'edge';
+    this.editingNodeId = null; // null means creating new
+    this.isCreatingNode = true;
+    this.nodeEditorTitle.textContent = 'Crear Nuevo Conector';
+    this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#conectores';
+    this.nodeEditorTextarea.value = JSON.stringify(newEdge, null, 2);
+    this.nodeEditorError.style.display = 'none';
+    this.nodeEditorModal.style.display = 'flex';
+    this.nodeEditorTextarea.focus();
+    lucide.createIcons();
+  }
+
+  /**
    * Close the node editor modal
    */
   closeNodeEditor() {
     this.nodeEditorModal.style.display = 'none';
     this.editingNodeId = null;
     this.editingNodeType = null;
+    this.isCreatingNode = false;
     this.nodeEditorError.style.display = 'none';
   }
 
@@ -517,7 +580,7 @@ class GraphApp {
    */
   saveNodeEdit() {
     if (!this.validateNodeJson()) return;
-    if (!this.editingNodeId || !this.editingNodeType) return;
+    if (!this.editingNodeType) return;
 
     try {
       const newData = JSON.parse(this.nodeEditorTextarea.value);
@@ -527,20 +590,35 @@ class GraphApp {
         if (!newData.id || !newData.position) {
           throw new Error('La materia debe tener "id" y "position"');
         }
-        // Find and update the subject
-        const index = this.customVariantData.subjects.findIndex(s => s.id === this.editingNodeId);
-        if (index !== -1) {
-          // If ID changed, update the ID
-          this.customVariantData.subjects[index] = newData;
+        if (this.isCreatingNode) {
+          // Check for duplicate ID
+          if (this.customVariantData.subjects.some(s => s.id === newData.id)) {
+            throw new Error(`Ya existe una materia con ID "${newData.id}"`);
+          }
+          this.customVariantData.subjects.push(newData);
+        } else {
+          // Find and update the subject
+          const index = this.customVariantData.subjects.findIndex(s => s.id === this.editingNodeId);
+          if (index !== -1) {
+            this.customVariantData.subjects[index] = newData;
+          }
         }
       } else if (this.editingNodeType === 'edge') {
         if (!newData.id || !newData.position) {
           throw new Error('El conector debe tener "id" y "position"');
         }
-        // Find and update the edge
-        const index = this.customVariantData.edges.findIndex(e => e.id === this.editingNodeId);
-        if (index !== -1) {
-          this.customVariantData.edges[index] = newData;
+        if (this.isCreatingNode) {
+          // Check for duplicate ID
+          if (this.customVariantData.edges.some(e => e.id === newData.id)) {
+            throw new Error(`Ya existe un conector con ID "${newData.id}"`);
+          }
+          this.customVariantData.edges.push(newData);
+        } else {
+          // Find and update the edge
+          const index = this.customVariantData.edges.findIndex(e => e.id === this.editingNodeId);
+          if (index !== -1) {
+            this.customVariantData.edges[index] = newData;
+          }
         }
       }
 
@@ -668,6 +746,25 @@ class GraphApp {
     const tooltip = document.createElement('div');
     tooltip.className = 'cy-tooltip';
     this.cyContainer.appendChild(tooltip);
+
+    // Double-click on edge to create a new connector at that position
+    if (this.isEditMode) {
+      this.cy.on('dbltap', 'edge', evt => {
+        const edge = evt.target;
+        const position = evt.position;
+        this.openNewEdgeEditor(edge.data('source'), edge.data('target'), position);
+      });
+
+      // Double-click on background to create a new subject
+      this.cy.on('dbltap', evt => {
+        // Only trigger if clicking on background (not on a node or edge)
+        if (evt.target === this.cy) {
+          const position = evt.position;
+          this.openNewSubjectEditor(position);
+        }
+      });
+    }
+
     this.cy.on('mouseover', 'node[nodeType="subject"]', e => {
       this.cyContainer.style.cursor = this.isEditMode ? 'move' : 'pointer';
       tooltip.textContent = e.target.data('name');
@@ -753,7 +850,7 @@ class GraphApp {
           'arrow-scale': 1.5,
           'transition-property': 'line-color, target-arrow-color',
           'transition-duration': '0.3s',
-          'events': 'no',
+          'events': this.isEditMode ? 'yes' : 'no',
         }
       },
       {
