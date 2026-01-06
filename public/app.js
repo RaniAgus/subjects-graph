@@ -679,14 +679,73 @@ class GraphApp {
     if (!confirm(`¿Estás seguro de que querés eliminar este ${nodeType}?`)) return;
 
     if (this.editingNodeType === 'subject') {
-      const index = this.customVariantData.subjects.findIndex(s => s.id === this.editingNodeId);
+      const subjectId = this.editingNodeId;
+      const index = this.customVariantData.subjects.findIndex(s => s.id === subjectId);
       if (index !== -1) {
         this.customVariantData.subjects.splice(index, 1);
+
+        // Remove references from other subjects' prerequisites
+        this.customVariantData.subjects.forEach(subject => {
+          if (subject.prerequisites) {
+            subject.prerequisites.forEach(prereq => {
+              if (prereq.dependencies) {
+                prereq.dependencies.forEach(dep => {
+                  if (dep.subjects) {
+                    dep.subjects = dep.subjects.filter(s => s !== subjectId);
+                  }
+                });
+                // Remove empty dependencies
+                prereq.dependencies = prereq.dependencies.filter(dep => dep.subjects && dep.subjects.length > 0);
+              }
+            });
+            // Remove empty prerequisites
+            subject.prerequisites = subject.prerequisites.filter(prereq => prereq.dependencies && prereq.dependencies.length > 0);
+          }
+        });
+
+        // Remove references from edges
+        this.customVariantData.edges.forEach(edge => {
+          if (edge.dependencies) {
+            edge.dependencies = edge.dependencies.filter(d => d !== subjectId);
+          }
+          if (edge.targets) {
+            edge.targets = edge.targets.filter(t => t !== subjectId);
+          }
+        });
+
+        // Remove edges that have no dependencies or no targets
+        this.customVariantData.edges = this.customVariantData.edges.filter(
+          edge => edge.dependencies && edge.dependencies.length > 0 && edge.targets && edge.targets.length > 0
+        );
       }
     } else if (this.editingNodeType === 'edge') {
-      const index = this.customVariantData.edges.findIndex(e => e.id === this.editingNodeId);
-      if (index !== -1) {
-        this.customVariantData.edges.splice(index, 1);
+      const edgeId = this.editingNodeId;
+      const edgeToDelete = this.customVariantData.edges.find(e => e.id === edgeId);
+
+      if (edgeToDelete) {
+        // Reconnect: edges pointing TO this edge should now point to this edge's targets
+        this.customVariantData.edges.forEach(edge => {
+          if (edge.targets && edge.targets.includes(edgeId)) {
+            // Replace reference to deleted edge with its targets
+            const idx = edge.targets.indexOf(edgeId);
+            edge.targets.splice(idx, 1, ...(edgeToDelete.targets || []));
+          }
+        });
+
+        // Reconnect: edges pointing FROM this edge should now point from this edge's dependencies
+        this.customVariantData.edges.forEach(edge => {
+          if (edge.dependencies && edge.dependencies.includes(edgeId)) {
+            // Replace reference to deleted edge with its dependencies
+            const idx = edge.dependencies.indexOf(edgeId);
+            edge.dependencies.splice(idx, 1, ...(edgeToDelete.dependencies || []));
+          }
+        });
+
+        // Now remove the edge
+        const index = this.customVariantData.edges.findIndex(e => e.id === edgeId);
+        if (index !== -1) {
+          this.customVariantData.edges.splice(index, 1);
+        }
       }
     }
 
