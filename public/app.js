@@ -330,8 +330,32 @@ class GraphApp {
   }
 
   toggleEditMode() {
-    if (!this.isCustomVariant) return;
-    this.isEditMode = !this.isEditMode;
+    // If already in custom variant, just toggle edit mode
+    if (this.isCustomVariant) {
+      this.isEditMode = !this.isEditMode;
+      this.renderGraph();
+      this.updateEditModeUI();
+      return;
+    }
+
+    // Starting edit mode from a non-custom variant
+    // Ask to override if a custom plan already exists
+    if (this.hasCustomVariant()) {
+      if (!confirm('Ya existe un plan personalizado. ¿Querés eliminarlo y empezar uno nuevo?')) {
+        return;
+      }
+      // Delete the existing custom plan
+      localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
+      this.customVariantData = null;
+    }
+
+    // Initialize custom plan based on current variant
+    this.initializeCustomVariantFrom(this.currentVariant);
+    this.currentVariant = this.CUSTOM_VARIANT_ID;
+    this.isCustomVariant = true;
+    this.isEditMode = true;
+    localStorage.setItem(this.VARIANT_STORAGE_KEY, this.CUSTOM_VARIANT_ID);
+    this.variantSelect.value = this.CUSTOM_VARIANT_ID;
     this.renderGraph();
     this.updateEditModeUI();
   }
@@ -373,13 +397,43 @@ class GraphApp {
   }
 
   /**
-   * Initialize custom variant from the default variant
+   * Initialize custom variant with one default subject (for "Crear Plan Personalizado")
    */
   initializeCustomVariant() {
     const defaultVariant = this.appData.variants[this.appData.defaultVariant];
-    const customVariant = JSON.parse(JSON.stringify(defaultVariant)); // Deep clone
-    customVariant.name = 'Plan Personalizado';
-    this.customVariantData = customVariant;
+    // Create plan with same statuses and availabilities, and one default subject
+    this.customVariantData = {
+      name: 'Plan Personalizado',
+      statuses: JSON.parse(JSON.stringify(defaultVariant.statuses)),
+      availabilities: JSON.parse(JSON.stringify(defaultVariant.availabilities)),
+      subjects: [
+        {
+          id: '1',
+          name: 'Nueva Materia',
+          shortName: 'NM',
+          position: { x: 0, y: 0 },
+          prerequisites: []
+        }
+      ],
+      edges: []
+    };
+    this.saveCustomVariant();
+    this.updateCustomVariantOption();
+  }
+
+  /**
+   * Initialize custom variant by copying from a specific variant
+   */
+  initializeCustomVariantFrom(variantId) {
+    const sourceVariant = this.appData.variants[variantId];
+    if (!sourceVariant) {
+      // Fallback to default initialization if variant not found
+      this.initializeCustomVariant();
+      return;
+    }
+    // Deep clone the source variant
+    this.customVariantData = JSON.parse(JSON.stringify(sourceVariant));
+    this.customVariantData.name = 'Plan Personalizado';
     this.saveCustomVariant();
     this.updateCustomVariantOption();
   }
@@ -389,8 +443,10 @@ class GraphApp {
    */
   updateCustomVariantOption() {
     const customOption = this.variantSelect.querySelector(`option[value="${this.CUSTOM_VARIANT_ID}"]`);
-    if (customOption && this.hasCustomVariant()) {
-      customOption.textContent = `📝 ${this.customVariantData.name}`;
+    if (customOption) {
+      customOption.textContent = this.hasCustomVariant()
+        ? `📝 ${this.customVariantData.name}`
+        : '➕ Crear Plan Personalizado';
     }
   }
 
@@ -407,34 +463,23 @@ class GraphApp {
    * Update UI elements based on edit mode state
    */
   updateEditModeUI() {
-    // Show/hide edit mode button based on whether we're on custom variant
-    if (this.isCustomVariant) {
-      this.editModeBtn.style.display = 'flex';
-      if (this.isEditMode) {
-        this.editModeBtn.classList.add('active');
-        this.editModeBtn.title = 'Desactivar Modo Edición';
-        this.exportBtn.innerHTML = '<i data-lucide="upload"></i> Exportar Plan';
-        this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar Plan';
-        this.exportBtn.title = 'Exportar Plan Personalizado';
-        this.importBtn.title = 'Importar Plan Personalizado';
-        this.cyContainer.classList.add('edit-mode');
-        this.controlsTitle.textContent = 'Modo edición';
-        this.normalModeControls.style.display = 'none';
-        this.editModeControls.style.display = 'block';
-      } else {
-        this.editModeBtn.classList.remove('active');
-        this.editModeBtn.title = 'Activar Modo Edición';
-        this.exportBtn.innerHTML = '<i data-lucide="upload"></i> Exportar';
-        this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar';
-        this.exportBtn.title = 'Exportar Progreso';
-        this.importBtn.title = 'Importar Progreso';
-        this.cyContainer.classList.remove('edit-mode');
-        this.controlsTitle.textContent = 'Controles';
-        this.normalModeControls.style.display = 'block';
-        this.editModeControls.style.display = 'none';
-      }
+    // Edit mode button is always visible
+    this.editModeBtn.style.display = 'flex';
+
+    if (this.isCustomVariant && this.isEditMode) {
+      this.editModeBtn.classList.add('active');
+      this.editModeBtn.title = 'Desactivar Modo Edición';
+      this.exportBtn.innerHTML = '<i data-lucide="upload"></i> Exportar Plan';
+      this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar Plan';
+      this.exportBtn.title = 'Exportar Plan Personalizado';
+      this.importBtn.title = 'Importar Plan Personalizado';
+      this.cyContainer.classList.add('edit-mode');
+      this.controlsTitle.textContent = 'Modo edición';
+      this.normalModeControls.style.display = 'none';
+      this.editModeControls.style.display = 'block';
     } else {
-      this.editModeBtn.style.display = 'none';
+      this.editModeBtn.classList.remove('active');
+      this.editModeBtn.title = 'Crear Plan Personalizado';
       this.exportBtn.innerHTML = '<i data-lucide="upload"></i> Exportar';
       this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar';
       this.exportBtn.title = 'Exportar Progreso';
@@ -500,7 +545,9 @@ class GraphApp {
     this.isCreatingNode = false;
     this.nodeEditorTextarea.value = JSON.stringify(nodeData, null, 2);
     this.nodeEditorError.style.display = 'none';
-    this.nodeEditorDelete.style.display = 'inline-flex'; // Show delete button when editing
+    // Show delete button: always for edges, only if more than 1 subject for subjects
+    const canDelete = this.editingNodeType === 'edge' || this.customVariantData.subjects.length > 1;
+    this.nodeEditorDelete.style.display = canDelete ? 'inline-flex' : 'none';
     this.nodeEditorModal.style.display = 'flex';
     this.nodeEditorTextarea.focus();
     lucide.createIcons();
@@ -1067,12 +1114,28 @@ class GraphApp {
 
   reset(e) {
     if (this.isCustomVariant && this.isEditMode) {
-      if (confirm('¿Estás seguro de que querés reiniciar el plan personalizado? Se perderán todos los cambios de posiciones.')) {
+      // Delete the custom plan entirely and switch to default
+      if (confirm('¿Estás seguro de que querés eliminar el plan personalizado?')) {
         localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
-        this.customVariantData = null;
-        this.initializeCustomVariant();
         localStorage.removeItem(this.getStorageKey());
+        this.customVariantData = null;
+        this.updateCustomVariantOption();
+
+        // Switch to default variant
+        this.currentVariant = this.appData.defaultVariant;
+        this.isCustomVariant = false;
+        this.isEditMode = false;
+        localStorage.setItem(this.VARIANT_STORAGE_KEY, this.currentVariant);
+        this.variantSelect.value = this.currentVariant;
+
+        // Update custom option text back to "Crear Plan Personalizado"
+        const customOption = this.variantSelect.querySelector(`option[value="${this.CUSTOM_VARIANT_ID}"]`);
+        if (customOption) {
+          customOption.textContent = '➕ Crear Plan Personalizado';
+        }
+
         this.renderGraph();
+        this.updateEditModeUI();
       }
     } else {
       localStorage.removeItem(this.getStorageKey());
