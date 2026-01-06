@@ -171,6 +171,29 @@
         </div>
     </div>
 
+    <!-- Node Editor Modal -->
+    <div id="node-editor-modal" class="node-editor-modal" style="display: none;">
+        <div class="node-editor-content">
+            <div class="node-editor-header">
+                <h3 id="node-editor-title">Editar Nodo</h3>
+                <div class="node-editor-actions">
+                    <a id="node-editor-info" href="https://github.com/RaniAgus/subjects-graph#materias-y-correlativas" target="_blank" class="btn-info" title="Ver documentación">
+                        <i data-lucide="info"></i>
+                    </a>
+                    <button id="node-editor-close" class="btn-close" title="Cerrar">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+            </div>
+            <textarea id="node-editor-textarea" class="node-editor-textarea" spellcheck="false"></textarea>
+            <div id="node-editor-error" class="node-editor-error" style="display: none;"></div>
+            <div class="node-editor-footer">
+                <button id="node-editor-cancel" class="btn-cancel">Cancelar</button>
+                <button id="node-editor-save" class="btn-save">Guardar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Load app -->
     <script type="module" src="app.js"></script>
 </body>

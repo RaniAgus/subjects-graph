@@ -105,6 +105,16 @@ class GraphApp {
     this.progressApproved = document.getElementById('progress-approved');
     this.progressPending = document.getElementById('progress-pending');
 
+    // Node editor modal elements
+    this.nodeEditorModal = document.getElementById('node-editor-modal');
+    this.nodeEditorTitle = document.getElementById('node-editor-title');
+    this.nodeEditorInfo = document.getElementById('node-editor-info');
+    this.nodeEditorClose = document.getElementById('node-editor-close');
+    this.nodeEditorTextarea = document.getElementById('node-editor-textarea');
+    this.nodeEditorError = document.getElementById('node-editor-error');
+    this.nodeEditorCancel = document.getElementById('node-editor-cancel');
+    this.nodeEditorSave = document.getElementById('node-editor-save');
+
     // State
     this.cy = null;
     this.graph = null;
@@ -115,6 +125,8 @@ class GraphApp {
     this.themeColors = null;
     this.isCustomVariant = false;
     this.isEditMode = false;
+    this.editingNodeId = null; // Currently editing node ID
+    this.editingNodeType = null; // 'subject' or 'edge'
     this.VARIANT_STORAGE_KEY = 'selectedVariant';
     this.VARIANT_PARAM = 'variant';
     this.THEME_STORAGE_KEY = 'selectedTheme';
@@ -137,6 +149,15 @@ class GraphApp {
     this.importBtn.addEventListener('click', this.import.bind(this));
     this.screenshotBtn.addEventListener('click', this.screenshot.bind(this));
     window.addEventListener('beforeinstallprompt', this.onBeforeInstallPrompt.bind(this));
+
+    // Node editor modal events
+    this.nodeEditorClose.addEventListener('click', this.closeNodeEditor.bind(this));
+    this.nodeEditorCancel.addEventListener('click', this.closeNodeEditor.bind(this));
+    this.nodeEditorSave.addEventListener('click', this.saveNodeEdit.bind(this));
+    this.nodeEditorModal.addEventListener('click', (e) => {
+      if (e.target === this.nodeEditorModal) this.closeNodeEditor();
+    });
+    this.nodeEditorTextarea.addEventListener('input', this.validateNodeJson.bind(this));
   }
 
   async init() {
@@ -432,6 +453,106 @@ class GraphApp {
     }
   }
 
+  /**
+   * Open the node editor modal for a specific node
+   */
+  openNodeEditor(nodeId) {
+    if (!this.isEditMode || !this.customVariantData) return;
+
+    // Find the node data (either subject or edge/connector)
+    let nodeData = this.customVariantData.subjects.find(s => s.id === nodeId);
+    if (nodeData) {
+      this.editingNodeType = 'subject';
+      this.nodeEditorTitle.textContent = `Editar Materia: ${nodeData.name || nodeData.id}`;
+      this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#materias-y-correlativas';
+    } else {
+      nodeData = this.customVariantData.edges.find(e => e.id === nodeId);
+      if (nodeData) {
+        this.editingNodeType = 'edge';
+        this.nodeEditorTitle.textContent = `Editar Conector: ${nodeId}`;
+        this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#conectores';
+      }
+    }
+
+    if (!nodeData) {
+      console.warn('Node not found:', nodeId);
+      return;
+    }
+
+    this.editingNodeId = nodeId;
+    this.nodeEditorTextarea.value = JSON.stringify(nodeData, null, 2);
+    this.nodeEditorError.style.display = 'none';
+    this.nodeEditorModal.style.display = 'flex';
+    this.nodeEditorTextarea.focus();
+    lucide.createIcons();
+  }
+
+  /**
+   * Close the node editor modal
+   */
+  closeNodeEditor() {
+    this.nodeEditorModal.style.display = 'none';
+    this.editingNodeId = null;
+    this.editingNodeType = null;
+    this.nodeEditorError.style.display = 'none';
+  }
+
+  /**
+   * Validate JSON in the node editor textarea
+   */
+  validateNodeJson() {
+    try {
+      JSON.parse(this.nodeEditorTextarea.value);
+      this.nodeEditorError.style.display = 'none';
+      return true;
+    } catch (err) {
+      this.nodeEditorError.textContent = `Error de sintaxis: ${err.message}`;
+      this.nodeEditorError.style.display = 'block';
+      return false;
+    }
+  }
+
+  /**
+   * Save the edited node data
+   */
+  saveNodeEdit() {
+    if (!this.validateNodeJson()) return;
+    if (!this.editingNodeId || !this.editingNodeType) return;
+
+    try {
+      const newData = JSON.parse(this.nodeEditorTextarea.value);
+
+      // Validate required fields based on node type
+      if (this.editingNodeType === 'subject') {
+        if (!newData.id || !newData.position) {
+          throw new Error('La materia debe tener "id" y "position"');
+        }
+        // Find and update the subject
+        const index = this.customVariantData.subjects.findIndex(s => s.id === this.editingNodeId);
+        if (index !== -1) {
+          // If ID changed, update the ID
+          this.customVariantData.subjects[index] = newData;
+        }
+      } else if (this.editingNodeType === 'edge') {
+        if (!newData.id || !newData.position) {
+          throw new Error('El conector debe tener "id" y "position"');
+        }
+        // Find and update the edge
+        const index = this.customVariantData.edges.findIndex(e => e.id === this.editingNodeId);
+        if (index !== -1) {
+          this.customVariantData.edges[index] = newData;
+        }
+      }
+
+      this.saveCustomVariant();
+      this.closeNodeEditor();
+      this.renderGraph();
+    } catch (err) {
+      this.nodeEditorError.textContent = `Error al guardar: ${err.message}`;
+      this.nodeEditorError.style.display = 'block';
+    }
+  }
+
   resolveCssColor(varName) {
     return this.themeColors?.[varName] ?? '#000000';
   }
@@ -511,11 +632,27 @@ class GraphApp {
       maxZoom: 3,
     });
     this.updateProgress();
+
+    // Click handler for subject nodes
     this.cy.on('tap', 'node[nodeType="subject"]', evt => {
       const node = evt.target;
-      this.graph.toggleStatus(node.id());
-      this.reRenderGraph();
-      this.saveStatuses();
+      if (this.isEditMode) {
+        // In edit mode, open the node editor
+        this.openNodeEditor(node.id());
+      } else {
+        // In normal mode, toggle status
+        this.graph.toggleStatus(node.id());
+        this.reRenderGraph();
+        this.saveStatuses();
+      }
+    });
+
+    // Click handler for connector nodes (only in edit mode)
+    this.cy.on('tap', 'node[nodeType="connector"]', evt => {
+      if (this.isEditMode) {
+        const node = evt.target;
+        this.openNodeEditor(node.id());
+      }
     });
 
     // Drag event for edit mode - update positions
