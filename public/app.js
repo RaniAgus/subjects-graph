@@ -280,11 +280,13 @@ class GraphApp {
     if (newVariant === this.CUSTOM_VARIANT_ID) {
       this.currentVariant = this.CUSTOM_VARIANT_ID;
       this.isCustomVariant = true;
-      this.isEditMode = false; // Start with edit mode off
       localStorage.setItem(this.VARIANT_STORAGE_KEY, this.CUSTOM_VARIANT_ID);
-      // Initialize custom variant if it doesn't exist
+      // Initialize custom variant if it doesn't exist, and enable edit mode
       if (!this.hasCustomVariant()) {
         this.initializeCustomVariant();
+        this.isEditMode = true; // Auto-enable edit mode for new custom plan
+      } else {
+        this.isEditMode = false; // Start with edit mode off for existing plan
       }
       this.renderGraph();
       this.updateEditModeUI();
