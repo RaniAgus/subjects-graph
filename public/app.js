@@ -129,6 +129,8 @@ class GraphApp {
     this.editingNodeId = null; // Currently editing node ID
     this.editingNodeType = null; // 'subject' or 'edge'
     this.isCreatingNode = false; // Are we creating a new node?
+    this.creatingEdgeSourceId = null; // Source ID when creating edge
+    this.creatingEdgeTargetId = null; // Target ID when creating edge
     this.VARIANT_STORAGE_KEY = 'selectedVariant';
     this.VARIANT_PARAM = 'variant';
     this.THEME_STORAGE_KEY = 'selectedTheme';
@@ -529,9 +531,15 @@ class GraphApp {
   openNewEdgeEditor(sourceId, targetId, position) {
     if (!this.isEditMode || !this.customVariantData) return;
 
+    // Store source and target for later updating
+    this.creatingEdgeSourceId = sourceId;
+    this.creatingEdgeTargetId = targetId;
+
     // Get short names for readable ID
     const sourceNode = this.customVariantData.subjects.find(s => s.id === sourceId);
     const targetNode = this.customVariantData.subjects.find(s => s.id === targetId);
+    const sourceEdge = this.customVariantData.edges.find(e => e.id === sourceId);
+    const targetEdge = this.customVariantData.edges.find(e => e.id === targetId);
     const sourceName = sourceNode?.shortName || sourceId;
     const targetName = targetNode?.shortName || targetId;
 
@@ -563,6 +571,8 @@ class GraphApp {
     this.editingNodeId = null;
     this.editingNodeType = null;
     this.isCreatingNode = false;
+    this.creatingEdgeSourceId = null;
+    this.creatingEdgeTargetId = null;
     this.nodeEditorError.style.display = 'none';
   }
 
@@ -619,6 +629,28 @@ class GraphApp {
             throw new Error(`Ya existe un conector con ID "${newData.id}"`);
           }
           this.customVariantData.edges.push(newData);
+
+          // Update source edge to point to the new node instead of original target
+          if (this.creatingEdgeSourceId) {
+            const sourceEdge = this.customVariantData.edges.find(e => e.id === this.creatingEdgeSourceId);
+            if (sourceEdge && sourceEdge.targets) {
+              const targetIdx = sourceEdge.targets.indexOf(this.creatingEdgeTargetId);
+              if (targetIdx !== -1) {
+                sourceEdge.targets[targetIdx] = newData.id;
+              }
+            }
+          }
+
+          // Update target edge to point to the new node instead of original source
+          if (this.creatingEdgeTargetId) {
+            const targetEdge = this.customVariantData.edges.find(e => e.id === this.creatingEdgeTargetId);
+            if (targetEdge && targetEdge.dependencies) {
+              const sourceIdx = targetEdge.dependencies.indexOf(this.creatingEdgeSourceId);
+              if (sourceIdx !== -1) {
+                targetEdge.dependencies[sourceIdx] = newData.id;
+              }
+            }
+          }
         } else {
           // Find and update the edge
           const index = this.customVariantData.edges.findIndex(e => e.id === this.editingNodeId);
