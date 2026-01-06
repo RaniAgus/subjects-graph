@@ -767,14 +767,21 @@ select.skeleton {
 
 .node-editor-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
   padding: 16px 20px;
   border-top: 1px solid var(--border-color);
 }
 
+.node-editor-footer-right {
+  display: flex;
+  gap: 10px;
+}
+
 .node-editor-footer .btn-cancel,
-.node-editor-footer .btn-save {
+.node-editor-footer .btn-save,
+.node-editor-footer .btn-delete {
   padding: 8px 20px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -782,6 +789,23 @@ select.skeleton {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.node-editor-footer .btn-delete {
+  background: var(--btn-reset);
+  color: white;
+}
+
+.node-editor-footer .btn-delete:hover {
+  background: var(--btn-reset-hover);
+}
+
+.node-editor-footer .btn-delete svg {
+  width: 16px;
+  height: 16px;
 }
 
 .node-editor-footer .btn-cancel {

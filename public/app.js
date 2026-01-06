@@ -114,6 +114,7 @@ class GraphApp {
     this.nodeEditorError = document.getElementById('node-editor-error');
     this.nodeEditorCancel = document.getElementById('node-editor-cancel');
     this.nodeEditorSave = document.getElementById('node-editor-save');
+    this.nodeEditorDelete = document.getElementById('node-editor-delete');
 
     // State
     this.cy = null;
@@ -155,6 +156,7 @@ class GraphApp {
     this.nodeEditorClose.addEventListener('click', this.closeNodeEditor.bind(this));
     this.nodeEditorCancel.addEventListener('click', this.closeNodeEditor.bind(this));
     this.nodeEditorSave.addEventListener('click', this.saveNodeEdit.bind(this));
+    this.nodeEditorDelete.addEventListener('click', this.deleteNode.bind(this));
     this.nodeEditorModal.addEventListener('click', (e) => {
       if (e.target === this.nodeEditorModal) this.closeNodeEditor();
     });
@@ -481,8 +483,10 @@ class GraphApp {
     }
 
     this.editingNodeId = nodeId;
+    this.isCreatingNode = false;
     this.nodeEditorTextarea.value = JSON.stringify(nodeData, null, 2);
     this.nodeEditorError.style.display = 'none';
+    this.nodeEditorDelete.style.display = 'inline-flex'; // Show delete button when editing
     this.nodeEditorModal.style.display = 'flex';
     this.nodeEditorTextarea.focus();
     lucide.createIcons();
@@ -513,6 +517,7 @@ class GraphApp {
     this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#materias-y-correlativas';
     this.nodeEditorTextarea.value = JSON.stringify(newSubject, null, 2);
     this.nodeEditorError.style.display = 'none';
+    this.nodeEditorDelete.style.display = 'none'; // Hide delete button when creating
     this.nodeEditorModal.style.display = 'flex';
     this.nodeEditorTextarea.focus();
     lucide.createIcons();
@@ -544,6 +549,7 @@ class GraphApp {
     this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#conectores';
     this.nodeEditorTextarea.value = JSON.stringify(newEdge, null, 2);
     this.nodeEditorError.style.display = 'none';
+    this.nodeEditorDelete.style.display = 'none'; // Hide delete button when creating
     this.nodeEditorModal.style.display = 'flex';
     this.nodeEditorTextarea.focus();
     lucide.createIcons();
@@ -631,6 +637,32 @@ class GraphApp {
     }
   }
 
+  /**
+   * Delete the currently editing node
+   */
+  deleteNode() {
+    if (this.isCreatingNode || !this.editingNodeId || !this.editingNodeType) return;
+
+    const nodeType = this.editingNodeType === 'subject' ? 'materia' : 'conector';
+    if (!confirm(`¿Estás seguro de que querés eliminar este ${nodeType}?`)) return;
+
+    if (this.editingNodeType === 'subject') {
+      const index = this.customVariantData.subjects.findIndex(s => s.id === this.editingNodeId);
+      if (index !== -1) {
+        this.customVariantData.subjects.splice(index, 1);
+      }
+    } else if (this.editingNodeType === 'edge') {
+      const index = this.customVariantData.edges.findIndex(e => e.id === this.editingNodeId);
+      if (index !== -1) {
+        this.customVariantData.edges.splice(index, 1);
+      }
+    }
+
+    this.saveCustomVariant();
+    this.closeNodeEditor();
+    this.renderGraph();
+  }
+
   resolveCssColor(varName) {
     return this.themeColors?.[varName] ?? '#000000';
   }
@@ -711,25 +743,13 @@ class GraphApp {
     });
     this.updateProgress();
 
-    // Click handler for subject nodes
+    // Click handler for subject nodes - toggle status (only in non-edit mode)
     this.cy.on('tap', 'node[nodeType="subject"]', evt => {
-      const node = evt.target;
-      if (this.isEditMode) {
-        // In edit mode, open the node editor
-        this.openNodeEditor(node.id());
-      } else {
-        // In normal mode, toggle status
+      if (!this.isEditMode) {
+        const node = evt.target;
         this.graph.toggleStatus(node.id());
         this.reRenderGraph();
         this.saveStatuses();
-      }
-    });
-
-    // Click handler for connector nodes (only in edit mode)
-    this.cy.on('tap', 'node[nodeType="connector"]', evt => {
-      if (this.isEditMode) {
-        const node = evt.target;
-        this.openNodeEditor(node.id());
       }
     });
 
@@ -747,8 +767,21 @@ class GraphApp {
     tooltip.className = 'cy-tooltip';
     this.cyContainer.appendChild(tooltip);
 
-    // Double-click on edge to create a new connector at that position
+    // Double-click handlers for edit mode
     if (this.isEditMode) {
+      // Double-click on subject node to edit
+      this.cy.on('dbltap', 'node[nodeType="subject"]', evt => {
+        const node = evt.target;
+        this.openNodeEditor(node.id());
+      });
+
+      // Double-click on connector node to edit
+      this.cy.on('dbltap', 'node[nodeType="connector"]', evt => {
+        const node = evt.target;
+        this.openNodeEditor(node.id());
+      });
+
+      // Double-click on edge to create a new connector at that position
       this.cy.on('dbltap', 'edge', evt => {
         const edge = evt.target;
         const position = evt.position;
