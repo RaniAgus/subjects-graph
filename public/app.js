@@ -163,12 +163,14 @@ class GraphApp {
       // Add custom plan option
       const customOption = document.createElement('option');
       customOption.value = this.CUSTOM_VARIANT_ID;
-      customOption.textContent = '📝 Plan Personalizado';
+      customOption.textContent = this.hasCustomVariant()
+        ? `📝 ${this.customVariantData.name}`
+        : '➕ Crear Plan Personalizado';
       this.variantSelect.appendChild(customOption);
 
       const variantInStorage = localStorage.getItem(this.VARIANT_STORAGE_KEY);
       // Check if stored variant is custom or a valid variant
-      if (variantInStorage === this.CUSTOM_VARIANT_ID) {
+      if (variantInStorage === this.CUSTOM_VARIANT_ID && this.hasCustomVariant()) {
         this.currentVariant = this.CUSTOM_VARIANT_ID;
         this.isCustomVariant = true;
       } else {
@@ -204,7 +206,11 @@ class GraphApp {
       this.themeSelect.style.display = 'block';
     }
 
-    const variantData = this.appData.variants[this.currentVariant];
+    const variantData = this.getVariantData();
+    if (!variantData) {
+      console.error('No variant data found');
+      return;
+    }
 
     this.config = {
       statuses: variantData.statuses.map(s => ({
@@ -261,10 +267,10 @@ class GraphApp {
    */
   getVariantData() {
     if (this.currentVariant === this.CUSTOM_VARIANT_ID) {
-      if (!this.appData.variants[this.CUSTOM_VARIANT_ID]) {
+      if (!this.hasCustomVariant()) {
         this.initializeCustomVariant();
       }
-      return this.appData.variants[this.CUSTOM_VARIANT_ID];
+      return this.customVariantData;
     }
     return this.appData.variants[this.currentVariant];
   }
@@ -277,7 +283,7 @@ class GraphApp {
       this.isEditMode = false; // Start with edit mode off
       localStorage.setItem(this.VARIANT_STORAGE_KEY, this.CUSTOM_VARIANT_ID);
       // Initialize custom variant if it doesn't exist
-      if (!this.appData.variants[this.CUSTOM_VARIANT_ID]) {
+      if (!this.hasCustomVariant()) {
         this.initializeCustomVariant();
       }
       this.renderGraph();
@@ -312,18 +318,27 @@ class GraphApp {
   }
 
   /**
-   * Load custom variant from localStorage into appData
+   * Load custom variant from localStorage into appData (but don't add to variants list)
    */
   loadCustomVariant() {
     const saved = localStorage.getItem(this.CUSTOM_VARIANT_KEY);
     if (saved) {
       try {
-        const customVariant = JSON.parse(saved);
-        this.appData.variants[this.CUSTOM_VARIANT_ID] = customVariant;
+        this.customVariantData = JSON.parse(saved);
       } catch (err) {
         console.error('Error loading custom variant:', err);
+        this.customVariantData = null;
       }
+    } else {
+      this.customVariantData = null;
     }
+  }
+
+  /**
+   * Check if a custom variant exists in storage
+   */
+  hasCustomVariant() {
+    return this.customVariantData !== null;
   }
 
   /**
@@ -332,18 +347,28 @@ class GraphApp {
   initializeCustomVariant() {
     const defaultVariant = this.appData.variants[this.appData.defaultVariant];
     const customVariant = JSON.parse(JSON.stringify(defaultVariant)); // Deep clone
-    customVariant.name = 'Variante Personalizada';
-    this.appData.variants[this.CUSTOM_VARIANT_ID] = customVariant;
+    customVariant.name = 'Plan Personalizado';
+    this.customVariantData = customVariant;
     this.saveCustomVariant();
+    this.updateCustomVariantOption();
+  }
+
+  /**
+   * Update the custom variant option text in the select
+   */
+  updateCustomVariantOption() {
+    const customOption = this.variantSelect.querySelector(`option[value="${this.CUSTOM_VARIANT_ID}"]`);
+    if (customOption && this.hasCustomVariant()) {
+      customOption.textContent = `📝 ${this.customVariantData.name}`;
+    }
   }
 
   /**
    * Save custom variant to localStorage
    */
   saveCustomVariant() {
-    const customVariant = this.appData.variants[this.CUSTOM_VARIANT_ID];
-    if (customVariant) {
-      localStorage.setItem(this.CUSTOM_VARIANT_KEY, JSON.stringify(customVariant));
+    if (this.customVariantData) {
+      localStorage.setItem(this.CUSTOM_VARIANT_KEY, JSON.stringify(this.customVariantData));
     }
   }
 
@@ -387,12 +412,10 @@ class GraphApp {
    */
   updateNodePosition(nodeId, position) {
     if (!this.isEditMode) return;
-
-    const customVariant = this.appData.variants[this.CUSTOM_VARIANT_ID];
-    if (!customVariant) return;
+    if (!this.customVariantData) return;
 
     // Update subject position
-    const subject = customVariant.subjects.find(s => s.id === nodeId);
+    const subject = this.customVariantData.subjects.find(s => s.id === nodeId);
     if (subject) {
       subject.position = { x: Math.round(position.x), y: Math.round(position.y) };
       this.saveCustomVariant();
@@ -400,7 +423,7 @@ class GraphApp {
     }
 
     // Update edge (connector) position
-    const edge = customVariant.edges.find(e => e.id === nodeId);
+    const edge = this.customVariantData.edges.find(e => e.id === nodeId);
     if (edge) {
       edge.position = { x: Math.round(position.x), y: Math.round(position.y) };
       this.saveCustomVariant();
@@ -660,7 +683,7 @@ class GraphApp {
     if (this.isCustomVariant && this.isEditMode) {
       if (confirm('¿Estás seguro de que querés reiniciar el plan personalizado? Se perderán todos los cambios de posiciones.')) {
         localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
-        delete this.appData.variants[this.CUSTOM_VARIANT_ID];
+        this.customVariantData = null;
         this.initializeCustomVariant();
         localStorage.removeItem(this.getStorageKey());
         this.renderGraph();
@@ -678,12 +701,11 @@ class GraphApp {
   export(e) {
     if (this.isCustomVariant && this.isEditMode) {
       // Export custom variant/plan
-      const customVariant = this.appData.variants[this.CUSTOM_VARIANT_ID];
-      if (!customVariant) {
+      if (!this.customVariantData) {
         alert('No hay plan personalizado para exportar.');
         return;
       }
-      const blob = new Blob([JSON.stringify(customVariant, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(this.customVariantData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -725,8 +747,9 @@ class GraphApp {
             if (!data.subjects || !data.statuses || !data.availabilities) {
               throw new Error('Formato de plan inválido. Debe contener subjects, statuses y availabilities.');
             }
-            this.appData.variants[this.CUSTOM_VARIANT_ID] = data;
+            this.customVariantData = data;
             this.saveCustomVariant();
+            this.updateCustomVariantOption();
             this.renderGraph();
             alert('Plan personalizado importado correctamente.');
           } else {
