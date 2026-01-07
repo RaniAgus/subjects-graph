@@ -454,7 +454,8 @@ select.skeleton {
 .btn-import,
 .btn-screenshot,
 .btn-edit-mode,
-.btn-delete-plan {
+.btn-delete-plan,
+.btn-round-positions {
   width: auto;
   min-width: 40px;
   height: 40px;
@@ -481,7 +482,8 @@ select.skeleton {
 .btn-import svg,
 .btn-screenshot svg,
 .btn-edit-mode svg,
-.btn-delete-plan svg {
+.btn-delete-plan svg,
+.btn-round-positions svg {
   width: 18px;
   height: 18px;
 }
@@ -492,7 +494,8 @@ select.skeleton {
 .btn-import:hover,
 .btn-screenshot:hover,
 .btn-edit-mode:hover,
-.btn-delete-plan:hover {
+.btn-delete-plan:hover,
+.btn-round-positions:hover {
   background: var(--accent-blue-light);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -504,7 +507,8 @@ select.skeleton {
 .btn-import:active,
 .btn-screenshot:active,
 .btn-edit-mode:active,
-.btn-delete-plan:active {
+.btn-delete-plan:active,
+.btn-round-positions:active {
   transform: translateY(0);
 }
 

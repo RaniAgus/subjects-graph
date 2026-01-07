@@ -94,6 +94,7 @@ class GraphApp {
     this.fitBtn = document.getElementById('fit-btn');
     this.editModeBtn = document.getElementById('edit-mode-btn');
     this.deletePlanBtn = document.getElementById('delete-plan-btn');
+    this.roundPositionsBtn = document.getElementById('round-positions-btn');
     this.exportBtn = document.getElementById('export-btn');
     this.importBtn = document.getElementById('import-btn');
     this.screenshotBtn = document.getElementById('screenshot-btn');
@@ -154,6 +155,7 @@ class GraphApp {
     this.fitBtn.addEventListener('click', this.fit.bind(this));
     this.editModeBtn.addEventListener('click', this.toggleEditMode.bind(this));
     this.deletePlanBtn.addEventListener('click', this.deletePlan.bind(this));
+    this.roundPositionsBtn.addEventListener('click', this.roundPositions.bind(this));
     this.exportBtn.addEventListener('click', this.export.bind(this));
     this.importBtn.addEventListener('click', this.import.bind(this));
     this.screenshotBtn.addEventListener('click', this.screenshot.bind(this));
@@ -481,6 +483,7 @@ class GraphApp {
       this.normalModeControls.style.display = 'none';
       this.editModeControls.style.display = 'block';
       this.deletePlanBtn.style.display = 'flex';
+      this.roundPositionsBtn.style.display = 'flex';
     } else {
       this.editModeBtn.classList.remove('active');
       this.editModeBtn.title = 'Crear Plan Personalizado';
@@ -493,6 +496,7 @@ class GraphApp {
       this.normalModeControls.style.display = 'block';
       this.editModeControls.style.display = 'none';
       this.deletePlanBtn.style.display = 'none';
+      this.roundPositionsBtn.style.display = 'none';
       // Clear grid background
       this.cyContainer.style.backgroundImage = '';
       this.cyContainer.style.backgroundSize = '';
@@ -1284,6 +1288,32 @@ class GraphApp {
       localStorage.removeItem(this.getStorageKey());
       this.renderGraph();
     }
+  }
+
+  /**
+   * Round all node positions to the nearest hundred
+   */
+  roundPositions() {
+    if (!this.isEditMode || !this.customVariantData) return;
+
+    // Round subject positions
+    this.customVariantData.subjects.forEach(subject => {
+      if (subject.position) {
+        subject.position.x = Math.round(subject.position.x / 100) * 100;
+        subject.position.y = Math.round(subject.position.y / 100) * 100;
+      }
+    });
+
+    // Round edge positions
+    this.customVariantData.edges.forEach(edge => {
+      if (edge.position) {
+        edge.position.x = Math.round(edge.position.x / 100) * 100;
+        edge.position.y = Math.round(edge.position.y / 100) * 100;
+      }
+    });
+
+    this.saveCustomVariant();
+    this.renderGraph();
   }
 
   /**
