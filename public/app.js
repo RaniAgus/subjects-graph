@@ -131,6 +131,8 @@ class GraphApp {
     this.themeColors = null;
     this.isCustomVariant = false;
     this.isEditMode = false;
+    this.customVariantTouched = false; // Track if custom variant has been modified
+    this.originalVariant = null; // Store original variant before entering edit mode
     this.editingNodeId = null; // Currently editing node ID
     this.editingNodeType = null; // 'subject' or 'edge'
     this.isCreatingNode = false; // Are we creating a new node?
@@ -206,6 +208,7 @@ class GraphApp {
       if (variantInStorage === this.CUSTOM_VARIANT_ID && this.hasCustomVariant()) {
         this.currentVariant = this.CUSTOM_VARIANT_ID;
         this.isCustomVariant = true;
+        this.customVariantTouched = true; // Loaded from storage, consider it touched
       } else {
         this.currentVariant = (variantInStorage && this.appData.variants[variantInStorage])
           ? variantInStorage
@@ -312,6 +315,8 @@ class GraphApp {
   onVariantChange(e) {
     const newVariant = e.target.value;
     if (newVariant === this.CUSTOM_VARIANT_ID) {
+      // Don't set originalVariant - user explicitly chose custom plan
+      this.originalVariant = null;
       this.currentVariant = this.CUSTOM_VARIANT_ID;
       this.isCustomVariant = true;
       localStorage.setItem(this.VARIANT_STORAGE_KEY, this.CUSTOM_VARIANT_ID);
@@ -319,15 +324,22 @@ class GraphApp {
       if (!this.hasCustomVariant()) {
         this.initializeCustomVariant();
         this.isEditMode = true; // Auto-enable edit mode for new custom plan
+        this.customVariantTouched = false; // New plan, not touched yet
       } else {
         this.isEditMode = false; // Start with edit mode off for existing plan
+        this.customVariantTouched = true; // Existing plan is considered touched
       }
       this.renderGraph();
       this.updateEditModeUI();
     } else if (this.appData.variants[newVariant]) {
+      // If leaving an untouched custom plan, delete it
+      if (this.isCustomVariant && !this.customVariantTouched) {
+        this.deleteCustomVariant();
+      }
       this.currentVariant = newVariant;
       this.isCustomVariant = false;
       this.isEditMode = false;
+      this.originalVariant = null;
       localStorage.setItem(this.VARIANT_STORAGE_KEY, newVariant);
       this.renderGraph();
       this.updateEditModeUI();
@@ -337,6 +349,25 @@ class GraphApp {
   toggleEditMode() {
     // If already in custom variant, just toggle edit mode
     if (this.isCustomVariant) {
+      if (this.isEditMode && !this.customVariantTouched && this.originalVariant) {
+        // Turning off edit mode with no changes AND we came from another variant - auto-delete custom variant
+        localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
+        localStorage.removeItem(this.getStorageKey());
+        this.customVariantData = null;
+        this.updateCustomVariantOption();
+
+        // Switch back to original variant
+        this.currentVariant = this.originalVariant || this.appData.defaultVariant;
+        this.isCustomVariant = false;
+        this.isEditMode = false;
+        this.originalVariant = null;
+        localStorage.setItem(this.VARIANT_STORAGE_KEY, this.currentVariant);
+        this.variantSelect.value = this.currentVariant;
+
+        this.renderGraph();
+        this.updateEditModeUI();
+        return;
+      }
       this.isEditMode = !this.isEditMode;
       this.renderGraph();
       this.updateEditModeUI();
@@ -355,10 +386,12 @@ class GraphApp {
     }
 
     // Initialize custom plan based on current variant
+    this.originalVariant = this.currentVariant; // Store original variant
     this.initializeCustomVariantFrom(this.currentVariant);
     this.currentVariant = this.CUSTOM_VARIANT_ID;
     this.isCustomVariant = true;
     this.isEditMode = true;
+    this.customVariantTouched = false; // Reset touched flag
     localStorage.setItem(this.VARIANT_STORAGE_KEY, this.CUSTOM_VARIANT_ID);
     this.variantSelect.value = this.CUSTOM_VARIANT_ID;
     this.renderGraph();
@@ -462,6 +495,15 @@ class GraphApp {
     if (this.customVariantData) {
       localStorage.setItem(this.CUSTOM_VARIANT_KEY, JSON.stringify(this.customVariantData));
     }
+  }
+
+  /**
+   * Delete custom variant from localStorage
+   */
+  deleteCustomVariant() {
+    localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
+    this.customVariantData = null;
+    this.updateCustomVariantOption();
   }
 
   /**
@@ -576,6 +618,7 @@ class GraphApp {
     const subject = this.customVariantData.subjects.find(s => s.id === nodeId);
     if (subject) {
       subject.position = { x: Math.round(position.x), y: Math.round(position.y) };
+      this.customVariantTouched = true;
       this.saveCustomVariant();
       return;
     }
@@ -584,6 +627,7 @@ class GraphApp {
     const edge = this.customVariantData.edges.find(e => e.id === nodeId);
     if (edge) {
       edge.position = { x: Math.round(position.x), y: Math.round(position.y) };
+      this.customVariantTouched = true;
       this.saveCustomVariant();
     }
   }
@@ -796,6 +840,7 @@ class GraphApp {
         }
 
         this.customVariantData.statuses = newData;
+        this.customVariantTouched = true;
         this.saveCustomVariant();
         this.closeNodeEditor();
         this.renderGraph();
@@ -807,6 +852,7 @@ class GraphApp {
         }
 
         this.customVariantData.availabilities = newData;
+        this.customVariantTouched = true;
         this.saveCustomVariant();
         this.closeNodeEditor();
         this.renderGraph();
@@ -852,6 +898,7 @@ class GraphApp {
         }
       }
 
+      this.customVariantTouched = true;
       this.saveCustomVariant();
       this.closeNodeEditor();
       this.renderGraph();
@@ -941,6 +988,7 @@ class GraphApp {
       }
     }
 
+    this.customVariantTouched = true;
     this.saveCustomVariant();
     this.closeNodeEditor();
     this.renderGraph();
@@ -1314,6 +1362,7 @@ class GraphApp {
       }
     });
 
+    this.customVariantTouched = true;
     this.saveCustomVariant();
     this.renderGraph();
   }
@@ -1325,10 +1374,8 @@ class GraphApp {
     if (!this.isCustomVariant || !this.isEditMode) return;
 
     if (confirm('¿Estás seguro de eliminar el plan personalizado?')) {
-      localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
+      this.deleteCustomVariant();
       localStorage.removeItem(this.getStorageKey());
-      this.customVariantData = null;
-      this.updateCustomVariantOption();
 
       // Switch to default variant
       this.currentVariant = this.appData.defaultVariant;
@@ -1336,12 +1383,6 @@ class GraphApp {
       this.isEditMode = false;
       localStorage.setItem(this.VARIANT_STORAGE_KEY, this.currentVariant);
       this.variantSelect.value = this.currentVariant;
-
-      // Update custom option text back to "Crear Plan Personalizado"
-      const customOption = this.variantSelect.querySelector(`option[value="${this.CUSTOM_VARIANT_ID}"]`);
-      if (customOption) {
-        customOption.textContent = '➕ Crear Plan Personalizado';
-      }
 
       this.renderGraph();
       this.updateEditModeUI();
