@@ -23,6 +23,7 @@
  * @property {Position} position
  * @property {StatusId} status
  * @property {Array<Prerequisite>} prerequisites
+ * @property {boolean} [hideDependencies]
  *
  * @typedef {object} Prerequisite
  * @property {AvailabilityId} availabilityId
@@ -464,6 +465,17 @@ class SubjectNode extends AbstractNode {
     const currentIndex = this.#config.statuses.findIndex(s => s.id === this.#data.status);
     const nextIndex = (currentIndex + 1) % this.#config.statuses.length;
     this.#data.status = this.#config.statuses[nextIndex].id;
+  }
+
+  /**
+   * Renders only the node's links (arrows).
+   * @param {Drawer} drawer
+   */
+  renderLinks(drawer) {
+    if (this.#data.hideDependencies) {
+      return;
+    }
+    super.renderLinks(drawer);
   }
 }
 
