@@ -474,6 +474,14 @@ class GraphApp {
     this.customVariantData.name = 'Plan Personalizado';
     this.saveCustomVariant();
     this.updateCustomVariantOption();
+
+    // Copy progress from source variant to custom variant
+    const sourceStorageKey = `graphStatus-${variantId}`;
+    const sourceProgress = localStorage.getItem(sourceStorageKey);
+    if (sourceProgress) {
+      const customStorageKey = `graphStatus-${this.CUSTOM_VARIANT_ID}`;
+      localStorage.setItem(customStorageKey, sourceProgress);
+    }
   }
 
   /**
