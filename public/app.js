@@ -498,6 +498,9 @@ class GraphApp {
       this.cyContainer.style.backgroundSize = '';
       this.cyContainer.style.backgroundPosition = '';
     }
+
+    // Regenerate legend to show/hide edit buttons
+    this.generateLegend();
     lucide.createIcons();
   }
 
@@ -687,6 +690,44 @@ class GraphApp {
   }
 
   /**
+   * Open the statuses editor modal
+   */
+  openStatusesEditor() {
+    if (!this.isEditMode || !this.customVariantData) return;
+
+    this.editingNodeType = 'statuses';
+    this.editingNodeId = 'statuses';
+    this.isCreatingNode = false;
+    this.nodeEditorTitle.textContent = 'Editar Estados';
+    this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#estados-de-materias';
+    this.nodeEditorTextarea.value = JSON.stringify(this.customVariantData.statuses || {}, null, 2);
+    this.nodeEditorError.style.display = 'none';
+    this.nodeEditorDelete.style.display = 'none';
+    this.nodeEditorModal.style.display = 'flex';
+    this.nodeEditorTextarea.focus();
+    lucide.createIcons();
+  }
+
+  /**
+   * Open the availabilities editor modal
+   */
+  openAvailabilitiesEditor() {
+    if (!this.isEditMode || !this.customVariantData) return;
+
+    this.editingNodeType = 'availabilities';
+    this.editingNodeId = 'availabilities';
+    this.isCreatingNode = false;
+    this.nodeEditorTitle.textContent = 'Editar Disponibilidades';
+    this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#disponibilidad-de-materias';
+    this.nodeEditorTextarea.value = JSON.stringify(this.customVariantData.availabilities || [], null, 2);
+    this.nodeEditorError.style.display = 'none';
+    this.nodeEditorDelete.style.display = 'none';
+    this.nodeEditorModal.style.display = 'flex';
+    this.nodeEditorTextarea.focus();
+    lucide.createIcons();
+  }
+
+  /**
    * Close the node editor modal
    */
   closeNodeEditor() {
@@ -742,6 +783,28 @@ class GraphApp {
             this.customVariantData.subjects[index] = newData;
           }
         }
+      } else if (this.editingNodeType === 'statuses') {
+        // Validate statuses
+        if (!Array.isArray(newData)) {
+          throw new Error('Los estados deben ser un array');
+        }
+
+        this.customVariantData.statuses = newData;
+        this.saveCustomVariant();
+        this.closeNodeEditor();
+        this.renderGraph();
+        return;
+      } else if (this.editingNodeType === 'availabilities') {
+        // Validate availabilities
+        if (!Array.isArray(newData)) {
+          throw new Error('Las disponibilidades deben ser un array');
+        }
+
+        this.customVariantData.availabilities = newData;
+        this.saveCustomVariant();
+        this.closeNodeEditor();
+        this.renderGraph();
+        return;
       } else if (this.editingNodeType === 'edge') {
         if (!newData.id || !newData.position) {
           throw new Error('El conector debe tener "id" y "position"');
@@ -927,6 +990,17 @@ class GraphApp {
     if (!this.statusLegend || !this.borderLegend) return;
     this.statusLegend.innerHTML = '';
     this.borderLegend.innerHTML = '';
+
+    // Add edit button for statuses (visible only in edit mode)
+    if (this.isEditMode && this.isCustomVariant) {
+      const editBtn = document.createElement('button');
+      editBtn.className = 'legend-edit-btn';
+      editBtn.innerHTML = '<i data-lucide="pencil"></i>';
+      editBtn.title = 'Editar estados';
+      editBtn.addEventListener('click', this.openStatusesEditor.bind(this));
+      this.statusLegend.appendChild(editBtn);
+    }
+
     this.config.statuses.forEach(status => {
       if (status.name) {
         const item = document.createElement('div');
@@ -938,6 +1012,17 @@ class GraphApp {
         this.statusLegend.appendChild(item);
       }
     });
+
+    // Add edit button for availabilities (visible only in edit mode)
+    if (this.isEditMode && this.isCustomVariant) {
+      const editBtn = document.createElement('button');
+      editBtn.className = 'legend-edit-btn';
+      editBtn.innerHTML = '<i data-lucide="pencil"></i>';
+      editBtn.title = 'Editar disponibilidades';
+      editBtn.addEventListener('click', this.openAvailabilitiesEditor.bind(this));
+      this.borderLegend.appendChild(editBtn);
+    }
+
     this.config.availabilities.forEach(avail => {
       if (avail.name) {
         const item = document.createElement('div');
@@ -949,6 +1034,11 @@ class GraphApp {
         this.borderLegend.appendChild(item);
       }
     });
+
+    // Recreate lucide icons for the edit buttons
+    if (this.isEditMode && this.isCustomVariant) {
+      lucide.createIcons();
+    }
   }
 
   initCytoscape(elements) {

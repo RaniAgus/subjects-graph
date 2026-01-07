@@ -335,6 +335,44 @@ header h1 {
   border-radius: 50%;
 }
 
+/* Legend edit button */
+#status-legend,
+#border-legend {
+  position: relative;
+}
+
+.legend-edit-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  z-index: 10;
+}
+
+.legend-edit-btn svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-secondary);
+}
+
+.legend-edit-btn:hover {
+  background: var(--accent-blue);
+}
+
+.legend-edit-btn:hover svg {
+  color: white;
+}
+
 /* Skeleton loading styles */
 .skeleton-item {
   display: flex;
