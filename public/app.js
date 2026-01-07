@@ -484,6 +484,7 @@ class GraphApp {
       this.editModeControls.style.display = 'block';
       this.deletePlanBtn.style.display = 'flex';
       this.roundPositionsBtn.style.display = 'flex';
+      this.screenshotBtn.style.display = 'none';
     } else {
       this.editModeBtn.classList.remove('active');
       this.editModeBtn.title = 'Crear Plan Personalizado';
@@ -497,6 +498,7 @@ class GraphApp {
       this.editModeControls.style.display = 'none';
       this.deletePlanBtn.style.display = 'none';
       this.roundPositionsBtn.style.display = 'none';
+      this.screenshotBtn.style.display = 'flex';
       // Clear grid background
       this.cyContainer.style.backgroundImage = '';
       this.cyContainer.style.backgroundSize = '';
@@ -866,7 +868,7 @@ class GraphApp {
     if (this.isCreatingNode || !this.editingNodeId || !this.editingNodeType) return;
 
     const nodeType = this.editingNodeType === 'subject' ? 'materia' : 'conector';
-    if (!confirm(`¿Estás seguro de que querés eliminar este ${nodeType}?`)) return;
+    if (!confirm(`¿Estás seguro de eliminar este ${nodeType}?`)) return;
 
     if (this.editingNodeType === 'subject') {
       const subjectId = this.editingNodeId;
@@ -1284,7 +1286,7 @@ class GraphApp {
   }
 
   reset(e) {
-    if (confirm('¿Estás seguro de que querés reiniciar el progreso?')) {
+    if (confirm('¿Estás seguro de reiniciar el progreso?')) {
       localStorage.removeItem(this.getStorageKey());
       this.renderGraph();
     }
@@ -1322,7 +1324,7 @@ class GraphApp {
   deletePlan() {
     if (!this.isCustomVariant || !this.isEditMode) return;
 
-    if (confirm('¿Estás seguro de que querés eliminar el plan personalizado?')) {
+    if (confirm('¿Estás seguro de eliminar el plan personalizado?')) {
       localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
       localStorage.removeItem(this.getStorageKey());
       this.customVariantData = null;

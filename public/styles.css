@@ -573,6 +573,24 @@ select.skeleton {
   background: var(--btn-secondary-hover);
 }
 
+.btn-round-positions {
+  background: var(--btn-secondary);
+}
+
+.btn-round-positions:hover {
+  background: var(--btn-secondary-hover);
+}
+
+.btn-screenshot {
+  background: var(--accent-color);
+  color: var(--bg-primary);
+}
+
+.btn-screenshot:hover {
+  background: var(--accent-color);
+  opacity: 0.9;
+}
+
 .btn-export {
   background: var(--btn-secondary);
 }
