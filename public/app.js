@@ -93,6 +93,7 @@ class GraphApp {
     this.resetBtn = document.getElementById('reset-btn');
     this.fitBtn = document.getElementById('fit-btn');
     this.editModeBtn = document.getElementById('edit-mode-btn');
+    this.deletePlanBtn = document.getElementById('delete-plan-btn');
     this.exportBtn = document.getElementById('export-btn');
     this.importBtn = document.getElementById('import-btn');
     this.screenshotBtn = document.getElementById('screenshot-btn');
@@ -152,6 +153,7 @@ class GraphApp {
     this.resetBtn.addEventListener('click', this.reset.bind(this));
     this.fitBtn.addEventListener('click', this.fit.bind(this));
     this.editModeBtn.addEventListener('click', this.toggleEditMode.bind(this));
+    this.deletePlanBtn.addEventListener('click', this.deletePlan.bind(this));
     this.exportBtn.addEventListener('click', this.export.bind(this));
     this.importBtn.addEventListener('click', this.import.bind(this));
     this.screenshotBtn.addEventListener('click', this.screenshot.bind(this));
@@ -289,6 +291,7 @@ class GraphApp {
     const drawer = new CytoscapeDrawer(this.isEditMode);
     this.graph.render(drawer);
     this.initCytoscape(drawer.getElements());
+    this.updateResetButton();
   }
 
   /**
@@ -477,6 +480,7 @@ class GraphApp {
       this.controlsTitle.textContent = 'Modo edición';
       this.normalModeControls.style.display = 'none';
       this.editModeControls.style.display = 'block';
+      this.deletePlanBtn.style.display = 'flex';
     } else {
       this.editModeBtn.classList.remove('active');
       this.editModeBtn.title = 'Crear Plan Personalizado';
@@ -488,6 +492,7 @@ class GraphApp {
       this.controlsTitle.textContent = 'Controles';
       this.normalModeControls.style.display = 'block';
       this.editModeControls.style.display = 'none';
+      this.deletePlanBtn.style.display = 'none';
     }
     lucide.createIcons();
   }
@@ -848,6 +853,15 @@ class GraphApp {
       }
     });
     localStorage.setItem(this.getStorageKey(), JSON.stringify(statuses));
+    this.updateResetButton();
+  }
+
+  /**
+   * Update reset button disabled state based on whether there's saved progress
+   */
+  updateResetButton() {
+    const hasProgress = Object.keys(this.loadStatuses()).length > 0;
+    this.resetBtn.disabled = !hasProgress;
   }
 
   generateLegend() {
@@ -1113,33 +1127,39 @@ class GraphApp {
   }
 
   reset(e) {
-    if (this.isCustomVariant && this.isEditMode) {
-      // Delete the custom plan entirely and switch to default
-      if (confirm('¿Estás seguro de que querés eliminar el plan personalizado?')) {
-        localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
-        localStorage.removeItem(this.getStorageKey());
-        this.customVariantData = null;
-        this.updateCustomVariantOption();
-
-        // Switch to default variant
-        this.currentVariant = this.appData.defaultVariant;
-        this.isCustomVariant = false;
-        this.isEditMode = false;
-        localStorage.setItem(this.VARIANT_STORAGE_KEY, this.currentVariant);
-        this.variantSelect.value = this.currentVariant;
-
-        // Update custom option text back to "Crear Plan Personalizado"
-        const customOption = this.variantSelect.querySelector(`option[value="${this.CUSTOM_VARIANT_ID}"]`);
-        if (customOption) {
-          customOption.textContent = '➕ Crear Plan Personalizado';
-        }
-
-        this.renderGraph();
-        this.updateEditModeUI();
-      }
-    } else {
+    if (confirm('¿Estás seguro de que querés reiniciar el progreso?')) {
       localStorage.removeItem(this.getStorageKey());
       this.renderGraph();
+    }
+  }
+
+  /**
+   * Delete the custom plan and switch to default variant
+   */
+  deletePlan() {
+    if (!this.isCustomVariant || !this.isEditMode) return;
+
+    if (confirm('¿Estás seguro de que querés eliminar el plan personalizado?')) {
+      localStorage.removeItem(this.CUSTOM_VARIANT_KEY);
+      localStorage.removeItem(this.getStorageKey());
+      this.customVariantData = null;
+      this.updateCustomVariantOption();
+
+      // Switch to default variant
+      this.currentVariant = this.appData.defaultVariant;
+      this.isCustomVariant = false;
+      this.isEditMode = false;
+      localStorage.setItem(this.VARIANT_STORAGE_KEY, this.currentVariant);
+      this.variantSelect.value = this.currentVariant;
+
+      // Update custom option text back to "Crear Plan Personalizado"
+      const customOption = this.variantSelect.querySelector(`option[value="${this.CUSTOM_VARIANT_ID}"]`);
+      if (customOption) {
+        customOption.textContent = '➕ Crear Plan Personalizado';
+      }
+
+      this.renderGraph();
+      this.updateEditModeUI();
     }
   }
 
