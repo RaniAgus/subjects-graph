@@ -120,6 +120,8 @@ class GraphApp {
     this.nodeEditorCancel = document.getElementById('node-editor-cancel');
     this.nodeEditorSave = document.getElementById('node-editor-save');
     this.nodeEditorDelete = document.getElementById('node-editor-delete');
+    this.nodeEditorSubjects = document.getElementById('node-editor-subjects');
+    this.nodeEditorSubjectsTable = document.getElementById('node-editor-subjects-table');
 
     // State
     this.cy = null;
@@ -673,9 +675,7 @@ class GraphApp {
     // Show delete button: always for edges, only if more than 1 subject for subjects
     const canDelete = this.editingNodeType === 'edge' || this.customVariantData.subjects.length > 1;
     this.nodeEditorDelete.style.display = canDelete ? 'inline-flex' : 'none';
-    this.nodeEditorModal.style.display = 'flex';
-    this.nodeEditorTextarea.focus();
-    lucide.createIcons();
+    this.showNodeEditorModal();
   }
 
   /**
@@ -704,9 +704,7 @@ class GraphApp {
     this.nodeEditorTextarea.value = JSON.stringify(newSubject, null, 2);
     this.nodeEditorError.style.display = 'none';
     this.nodeEditorDelete.style.display = 'none'; // Hide delete button when creating
-    this.nodeEditorModal.style.display = 'flex';
-    this.nodeEditorTextarea.focus();
-    lucide.createIcons();
+    this.showNodeEditorModal();
   }
 
   /**
@@ -742,9 +740,7 @@ class GraphApp {
     this.nodeEditorTextarea.value = JSON.stringify(newEdge, null, 2);
     this.nodeEditorError.style.display = 'none';
     this.nodeEditorDelete.style.display = 'none'; // Hide delete button when creating
-    this.nodeEditorModal.style.display = 'flex';
-    this.nodeEditorTextarea.focus();
-    lucide.createIcons();
+    this.showNodeEditorModal();
   }
 
   /**
@@ -761,9 +757,7 @@ class GraphApp {
     this.nodeEditorTextarea.value = JSON.stringify(this.customVariantData.statuses || {}, null, 2);
     this.nodeEditorError.style.display = 'none';
     this.nodeEditorDelete.style.display = 'none';
-    this.nodeEditorModal.style.display = 'flex';
-    this.nodeEditorTextarea.focus();
-    lucide.createIcons();
+    this.showNodeEditorModal();
   }
 
   /**
@@ -780,9 +774,7 @@ class GraphApp {
     this.nodeEditorTextarea.value = JSON.stringify(this.customVariantData.availabilities || [], null, 2);
     this.nodeEditorError.style.display = 'none';
     this.nodeEditorDelete.style.display = 'none';
-    this.nodeEditorModal.style.display = 'flex';
-    this.nodeEditorTextarea.focus();
-    lucide.createIcons();
+    this.showNodeEditorModal();
   }
 
   /**
@@ -796,6 +788,45 @@ class GraphApp {
     this.creatingEdgeSourceId = null;
     this.creatingEdgeTargetId = null;
     this.nodeEditorError.style.display = 'none';
+    this.nodeEditorSubjects.removeAttribute('open');
+  }
+
+  /**
+   * Populate the subjects reference table in the editor modal
+   */
+  populateSubjectsTable() {
+    if (!this.customVariantData) return;
+
+    const tbody = this.nodeEditorSubjectsTable.querySelector('tbody');
+    tbody.innerHTML = '';
+
+    // Sort subjects by ID (numeric if possible)
+    const sortedSubjects = [...this.customVariantData.subjects].sort((a, b) => {
+      const aNum = parseInt(a.id);
+      const bNum = parseInt(b.id);
+      if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+      return a.id.localeCompare(b.id);
+    });
+
+    for (const subject of sortedSubjects) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${subject.id}</td>
+        <td>${subject.shortName || '-'}</td>
+        <td>${subject.name || '-'}</td>
+      `;
+      tbody.appendChild(row);
+    }
+  }
+
+  /**
+   * Show the node editor modal (common setup)
+   */
+  showNodeEditorModal() {
+    this.populateSubjectsTable();
+    this.nodeEditorModal.style.display = 'flex';
+    this.nodeEditorTextarea.focus();
+    lucide.createIcons();
   }
 
   /**

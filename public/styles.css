@@ -835,6 +835,73 @@ select.skeleton {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 }
 
+.node-editor-subjects {
+  margin: 0 20px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+}
+
+.node-editor-subjects summary {
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.node-editor-subjects summary:hover {
+  color: var(--text-primary);
+}
+
+.node-editor-subjects summary svg {
+  width: 16px;
+  height: 16px;
+}
+
+.subjects-table-container {
+  max-height: 200px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-color);
+}
+
+.node-editor-subjects table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.node-editor-subjects th,
+.node-editor-subjects td {
+  padding: 6px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.node-editor-subjects th {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.node-editor-subjects td {
+  color: var(--text-secondary);
+}
+
+.node-editor-subjects td:first-child {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  color: var(--accent-color);
+}
+
+.node-editor-subjects tbody tr:hover {
+  background: var(--bg-secondary);
+}
+
 .node-editor-footer {
   display: flex;
   justify-content: space-between;
