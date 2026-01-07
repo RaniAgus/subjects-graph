@@ -493,8 +493,67 @@ class GraphApp {
       this.normalModeControls.style.display = 'block';
       this.editModeControls.style.display = 'none';
       this.deletePlanBtn.style.display = 'none';
+      // Clear grid background
+      this.cyContainer.style.backgroundImage = '';
+      this.cyContainer.style.backgroundSize = '';
+      this.cyContainer.style.backgroundPosition = '';
     }
     lucide.createIcons();
+  }
+
+  /**
+   * Update the edit mode grid based on current pan and zoom
+   */
+  updateGrid() {
+    if (!this.isEditMode || !this.cy) return;
+
+    const zoom = this.cy.zoom();
+    const pan = this.cy.pan();
+    const gridSize = 100 * zoom;
+
+    // Calculate where origin (0,0) is in rendered coordinates
+    const originX = pan.x;
+    const originY = pan.y;
+
+    const containerWidth = this.cyContainer.offsetWidth;
+    const containerHeight = this.cyContainer.offsetHeight;
+
+    const gridColor = 'rgba(255, 255, 255, 0.1)';
+    const axisColor = 'rgba(255, 255, 255, 0.15)';
+
+    // Check if axes are visible within container bounds
+    const showYAxis = originX >= 0 && originX <= containerWidth;
+    const showXAxis = originY >= 0 && originY <= containerHeight;
+
+    const layers = [];
+    const sizes = [];
+    const positions = [];
+
+    // Y axis (vertical line at x=0)
+    if (showYAxis) {
+      layers.push(`linear-gradient(to right, ${axisColor} 1px, transparent 1px)`);
+      sizes.push('100% 100%');
+      positions.push(`${originX}px 0`);
+    }
+
+    // X axis (horizontal line at y=0)
+    if (showXAxis) {
+      layers.push(`linear-gradient(to bottom, ${axisColor} 1px, transparent 1px)`);
+      sizes.push('100% 100%');
+      positions.push(`0 ${originY}px`);
+    }
+
+    // Grid lines (always visible)
+    layers.push(
+      `linear-gradient(to right, ${gridColor} 1px, transparent 1px)`,
+      `linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)`
+    );
+    sizes.push(`${gridSize}px ${gridSize}px`, `${gridSize}px ${gridSize}px`);
+    positions.push(`${originX}px ${originY}px`, `${originX}px ${originY}px`);
+
+    this.cyContainer.style.backgroundImage = layers.join(', ');
+    this.cyContainer.style.backgroundSize = sizes.join(', ');
+    this.cyContainer.style.backgroundPosition = positions.join(', ');
   }
 
   /**
@@ -974,6 +1033,10 @@ class GraphApp {
           this.openNewSubjectEditor(position);
         }
       });
+
+      // Update grid on pan/zoom
+      this.updateGrid();
+      this.cy.on('pan zoom', () => this.updateGrid());
     }
 
     this.cy.on('mouseover', 'node[nodeType="subject"]', e => {
