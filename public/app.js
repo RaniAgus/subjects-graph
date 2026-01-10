@@ -107,6 +107,7 @@ class GraphApp {
     this.progressApproved = document.getElementById('progress-approved');
     this.progressPending = document.getElementById('progress-pending');
     this.progressContainer = document.querySelector('.progress-container');
+    this.progressCircle = document.querySelector('.progress-circle');
     this.controlsTitle = document.getElementById('controls-title');
     this.normalModeControls = document.getElementById('normal-mode-controls');
     this.editModeControls = document.getElementById('edit-mode-controls');
@@ -176,6 +177,7 @@ class GraphApp {
       if (e.target === this.nodeEditorModal) this.closeNodeEditor();
     });
     this.nodeEditorTextarea.addEventListener('input', this.validateNodeJson.bind(this));
+    this.progressCircle.addEventListener('click', this.onProgressCircleClick.bind(this));
   }
 
   async init() {
@@ -541,6 +543,7 @@ class GraphApp {
       this.deletePlanBtn.style.display = 'flex';
       this.roundPositionsBtn.style.display = 'flex';
       this.screenshotBtn.style.display = 'none';
+      this.progressCircle.classList.add('editable');
     } else {
       this.editModeBtn.classList.remove('active');
       this.editModeBtn.title = 'Crear Plan Personalizado';
@@ -555,6 +558,7 @@ class GraphApp {
       this.deletePlanBtn.style.display = 'none';
       this.roundPositionsBtn.style.display = 'none';
       this.screenshotBtn.style.display = 'flex';
+      this.progressCircle.classList.remove('editable');
       // Clear grid background
       this.cyContainer.style.backgroundImage = '';
       this.cyContainer.style.backgroundSize = '';
@@ -782,6 +786,32 @@ class GraphApp {
   }
 
   /**
+   * Open the progress editor modal
+   */
+  openProgressEditor() {
+    if (!this.isEditMode || !this.customVariantData) return;
+
+    this.editingNodeType = 'progress';
+    this.editingNodeId = 'progress';
+    this.isCreatingNode = false;
+    this.nodeEditorTitle.textContent = 'Editar Progreso';
+    this.nodeEditorInfo.href = 'https://github.com/RaniAgus/subjects-graph#progreso';
+    this.nodeEditorTextarea.value = JSON.stringify(this.customVariantData.progress || { position: { vertical: 'bottom', horizontal: 'right' } }, null, 2);
+    this.nodeEditorError.style.display = 'none';
+    this.nodeEditorDelete.style.display = 'none';
+    this.showNodeEditorModal();
+  }
+
+  /**
+   * Handle click on progress circle
+   */
+  onProgressCircleClick() {
+    if (this.isEditMode && this.isCustomVariant) {
+      this.openProgressEditor();
+    }
+  }
+
+  /**
    * Close the node editor modal
    */
   closeNodeEditor() {
@@ -895,6 +925,18 @@ class GraphApp {
         }
 
         this.customVariantData.availabilities = newData;
+        this.customVariantTouched = true;
+        this.saveCustomVariant();
+        this.closeNodeEditor();
+        this.renderGraph();
+        return;
+      } else if (this.editingNodeType === 'progress') {
+        // Validate progress
+        if (typeof newData !== 'object' || !newData.position) {
+          throw new Error('El progreso debe ser un objeto con "position"');
+        }
+
+        this.customVariantData.progress = newData;
         this.customVariantTouched = true;
         this.saveCustomVariant();
         this.closeNodeEditor();

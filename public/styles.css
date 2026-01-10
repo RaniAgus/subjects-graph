@@ -185,6 +185,16 @@ header h1 {
   z-index: 10;
 }
 
+.progress-circle.editable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.progress-circle.editable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px var(--accent-color);
+}
+
 .screenshot-container {
   position: absolute;
   bottom: 30px;
