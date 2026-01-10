@@ -2112,7 +2112,7 @@
           ],
           "position": {
             "x": 100,
-            "y": 200
+            "y": 300
           },
           "shortName": "ALC"
         },
@@ -2291,7 +2291,7 @@
             }
           ],
           "position": {
-            "x": 200,
+            "x": 300,
             "y": 300
           },
           "shortName": "CC"
@@ -2302,7 +2302,7 @@
           "prerequisites": [],
           "position": {
             "x": 0,
-            "y": 0
+            "y": 100
           },
           "shortName": "AM1"
         },
@@ -2322,7 +2322,7 @@
           ],
           "position": {
             "x": 100,
-            "y": 300
+            "y": 400
           },
           "shortName": "EC"
         },
@@ -2361,8 +2361,8 @@
             }
           ],
           "position": {
-            "x": 200,
-            "y": 400
+            "x": 400,
+            "y": 500
           },
           "shortName": "RCCD"
         },
@@ -2371,8 +2371,8 @@
           "name": "Seminario sobre Tecnología y Sociedad",
           "prerequisites": [],
           "position": {
-            "x": 300,
-            "y": 300
+            "x": 200,
+            "y": 400
           },
           "shortName": "STS"
         },
@@ -2419,19 +2419,10 @@
           "id": "AM1:EC",
           "position": {
             "x": 0,
-            "y": 200
+            "y": 300
           },
           "dependencies": ["14"],
           "targets": ["15"]
-        },
-        {
-          "id": "SO:RCCD:1:RCCD",
-          "position": {
-            "x": 300,
-            "y": 500
-          },
-          "dependencies": ["SO:RCCD:1:SO:RCCD:1:RCCD"],
-          "targets": ["17"]
         },
         {
           "id": "SO:RCCD:1:SO:RCCD:1:RCCD",
@@ -2440,7 +2431,25 @@
             "y": 500
           },
           "dependencies": ["SO:RCCD:1"],
-          "targets": ["SO:RCCD:1:RCCD"]
+          "targets": ["17"]
+        },
+        {
+          "id": "AED:ALC",
+          "position": {
+            "x": 100,
+            "y": 200
+          },
+          "dependencies": ["3"],
+          "targets": ["4"]
+        },
+        {
+          "id": "EC:RCCD",
+          "position": {
+            "x": 200,
+            "y": 500
+          },
+          "dependencies": ["15"],
+          "targets": ["17"]
         }
       ]
     }
