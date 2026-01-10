@@ -3,6 +3,9 @@
   "variants": {
     "frba-k08": {
       "name": "UTN FRBA - Ingeniería en Sistemas de Información - Plan K08",
+      "progress": {
+        "position": { "vertical": "bottom", "horizontal": "right" }
+      },
       "statuses": [
         {
           "id": "PENDING",
@@ -1090,6 +1093,9 @@
     },
     "frba-k23": {
       "name": "UTN FRBA - Ingeniería en Sistemas de Información - Plan K23",
+      "progress": {
+        "position": { "vertical": "bottom", "horizontal": "right" }
+      },
       "statuses": [
         {
           "id": "PENDING",
@@ -2006,6 +2012,9 @@
     },
     "fcen-2023": {
       "name": "FCEN UBA - Ciencias de la Computación - Plan 2023",
+      "progress": {
+        "position": { "vertical": "top", "horizontal": "right" }
+      },
       "statuses": [
         {
           "id": "PENDING",

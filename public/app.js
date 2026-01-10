@@ -106,6 +106,7 @@ class GraphApp {
     this.cyContainer = document.getElementById('cy');
     this.progressApproved = document.getElementById('progress-approved');
     this.progressPending = document.getElementById('progress-pending');
+    this.progressContainer = document.querySelector('.progress-container');
     this.controlsTitle = document.getElementById('controls-title');
     this.normalModeControls = document.getElementById('normal-mode-controls');
     this.editModeControls = document.getElementById('edit-mode-controls');
@@ -135,6 +136,7 @@ class GraphApp {
     this.isEditMode = false;
     this.customVariantTouched = false; // Track if custom variant has been modified
     this.originalVariant = null; // Store original variant before entering edit mode
+    this.progressPosition = { vertical: 'bottom', horizontal: 'right' }; // Default progress gauge position
     this.editingNodeId = null; // Currently editing node ID
     this.editingNodeType = null; // 'subject' or 'edge'
     this.isCreatingNode = false; // Are we creating a new node?
@@ -288,6 +290,7 @@ class GraphApp {
       availabilities: variantData.availabilities.map(a => ({ ...a, color: this.resolveCssColor(a.color) })),
     };
     this.generateLegend();
+    this.updateProgressPosition(variantData.progress?.position);
     const savedStatuses = this.loadStatuses();
     const defaultStatus = this.config.statuses[0].id;
     const subjects = variantData.subjects.map(s => ({
@@ -444,6 +447,7 @@ class GraphApp {
     // Create plan with same statuses and availabilities, and one default subject
     this.customVariantData = {
       name: 'Plan Personalizado',
+      progress: JSON.parse(JSON.stringify(defaultVariant.progress || { position: { vertical: 'bottom', horizontal: 'right' } })),
       statuses: JSON.parse(JSON.stringify(defaultVariant.statuses)),
       availabilities: JSON.parse(JSON.stringify(defaultVariant.availabilities)),
       subjects: [
@@ -1134,6 +1138,46 @@ class GraphApp {
     }
   }
 
+  /**
+   * Update the progress container position based on variant settings
+   * @param {Object} position - e.g. { vertical: 'bottom', horizontal: 'right' }
+   */
+  updateProgressPosition(position) {
+    if (!this.progressContainer) return;
+
+    // Default to bottom-right
+    const { vertical = 'bottom', horizontal = 'right' } = position || {};
+
+    // Reset all positions
+    this.progressContainer.style.top = '';
+    this.progressContainer.style.bottom = '';
+    this.progressContainer.style.left = '';
+    this.progressContainer.style.right = '';
+
+    // Set vertical position
+    if (vertical === 'top') {
+      this.progressContainer.style.top = '30px';
+    } else {
+      this.progressContainer.style.bottom = '30px';
+    }
+
+    // Set horizontal position
+    if (horizontal === 'left') {
+      this.progressContainer.style.left = '30px';
+    } else {
+      this.progressContainer.style.right = '30px';
+    }
+
+    // Adjustment for visualization
+    if (vertical === 'bottom' && horizontal === 'left') {
+      this.progressContainer.style.bottom = '90px';
+    }
+
+
+    // Store current position for screenshot
+    this.progressPosition = { vertical, horizontal };
+  }
+
   initCytoscape(elements) {
     this.cy = cytoscape({
       container: this.cyContainer,
@@ -1544,8 +1588,26 @@ class GraphApp {
     const gaugeScale = minDimension / 600;
     const size = 120 * gaugeScale;
     const offset = 30 * gaugeScale;
-    const x = ctx.canvas.width - size - offset;
-    const y = ctx.canvas.height - size - offset;
+
+    // Get position from variant settings
+    const { vertical = 'bottom', horizontal = 'right' } = this.progressPosition || {};
+
+    // Calculate x position
+    let x;
+    if (horizontal === 'left') {
+      x = offset;
+    } else {
+      x = ctx.canvas.width - size - offset;
+    }
+
+    // Calculate y position
+    let y;
+    if (vertical === 'top') {
+      y = offset;
+    } else {
+      y = ctx.canvas.height - size - offset;
+    }
+
     const centerX = x + size / 2;
     const centerY = y + size / 2;
     const radius = 45 * gaugeScale;
