@@ -33,7 +33,7 @@ self.addEventListener('activate', (event) => {
           return null;
         })
       )
-    )
+    ).then(() => self.clients.claim())
   );
 });
 
@@ -65,18 +65,19 @@ self.addEventListener('fetch', (event) => {
 
   // For other requests, try cache first then network
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request)
-        .then((response) => {
-          // Optionally cache the fetched responses for GET requests
-          if (request.method === 'GET' && response && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(OFFLINE_PATH));
-    })
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request)
+          .then((response) => {
+            // Optionally cache the fetched responses for GET requests
+            if (request.method === 'GET' && response && response.status === 200) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          })
+          .catch(() => caches.match(OFFLINE_PATH));
+      })
+    )
   );
 });
