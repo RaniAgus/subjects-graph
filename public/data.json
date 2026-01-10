@@ -153,10 +153,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             },
@@ -165,10 +162,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             }
@@ -188,10 +182,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "1",
-                    "7"
-                  ]
+                  "subjects": ["1", "7"]
                 }
               ]
             },
@@ -200,10 +191,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1",
-                    "7"
-                  ]
+                  "subjects": ["1", "7"]
                 }
               ]
             }
@@ -223,10 +211,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "4",
-                    "5"
-                  ]
+                  "subjects": ["4", "5"]
                 }
               ]
             },
@@ -235,10 +220,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "4",
-                    "5"
-                  ]
+                  "subjects": ["4", "5"]
                 }
               ]
             }
@@ -258,10 +240,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "3",
-                    "5"
-                  ]
+                  "subjects": ["3", "5"]
                 }
               ]
             },
@@ -270,10 +249,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3",
-                    "5"
-                  ]
+                  "subjects": ["3", "5"]
                 }
               ]
             }
@@ -293,10 +269,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "3",
-                    "5"
-                  ]
+                  "subjects": ["3", "5"]
                 }
               ]
             },
@@ -305,10 +278,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3",
-                    "5"
-                  ]
+                  "subjects": ["3", "5"]
                 }
               ]
             }
@@ -328,11 +298,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "3",
-                    "5",
-                    "6"
-                  ]
+                  "subjects": ["3", "5", "6"]
                 }
               ]
             },
@@ -341,11 +307,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3",
-                    "5",
-                    "6"
-                  ]
+                  "subjects": ["3", "5", "6"]
                 }
               ]
             }
@@ -375,10 +337,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             },
@@ -387,10 +346,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             }
@@ -410,18 +366,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "12",
-                    "14"
-                  ]
+                  "subjects": ["12", "14"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3",
-                    "4",
-                    "5"
-                  ]
+                  "subjects": ["3", "4", "5"]
                 }
               ]
             },
@@ -430,10 +379,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "12",
-                    "14"
-                  ]
+                  "subjects": ["12", "14"]
                 }
               ]
             }
@@ -453,19 +399,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "6",
-                    "10",
-                    "11"
-                  ]
+                  "subjects": ["6", "10", "11"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1",
-                    "2",
-                    "7"
-                  ]
+                  "subjects": ["1", "2", "7"]
                 }
               ]
             },
@@ -474,11 +412,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "6",
-                    "10",
-                    "11"
-                  ]
+                  "subjects": ["6", "10", "11"]
                 }
               ]
             }
@@ -498,16 +432,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "10"
-                  ]
+                  "subjects": ["10"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             },
@@ -516,9 +445,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "10"
-                  ]
+                  "subjects": ["10"]
                 }
               ]
             }
@@ -538,19 +465,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "12",
-                    "13",
-                    "14"
-                  ]
+                  "subjects": ["12", "13", "14"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3",
-                    "4",
-                    "5"
-                  ]
+                  "subjects": ["3", "4", "5"]
                 }
               ]
             },
@@ -559,11 +478,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "12",
-                    "13",
-                    "14"
-                  ]
+                  "subjects": ["12", "13", "14"]
                 }
               ]
             }
@@ -593,16 +508,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "12"
-                  ]
+                  "subjects": ["12"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "4",
-                    "5"
-                  ]
+                  "subjects": ["4", "5"]
                 }
               ]
             },
@@ -611,9 +521,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "12"
-                  ]
+                  "subjects": ["12"]
                 }
               ]
             }
@@ -628,9 +536,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "8"
-                  ]
+                  "subjects": ["8"]
                 }
               ]
             }
@@ -655,20 +561,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "15",
-                    "19"
-                  ]
+                  "subjects": ["15", "19"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3",
-                    "5",
-                    "6",
-                    "10",
-                    "11"
-                  ]
+                  "subjects": ["3", "5", "6", "10", "11"]
                 }
               ]
             },
@@ -677,10 +574,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "15",
-                    "19"
-                  ]
+                  "subjects": ["15", "19"]
                 }
               ]
             }
@@ -700,20 +594,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "15",
-                    "18",
-                    "23"
-                  ]
+                  "subjects": ["15", "18", "23"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "6",
-                    "8",
-                    "12",
-                    "14"
-                  ]
+                  "subjects": ["6", "8", "12", "14"]
                 }
               ]
             },
@@ -722,11 +607,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "15",
-                    "18",
-                    "23"
-                  ]
+                  "subjects": ["15", "18", "23"]
                 }
               ]
             }
@@ -746,16 +627,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "17",
-                    "20"
-                  ]
+                  "subjects": ["17", "20"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "10"
-                  ]
+                  "subjects": ["10"]
                 }
               ]
             },
@@ -764,10 +640,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "17",
-                    "20"
-                  ]
+                  "subjects": ["17", "20"]
                 }
               ]
             }
@@ -787,16 +660,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "17",
-                    "20"
-                  ]
+                  "subjects": ["17", "20"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "10"
-                  ]
+                  "subjects": ["10"]
                 }
               ]
             },
@@ -805,10 +673,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "17",
-                    "20"
-                  ]
+                  "subjects": ["17", "20"]
                 }
               ]
             }
@@ -828,19 +693,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "17",
-                    "18",
-                    "21"
-                  ]
+                  "subjects": ["17", "18", "21"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "12",
-                    "13",
-                    "14"
-                  ]
+                  "subjects": ["12", "13", "14"]
                 }
               ]
             },
@@ -849,11 +706,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "17",
-                    "18",
-                    "21"
-                  ]
+                  "subjects": ["17", "18", "21"]
                 }
               ]
             }
@@ -873,17 +726,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "9",
-                    "20"
-                  ]
+                  "subjects": ["9", "20"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "10",
-                    "11"
-                  ]
+                  "subjects": ["10", "11"]
                 }
               ]
             },
@@ -892,10 +739,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "9",
-                    "20"
-                  ]
+                  "subjects": ["9", "20"]
                 }
               ]
             }
@@ -915,17 +759,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "12",
-                    "22"
-                  ]
+                  "subjects": ["12", "22"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "4",
-                    "5"
-                  ]
+                  "subjects": ["4", "5"]
                 }
               ]
             },
@@ -934,10 +772,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "12",
-                    "22"
-                  ]
+                  "subjects": ["12", "22"]
                 }
               ]
             }
@@ -957,18 +792,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "27",
-                    "28"
-                  ]
+                  "subjects": ["27", "28"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "17",
-                    "18",
-                    "20"
-                  ]
+                  "subjects": ["17", "18", "20"]
                 }
               ]
             },
@@ -977,10 +805,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "27",
-                    "28"
-                  ]
+                  "subjects": ["27", "28"]
                 }
               ]
             }
@@ -1000,20 +825,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "26",
-                    "27"
-                  ]
+                  "subjects": ["26", "27"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "15",
-                    "17",
-                    "18",
-                    "20",
-                    "23"
-                  ]
+                  "subjects": ["15", "17", "18", "20", "23"]
                 }
               ]
             },
@@ -1022,10 +838,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "26",
-                    "27"
-                  ]
+                  "subjects": ["26", "27"]
                 }
               ]
             }
@@ -1045,21 +858,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "26",
-                    "27",
-                    "28"
-                  ]
+                  "subjects": ["26", "27", "28"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "15",
-                    "17",
-                    "18",
-                    "20",
-                    "23"
-                  ]
+                  "subjects": ["15", "17", "18", "20", "23"]
                 }
               ]
             },
@@ -1068,11 +871,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "26",
-                    "27",
-                    "28"
-                  ]
+                  "subjects": ["26", "27", "28"]
                 }
               ]
             }
@@ -1086,12 +885,8 @@
             "x": 600,
             "y": 500
           },
-          "dependencies": [
-            "17"
-          ],
-          "targets": [
-            "29"
-          ]
+          "dependencies": ["17"],
+          "targets": ["29"]
         },
         {
           "id": "AM1,AGA:AM2,PyE",
@@ -1099,14 +894,8 @@
             "x": 900,
             "y": 200
           },
-          "dependencies": [
-            "1",
-            "2"
-          ],
-          "targets": [
-            "10",
-            "AM1,AGA:PyE"
-          ]
+          "dependencies": ["1", "2"],
+          "targets": ["10", "AM1,AGA:PyE"]
         },
         {
           "id": "AM2:C:1",
@@ -1114,12 +903,8 @@
             "x": 800,
             "y": 300
           },
-          "dependencies": [
-            "10"
-          ],
-          "targets": [
-            "AM2:C:2"
-          ]
+          "dependencies": ["10"],
+          "targets": ["AM2:C:2"]
         },
         {
           "id": "AM2:C:2",
@@ -1127,12 +912,8 @@
             "x": 800,
             "y": 400
           },
-          "dependencies": [
-            "AM2:C:1"
-          ],
-          "targets": [
-            "19"
-          ]
+          "dependencies": ["AM2:C:1"],
+          "targets": ["19"]
         },
         {
           "id": "AM1,AGA:PyE",
@@ -1140,12 +921,8 @@
             "x": 800,
             "y": 300
           },
-          "dependencies": [
-            "AM1,AGA:AM2,PyE"
-          ],
-          "targets": [
-            "17"
-          ]
+          "dependencies": ["AM1,AGA:AM2,PyE"],
+          "targets": ["17"]
         },
         {
           "id": "IO,S:SdG,IA",
@@ -1153,14 +930,8 @@
             "x": 600,
             "y": 300
           },
-          "dependencies": [
-            "27",
-            "28"
-          ],
-          "targets": [
-            "33",
-            "35"
-          ]
+          "dependencies": ["27", "28"],
+          "targets": ["33", "35"]
         },
         {
           "id": "PyE,MS:IO,MS",
@@ -1168,14 +939,8 @@
             "x": 700,
             "y": 300
           },
-          "dependencies": [
-            "17",
-            "20"
-          ],
-          "targets": [
-            "27",
-            "28"
-          ]
+          "dependencies": ["17", "20"],
+          "targets": ["27", "28"]
         },
         {
           "id": "MD,AyED:SSL,PdP,SO",
@@ -1183,15 +948,8 @@
             "x": 100,
             "y": 500
           },
-          "dependencies": [
-            "3",
-            "5"
-          ],
-          "targets": [
-            "13",
-            "14",
-            "15"
-          ]
+          "dependencies": ["3", "5"],
+          "targets": ["13", "14", "15"]
         },
         {
           "id": "AdS,PdP:DDS,GDD",
@@ -1199,14 +957,8 @@
             "x": 200,
             "y": 300
           },
-          "dependencies": [
-            "12",
-            "14"
-          ],
-          "targets": [
-            "18",
-            "21"
-          ]
+          "dependencies": ["12", "14"],
+          "targets": ["18", "21"]
         },
         {
           "id": "AdC:SO",
@@ -1214,12 +966,8 @@
             "x": 300,
             "y": 700
           },
-          "dependencies": [
-            "6"
-          ],
-          "targets": [
-            "15"
-          ]
+          "dependencies": ["6"],
+          "targets": ["15"]
         },
         {
           "id": "AdC:C",
@@ -1227,12 +975,8 @@
             "x": 500,
             "y": 700
           },
-          "dependencies": [
-            "6"
-          ],
-          "targets": [
-            "19"
-          ]
+          "dependencies": ["6"],
+          "targets": ["19"]
         },
         {
           "id": "DDS:IdS",
@@ -1240,12 +984,8 @@
             "x": 400,
             "y": 400
           },
-          "dependencies": [
-            "18"
-          ],
-          "targets": [
-            "29"
-          ]
+          "dependencies": ["18"],
+          "targets": ["29"]
         },
         {
           "id": "F2:C",
@@ -1253,12 +993,8 @@
             "x": 700,
             "y": 600
           },
-          "dependencies": [
-            "11"
-          ],
-          "targets": [
-            "19"
-          ]
+          "dependencies": ["11"],
+          "targets": ["19"]
         },
         {
           "id": "AyED:AdS",
@@ -1266,12 +1002,8 @@
             "x": 100,
             "y": 300
           },
-          "dependencies": [
-            "5"
-          ],
-          "targets": [
-            "12"
-          ]
+          "dependencies": ["5"],
+          "targets": ["12"]
         },
         {
           "id": "AM1:F2",
@@ -1279,12 +1011,8 @@
             "x": 900,
             "y": 400
           },
-          "dependencies": [
-            "1"
-          ],
-          "targets": [
-            "11"
-          ]
+          "dependencies": ["1"],
+          "targets": ["11"]
         },
         {
           "id": "F2:TdC:1",
@@ -1292,12 +1020,8 @@
             "x": 900,
             "y": 600
           },
-          "dependencies": [
-            "11"
-          ],
-          "targets": [
-            "F2:TdC:2"
-          ]
+          "dependencies": ["11"],
+          "targets": ["F2:TdC:2"]
         },
         {
           "id": "F2:TdC:2",
@@ -1305,12 +1029,8 @@
             "x": 1000,
             "y": 600
           },
-          "dependencies": [
-            "F2:TdC:1"
-          ],
-          "targets": [
-            "F2:TdC:3"
-          ]
+          "dependencies": ["F2:TdC:1"],
+          "targets": ["F2:TdC:3"]
         },
         {
           "id": "F2:TdC:3",
@@ -1318,12 +1038,8 @@
             "x": 1000,
             "y": 0
           },
-          "dependencies": [
-            "F2:TdC:2"
-          ],
-          "targets": [
-            "F2:TdC:4"
-          ]
+          "dependencies": ["F2:TdC:2"],
+          "targets": ["F2:TdC:4"]
         },
         {
           "id": "F2:TdC:4",
@@ -1331,12 +1047,8 @@
             "x": 800,
             "y": 0
           },
-          "dependencies": [
-            "F2:TdC:3"
-          ],
-          "targets": [
-            "30"
-          ]
+          "dependencies": ["F2:TdC:3"],
+          "targets": ["30"]
         },
         {
           "id": "SO:AdR:1",
@@ -1344,12 +1056,8 @@
             "x": 100,
             "y": 700
           },
-          "dependencies": [
-            "15"
-          ],
-          "targets": [
-            "SO:AdR:2"
-          ]
+          "dependencies": ["15"],
+          "targets": ["SO:AdR:2"]
         },
         {
           "id": "SO:AdR:2",
@@ -1357,12 +1065,8 @@
             "x": 0,
             "y": 700
           },
-          "dependencies": [
-            "SO:AdR:1"
-          ],
-          "targets": [
-            "SO:AdR:3"
-          ]
+          "dependencies": ["SO:AdR:1"],
+          "targets": ["SO:AdR:3"]
         },
         {
           "id": "SO:AdR:3",
@@ -1370,12 +1074,8 @@
             "x": 0,
             "y": 0
           },
-          "dependencies": [
-            "SO:AdR:2"
-          ],
-          "targets": [
-            "SO:AdR:4"
-          ]
+          "dependencies": ["SO:AdR:2"],
+          "targets": ["SO:AdR:4"]
         },
         {
           "id": "SO:AdR:4",
@@ -1383,12 +1083,8 @@
             "x": 200,
             "y": 0
           },
-          "dependencies": [
-            "SO:AdR:3"
-          ],
-          "targets": [
-            "26"
-          ]
+          "dependencies": ["SO:AdR:3"],
+          "targets": ["26"]
         }
       ]
     },
@@ -1524,10 +1220,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             }
@@ -1547,10 +1240,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "1",
-                    "3"
-                  ]
+                  "subjects": ["1", "3"]
                 }
               ]
             }
@@ -1580,9 +1270,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "4"
-                  ]
+                  "subjects": ["4"]
                 }
               ]
             }
@@ -1602,10 +1290,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "5",
-                    "6"
-                  ]
+                  "subjects": ["5", "6"]
                 }
               ]
             }
@@ -1625,10 +1310,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "5",
-                    "6"
-                  ]
+                  "subjects": ["5", "6"]
                 }
               ]
             }
@@ -1648,9 +1330,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "7"
-                  ]
+                  "subjects": ["7"]
                 }
               ]
             }
@@ -1670,10 +1350,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "6",
-                    "8"
-                  ]
+                  "subjects": ["6", "8"]
                 }
               ]
             }
@@ -1693,10 +1370,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             }
@@ -1716,10 +1390,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             }
@@ -1739,17 +1410,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "13",
-                    "16"
-                  ]
+                  "subjects": ["13", "16"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "5",
-                    "6"
-                  ]
+                  "subjects": ["5", "6"]
                 }
               ]
             }
@@ -1769,17 +1434,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "14",
-                    "16"
-                  ]
+                  "subjects": ["14", "16"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "5",
-                    "6"
-                  ]
+                  "subjects": ["5", "6"]
                 }
               ]
             }
@@ -1799,10 +1458,7 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3",
-                    "7"
-                  ]
+                  "subjects": ["3", "7"]
                 }
               ]
             }
@@ -1822,16 +1478,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "9"
-                  ]
+                  "subjects": ["9"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             }
@@ -1851,18 +1502,11 @@
               "dependencies": [
                 {
                   "statusId": "AVAILABLE",
-                  "subjects": [
-                    "14",
-                    "16"
-                  ]
+                  "subjects": ["14", "16"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "4",
-                    "6",
-                    "8"
-                  ]
+                  "subjects": ["4", "6", "8"]
                 }
               ]
             }
@@ -1882,9 +1526,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "11"
-                  ]
+                  "subjects": ["11"]
                 }
               ]
             }
@@ -1904,18 +1546,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "19",
-                    "20",
-                    "23"
-                  ]
+                  "subjects": ["19", "20", "23"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "13",
-                    "14"
-                  ]
+                  "subjects": ["13", "14"]
                 }
               ]
             }
@@ -1935,10 +1570,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "15",
-                    "21"
-                  ]
+                  "subjects": ["15", "21"]
                 }
               ]
             }
@@ -1958,10 +1590,7 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "17",
-                    "22"
-                  ]
+                  "subjects": ["17", "22"]
                 }
               ]
             }
@@ -1981,15 +1610,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "17"
-                  ]
+                  "subjects": ["17"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "9"
-                  ]
+                  "subjects": ["9"]
                 }
               ]
             }
@@ -2009,16 +1634,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "10",
-                    "22"
-                  ]
+                  "subjects": ["10", "22"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "9"
-                  ]
+                  "subjects": ["9"]
                 }
               ]
             }
@@ -2038,16 +1658,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "18",
-                    "23"
-                  ]
+                  "subjects": ["18", "23"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "16"
-                  ]
+                  "subjects": ["16"]
                 }
               ]
             }
@@ -2067,16 +1682,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "28"
-                  ]
+                  "subjects": ["28"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "17",
-                    "22"
-                  ]
+                  "subjects": ["17", "22"]
                 }
               ]
             }
@@ -2096,16 +1706,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "28"
-                  ]
+                  "subjects": ["28"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "17",
-                    "19"
-                  ]
+                  "subjects": ["17", "19"]
                 }
               ]
             }
@@ -2125,16 +1730,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "18",
-                    "27"
-                  ]
+                  "subjects": ["18", "27"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "23"
-                  ]
+                  "subjects": ["23"]
                 }
               ]
             }
@@ -2154,16 +1754,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "24",
-                    "30"
-                  ]
+                  "subjects": ["24", "30"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "18"
-                  ]
+                  "subjects": ["18"]
                 }
               ]
             }
@@ -2183,17 +1778,11 @@
               "dependencies": [
                 {
                   "statusId": "FINAL_EXAM_PENDING",
-                  "subjects": [
-                    "26",
-                    "30"
-                  ]
+                  "subjects": ["26", "30"]
                 },
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "20",
-                    "21"
-                  ]
+                  "subjects": ["20", "21"]
                 }
               ]
             }
@@ -2212,15 +1801,8 @@
             "x": 100,
             "y": 500
           },
-          "dependencies": [
-            "1",
-            "2"
-          ],
-          "targets": [
-            "9",
-            "17",
-            "AM1,AGA:AM2,Ec:1"
-          ]
+          "dependencies": ["1", "2"],
+          "targets": ["9", "17", "AM1,AGA:AM2,Ec:1"]
         },
         {
           "id": "AM1,AGA:AM2,Ec:1",
@@ -2228,12 +1810,8 @@
             "x": 200,
             "y": 600
           },
-          "dependencies": [
-            "AM1,AGA:AM2,PyE,Ec"
-          ],
-          "targets": [
-            "AM1,AGA:AM2,Ec:2"
-          ]
+          "dependencies": ["AM1,AGA:AM2,PyE,Ec"],
+          "targets": ["AM1,AGA:AM2,Ec:2"]
         },
         {
           "id": "AM1,AGA:AM2,Ec:2",
@@ -2241,12 +1819,8 @@
             "x": 300,
             "y": 700
           },
-          "dependencies": [
-            "AM1,AGA:AM2,Ec:1"
-          ],
-          "targets": [
-            "AM1,AGA:AM2,Ec:3"
-          ]
+          "dependencies": ["AM1,AGA:AM2,Ec:1"],
+          "targets": ["AM1,AGA:AM2,Ec:3"]
         },
         {
           "id": "AM1,AGA:AM2,Ec:3",
@@ -2254,12 +1828,8 @@
             "x": 800,
             "y": 700
           },
-          "dependencies": [
-            "AM1,AGA:AM2,Ec:2"
-          ],
-          "targets": [
-            "AM1,AGA:AM2,Ec:4"
-          ]
+          "dependencies": ["AM1,AGA:AM2,Ec:2"],
+          "targets": ["AM1,AGA:AM2,Ec:4"]
         },
         {
           "id": "AM1,AGA:AM2,Ec:4",
@@ -2267,12 +1837,8 @@
             "x": 1000,
             "y": 500
           },
-          "dependencies": [
-            "AM1,AGA:AM2,Ec:3"
-          ],
-          "targets": [
-            "18"
-          ]
+          "dependencies": ["AM1,AGA:AM2,Ec:3"],
+          "targets": ["18"]
         },
         {
           "id": "SSL:BDD",
@@ -2280,12 +1846,8 @@
             "x": 500,
             "y": 500
           },
-          "dependencies": [
-            "13"
-          ],
-          "targets": [
-            "19"
-          ]
+          "dependencies": ["13"],
+          "targets": ["19"]
         },
         {
           "id": "DSI,Ec:ASI,SdG",
@@ -2293,14 +1855,8 @@
             "x": 900,
             "y": 300
           },
-          "dependencies": [
-            "23",
-            "18"
-          ],
-          "targets": [
-            "30",
-            "DSI,Ec:SdG"
-          ]
+          "dependencies": ["23", "18"],
+          "targets": ["30", "DSI,Ec:SdG"]
         },
         {
           "id": "DSI,Ec:SdG",
@@ -2308,12 +1864,8 @@
             "x": 1000,
             "y": 200
           },
-          "dependencies": [
-            "DSI,Ec:ASI,SdG"
-          ],
-          "targets": [
-            "33"
-          ]
+          "dependencies": ["DSI,Ec:ASI,SdG"],
+          "targets": ["33"]
         },
         {
           "id": "IO:SdG:1",
@@ -2321,12 +1873,8 @@
             "x": 400,
             "y": 0
           },
-          "dependencies": [
-            "27"
-          ],
-          "targets": [
-            "IO:SdG:2"
-          ]
+          "dependencies": ["27"],
+          "targets": ["IO:SdG:2"]
         },
         {
           "id": "IO:SdG:2",
@@ -2334,12 +1882,8 @@
             "x": 900,
             "y": 0
           },
-          "dependencies": [
-            "IO:SdG:1"
-          ],
-          "targets": [
-            "33"
-          ]
+          "dependencies": ["IO:SdG:1"],
+          "targets": ["33"]
         },
         {
           "id": "ASI,PdeP:DdS,DSI",
@@ -2347,14 +1891,8 @@
             "x": 700,
             "y": 300
           },
-          "dependencies": [
-            "16",
-            "14"
-          ],
-          "targets": [
-            "20",
-            "23"
-          ]
+          "dependencies": ["16", "14"],
+          "targets": ["20", "23"]
         },
         {
           "id": "PdeP:ASI,PdeP:DdS,DSI",
@@ -2362,12 +1900,8 @@
             "x": 800,
             "y": 400
           },
-          "dependencies": [
-            "14"
-          ],
-          "targets": [
-            "ASI,PdeP:DdS,DSI"
-          ]
+          "dependencies": ["14"],
+          "targets": ["ASI,PdeP:DdS,DSI"]
         },
         {
           "id": "F1:CoD:1",
@@ -2375,12 +1909,8 @@
             "x": 200,
             "y": 100
           },
-          "dependencies": [
-            "3"
-          ],
-          "targets": [
-            "F1:CoD:2"
-          ]
+          "dependencies": ["3"],
+          "targets": ["F1:CoD:2"]
         },
         {
           "id": "F1:CoD:2",
@@ -2388,12 +1918,8 @@
             "x": 300,
             "y": 200
           },
-          "dependencies": [
-            "F1:CoD:1"
-          ],
-          "targets": [
-            "21"
-          ]
+          "dependencies": ["F1:CoD:1"],
+          "targets": ["21"]
         },
         {
           "id": "AN:IO",
@@ -2401,12 +1927,8 @@
             "x": 300,
             "y": 200
           },
-          "dependencies": [
-            "22"
-          ],
-          "targets": [
-            "27"
-          ]
+          "dependencies": ["22"],
+          "targets": ["27"]
         },
         {
           "id": "PyE:IO:1",
@@ -2414,12 +1936,8 @@
             "x": 200,
             "y": 600
           },
-          "dependencies": [
-            "17"
-          ],
-          "targets": [
-            "PyE:IO:2"
-          ]
+          "dependencies": ["17"],
+          "targets": ["PyE:IO:2"]
         },
         {
           "id": "PyE:IO:2",
@@ -2427,12 +1945,8 @@
             "x": 100,
             "y": 700
           },
-          "dependencies": [
-            "17"
-          ],
-          "targets": [
-            "PyE:IO:3"
-          ]
+          "dependencies": ["17"],
+          "targets": ["PyE:IO:3"]
         },
         {
           "id": "PyE:IO:3",
@@ -2440,12 +1954,8 @@
             "x": 0,
             "y": 700
           },
-          "dependencies": [
-            "PyE:IO:2"
-          ],
-          "targets": [
-            "PyE:IO:4"
-          ]
+          "dependencies": ["PyE:IO:2"],
+          "targets": ["PyE:IO:4"]
         },
         {
           "id": "PyE:IO:4",
@@ -2453,12 +1963,8 @@
             "x": 0,
             "y": 0
           },
-          "dependencies": [
-            "PyE:IO:3"
-          ],
-          "targets": [
-            "PyE:IO:5"
-          ]
+          "dependencies": ["PyE:IO:3"],
+          "targets": ["PyE:IO:5"]
         },
         {
           "id": "PyE:IO:5",
@@ -2466,12 +1972,8 @@
             "x": 200,
             "y": 0
           },
-          "dependencies": [
-            "PyE:IO:4"
-          ],
-          "targets": [
-            "27"
-          ]
+          "dependencies": ["PyE:IO:4"],
+          "targets": ["27"]
         },
         {
           "id": "DdS:SSI",
@@ -2479,12 +1981,8 @@
             "x": 700,
             "y": 200
           },
-          "dependencies": [
-            "20"
-          ],
-          "targets": [
-            "35"
-          ]
+          "dependencies": ["20"],
+          "targets": ["35"]
         },
         {
           "id": "DSI:ICS",
@@ -2492,12 +1990,8 @@
             "x": 700,
             "y": 200
           },
-          "dependencies": [
-            "23"
-          ],
-          "targets": [
-            "25"
-          ]
+          "dependencies": ["23"],
+          "targets": ["25"]
         },
         {
           "id": "CoD:RdD",
@@ -2505,12 +1999,8 @@
             "x": 500,
             "y": 200
           },
-          "dependencies": [
-            "21"
-          ],
-          "targets": [
-            "26"
-          ]
+          "dependencies": ["21"],
+          "targets": ["26"]
         }
       ]
     },
@@ -2562,18 +2052,18 @@
           "name": "Introducción a la Programación",
           "prerequisites": [],
           "position": {
-            "x": 200,
-            "y": 200
+            "x": 300,
+            "y": 0
           },
           "shortName": "IP"
         },
         {
           "id": "2",
-          "name": "Algebra I",
+          "name": "Álgebra I",
           "prerequisites": [],
           "position": {
-            "x": 0,
-            "y": 200
+            "x": 100,
+            "y": 0
           },
           "shortName": "A1"
         },
@@ -2586,39 +2076,34 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1",
-                    "2"
-                  ]
+                  "subjects": ["1", "2"]
                 }
               ]
             }
           ],
           "position": {
-            "x": 100,
-            "y": 300
+            "x": 200,
+            "y": 100
           },
           "shortName": "AED"
         },
         {
           "id": "4",
-          "name": "Algebra Lineal Computacional",
+          "name": "Álgebra Lineal Computacional",
           "prerequisites": [
             {
               "availabilityId": "AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3"
-                  ]
+                  "subjects": ["3"]
                 }
               ]
             }
           ],
           "position": {
-            "x": -200,
-            "y": 400
+            "x": 100,
+            "y": 200
           },
           "shortName": "ALC"
         },
@@ -2631,38 +2116,34 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3"
-                  ]
-                }
-              ]
-            }
-          ],
-          "position": {
-            "x": 0,
-            "y": 400
-          },
-          "shortName": "LFAC"
-        },
-        {
-          "id": "6",
-          "name": "Tecnicas de Diseño de Algoritmos",
-          "prerequisites": [
-            {
-              "availabilityId": "AVAILABLE",
-              "dependencies": [
-                {
-                  "statusId": "APPROVED",
-                  "subjects": [
-                    "3"
-                  ]
+                  "subjects": ["3"]
                 }
               ]
             }
           ],
           "position": {
             "x": 200,
-            "y": 400
+            "y": 200
+          },
+          "shortName": "LFAC"
+        },
+        {
+          "id": "6",
+          "name": "Técnicas de Diseño de Algoritmos",
+          "prerequisites": [
+            {
+              "availabilityId": "AVAILABLE",
+              "dependencies": [
+                {
+                  "statusId": "APPROVED",
+                  "subjects": ["3"]
+                }
+              ]
+            }
+          ],
+          "position": {
+            "x": 300,
+            "y": 200
           },
           "shortName": "TDA"
         },
@@ -2675,16 +2156,14 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "3"
-                  ]
+                  "subjects": ["3"]
                 }
               ]
             }
           ],
           "position": {
             "x": 400,
-            "y": 400
+            "y": 200
           },
           "shortName": "PLP"
         },
@@ -2697,38 +2176,34 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "1"
-                  ]
+                  "subjects": ["1"]
                 }
               ]
             }
           ],
           "position": {
-            "x": 500,
-            "y": 350
+            "x": 400,
+            "y": 100
           },
           "shortName": "SD"
         },
         {
           "id": "9",
-          "name": "Arquitectura y Organizacion de Computadores",
+          "name": "Arquitectura y Organización de Computadores",
           "prerequisites": [
             {
               "availabilityId": "AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "8"
-                  ]
+                  "subjects": ["8"]
                 }
               ]
             }
           ],
           "position": {
-            "x": 600,
-            "y": 600
+            "x": 500,
+            "y": 200
           },
           "shortName": "AyOC"
         },
@@ -2741,16 +2216,14 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "9"
-                  ]
+                  "subjects": ["9"]
                 }
               ]
             }
           ],
           "position": {
             "x": 600,
-            "y": 900
+            "y": 300
           },
           "shortName": "SO"
         },
@@ -2763,16 +2236,14 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "7"
-                  ]
+                  "subjects": ["7"]
                 }
               ]
             }
           ],
           "position": {
             "x": 400,
-            "y": 600
+            "y": 300
           },
           "shortName": "ISW"
         },
@@ -2785,16 +2256,14 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "11"
-                  ]
+                  "subjects": ["11"]
                 }
               ]
             }
           ],
           "position": {
             "x": 400,
-            "y": 750
+            "y": 400
           },
           "shortName": "BDD"
         },
@@ -2807,17 +2276,14 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "5",
-                    "6"
-                  ]
+                  "subjects": ["5", "6"]
                 }
               ]
             }
           ],
           "position": {
-            "x": 100,
-            "y": 600
+            "x": 200,
+            "y": 300
           },
           "shortName": "CC"
         },
@@ -2826,31 +2292,28 @@
           "name": "Análisis Matemático I",
           "prerequisites": [],
           "position": {
-            "x": -300,
-            "y": 350
+            "x": 0,
+            "y": 0
           },
           "shortName": "AM1"
         },
         {
           "id": "15",
-          "name": "Estadistica Computacional",
+          "name": "Estadística Computacional",
           "prerequisites": [
             {
               "availabilityId": "AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "14",
-                    "4"
-                  ]
+                  "subjects": ["14", "4"]
                 }
               ]
             }
           ],
           "position": {
-            "x": -200,
-            "y": 600
+            "x": 100,
+            "y": 300
           },
           "shortName": "EC"
         },
@@ -2863,211 +2326,112 @@
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "10",
-                    "7"
-                  ]
+                  "subjects": ["10", "7"]
                 }
               ]
             }
           ],
           "position": {
             "x": 500,
-            "y": 800
+            "y": 400
           },
           "shortName": "PCP"
         },
         {
           "id": "17",
-          "name": "Redes de Comunicaciones y Computo Distribuido",
+          "name": "Redes de Comunicaciones y Cómputo Distribuido",
           "prerequisites": [
             {
               "availabilityId": "AVAILABLE",
               "dependencies": [
                 {
                   "statusId": "APPROVED",
-                  "subjects": [
-                    "10",
-                    "15"
-                  ]
+                  "subjects": ["10", "15"]
                 }
               ]
             }
           ],
           "position": {
-            "x": 100,
-            "y": 750
+            "x": 200,
+            "y": 400
           },
           "shortName": "RCCD"
         },
         {
           "id": "18",
           "name": "Seminario sobre Tecnología y Sociedad",
-          "prerequisites": [ ],
+          "prerequisites": [],
           "position": {
-            "x": 250,
-            "y": 600
+            "x": 300,
+            "y": 300
           },
           "shortName": "STS"
         },
         {
           "id": "19",
-          "name": "Practica Social Educativaa",
-          "prerequisites": [ ],
+          "name": "Práctica Social Educativa",
+          "prerequisites": [],
           "position": {
-            "x": -100,
-            "y":  600
+            "x": 300,
+            "y": 400
           },
           "shortName": "PCE"
         }
       ],
       "edges": [
         {
-          "id": "A1,IP:AED",
-          "position": {
-            "x": 100,
-            "y": 200
-          },
-          "dependencies": [
-            "1",
-            "2"
-          ],
-          "targets": [
-            "3"
-          ]
-        },
-        {
-          "id": "AED:ALC:1",
-          "position": {
-            "x": -100,
-            "y": 350
-          },
-          "dependencies": [
-            "3"
-          ],
-          "targets": [
-            "4"
-          ]
-        },
-        {
           "id": "AED:PLP:1",
           "position": {
             "x": 300,
-            "y": 350
+            "y": 100
           },
-          "dependencies": [
-            "3"
-          ],
-          "targets": [
-            "7"
-          ]
+          "dependencies": ["3"],
+          "targets": ["7"]
         },
-        {
-          "id": "IP:SD:1",
-          "position": {
-            "x": 400,
-            "y": 250
-          },
-          "dependencies": [
-            "1"
-          ],
-          "targets": [
-            "8"
-          ]
-        },
-        {
-          "id": "LFAC,TDA:CC",
-          "position": {
-            "x": 100,
-            "y": 500
-          },
-          "dependencies": [
-            "5",
-            "6"
-          ],
-          "targets": [
-            "13"
-          ]
-        },
-        {
-          "id": "ALC:AM1:EC:1",
-          "position": {
-            "x": -300,
-            "y": 500
-          },
-          "dependencies": [
-            "14"
-          ],
-          "targets": [
-            "ALC,AM1:EC"
-          ]
-        }, 
-        {
-          "id": "ALC,AM1:EC",
-          "position": {
-            "x": -200,
-            "y": 500
-          },
-          "dependencies": [
-            "14",
-            "4"
-          ],
-          "targets": [
-            "15"
-          ]
-        }, 
         {
           "id": "PLP:SO:PCP:1",
           "position": {
             "x": 500,
-            "y": 500
+            "y": 300
           },
-          "dependencies": [
-            "7"
-          ],
-          "targets": [
-            "16"
-          ]
-        },
-
-        {
-          "id": "SD:AyOC:1",
-          "position": {
-            "x": 600,
-            "y": 500
-          },
-          "dependencies": [
-            "8"
-          ],
-          "targets": [
-            "9"
-          ]
+          "dependencies": ["7"],
+          "targets": ["16"]
         },
         {
           "id": "SO:RCCD:1",
           "position": {
-            "x": 100,
-            "y": 900
+            "x": 600,
+            "y": 400
           },
-          "dependencies": [
-            "10"
-          ],
-          "targets": [
-            "17"
-          ]
+          "dependencies": ["10"],
+          "targets": ["SO:RCCD:1:SO:RCCD:1:RCCD"]
         },
         {
-          "id": "EC:RCCD:1",
+          "id": "AM1:EC",
           "position": {
-            "x": -200,
-            "y": 750
+            "x": 0,
+            "y": 200
           },
-          "dependencies": [
-            "15"
-          ],
-          "targets": [
-            "17"
-          ]
+          "dependencies": ["14"],
+          "targets": ["15"]
+        },
+        {
+          "id": "SO:RCCD:1:RCCD",
+          "position": {
+            "x": 300,
+            "y": 500
+          },
+          "dependencies": ["SO:RCCD:1:SO:RCCD:1:RCCD"],
+          "targets": ["17"]
+        },
+        {
+          "id": "SO:RCCD:1:SO:RCCD:1:RCCD",
+          "position": {
+            "x": 500,
+            "y": 500
+          },
+          "dependencies": ["SO:RCCD:1"],
+          "targets": ["SO:RCCD:1:RCCD"]
         }
       ]
     }
