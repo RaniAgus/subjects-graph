@@ -37,17 +37,12 @@ dirigido.
 El grafo soporta múltiples variantes de planes de estudio, cada una con su propia configuración de
 materias, estados y disponibilidades:
 
-```jsonc
+```json
 {
   "variants": {
     "tu-plan": {
       "name": "Universidad - Carrera - Plan",
-      "progress": {
-        "position": {
-          "vertical": "bottom", // o "top"
-          "horizontal": "right" // o "left"
-        }
-      },
+      "progress": {...}
       "statuses": [...],
       "availabilities": [...],
       "subjects": [...],
@@ -60,17 +55,17 @@ materias, estados y disponibilidades:
 
 ### Gráfico de progreso
 
-Se puede elegir la alineación horizontal y vertical en donde se muestra el gráfico de progreso de
-materias bajo el campo `progress`. Ejemplo:
+Bajo el campo `progress` se puede configurar cómo se va a ver el gráfico de progreso.
+Ejemplo:
 
 ```jsonc
 "progress": {
-  "position": { "vertical": "bottom", "horizontal": "right" }
+  "position": {
+    "vertical": "bottom", // o "top"
+    "horizontal": "right" // o "left"
+  }
 }
 ```
-
-- `vertical`: `top` o `bottom`
-- `horizontal`: `left` o `right`
 
 ### Estados de Materias
 
@@ -150,7 +145,7 @@ Ejemplo de conector:
   "position": { "x": 900, "y": 200 },
   "dependencies": ["1", "2"],
   "targets": ["10", "17"]
-},
+}
 ```
 
 > Como normalmente los IDs de cada materia son numéricos, es recomendable que el ID del conector
