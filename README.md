@@ -20,13 +20,13 @@ dirigido.
 - **Progressive Web App (PWA)** para poder modificar el grafo offline desde cualquier dispositivo
   como si fuera una app nativa
 - **Configuración extensible** de variantes de planes de estudio mediante un mismo archivo JSON
+- **Modo edición** para agregar materias electivas o ingresar nuevos planes de forma más sencilla
 
 ## Aportes
 
 ¡Los aportes son bienvenidos! Podés ayudar:
 
-- **Agregando nuevos planes de estudio** - Sumándolos a `data.json` (próximamente tengo pensado
-  agregar un modo edición para facilitar esto)
+- **Agregando nuevos planes de estudio** - Sumándolos a `data.json`
 - **Reportando bugs** - Abrí un issue si algo no funciona como esperabas
 - **Feature requests** - Cualquier idea que tengas para extender la app, también mediante issues
 
@@ -35,13 +35,19 @@ dirigido.
 ### Planes de estudio
 
 El grafo soporta múltiples variantes de planes de estudio, cada una con su propia configuración de
-materias, estados y colores de borde:
+materias, estados y disponibilidades:
 
-```json
+```jsonc
 {
   "variants": {
     "tu-plan": {
       "name": "Universidad - Carrera - Plan",
+      "progress": {
+        "position": {
+          "vertical": "bottom", // o "top"
+          "horizontal": "right" // o "left"
+        }
+      },
       "statuses": [...],
       "availabilities": [...],
       "subjects": [...],
