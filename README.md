@@ -58,9 +58,23 @@ materias, estados y disponibilidades:
 }
 ```
 
+### Gráfico de progreso
+
+Se puede elegir la alineación horizontal y vertical en donde se muestra el gráfico de progreso de
+materias bajo el campo `progress`. Ejemplo:
+
+```jsonc
+"progress": {
+  "position": { "vertical": "bottom", "horizontal": "right" }
+}
+```
+
+- `vertical`: `top` o `bottom`
+- `horizontal`: `left` o `right`
+
 ### Estados de Materias
 
-Los estados se configuran a nivel general en `data.json` bajo el campo `statuses`. Ejemplo:
+Los estados se configuran a nivel general en `statuses`. Ejemplo:
 
 ```json
 "statuses": [
@@ -86,7 +100,7 @@ Los bordes y flechas indican la disponibilidad y se configuran en `availabilitie
 ### Materias y correlativas
 
 Las materias combinan estados y disponibilidades mediante correlativas. Cada materia tiene un
-array de `prerequisites` que define cuándo cambia su disponibilidad basado en el estado de sus
+array de `prerequisites` que define cómo varía su disponibilidad basándose en el status de sus
 dependencias.
 
 Ejemplo de una materia con correlativas:
