@@ -1338,8 +1338,15 @@ class GraphApp {
     });
     this.cy.on('mousemove', 'node[nodeType="subject"]', e => {
       const pos = e.renderedPosition;
-      tooltip.style.left = (pos.x + 15) + 'px';
-      tooltip.style.top = (pos.y + 15) + 'px';
+      const offset = 15;
+      const tipW = tooltip.offsetWidth;
+      const tipH = tooltip.offsetHeight;
+      const vpW = this.cyContainer.offsetWidth;
+      const vpH = this.cyContainer.offsetHeight;
+      const left = (pos.x + offset + tipW > vpW) ? pos.x - offset - tipW : pos.x + offset;
+      const top = (pos.y + offset + tipH > vpH) ? pos.y - offset - tipH : pos.y + offset;
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
     });
     this.cy.on('mouseout', 'node', () => {
       this.cyContainer.style.cursor = this.isEditMode ? 'move' : 'grab';
