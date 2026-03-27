@@ -299,6 +299,7 @@ class GraphApp {
       ...s,
       status: savedStatuses[s.id] || s.status || defaultStatus,
     }));
+    this.subjectsList = subjects;
     this.graph = new Graph(this.config, subjects, variantData.edges);
     const drawer = new CytoscapeDrawer(this.isEditMode);
     this.graph.render(drawer);
@@ -1310,7 +1311,29 @@ class GraphApp {
 
     this.cy.on('mouseover', 'node[nodeType="subject"]', e => {
       this.cyContainer.style.cursor = this.isEditMode ? 'move' : 'pointer';
-      tooltip.textContent = e.target.data('name');
+      const nodeId = e.target.id();
+      const subject = this.subjectsList?.find(s => s.id === nodeId);
+      const hoveredNode = this.graph.getNodeById(nodeId);
+      if (subject?.prerequisites?.length > 0 && hoveredNode) {
+        let html = `<strong>${e.target.data('name')}</strong>`;
+        for (const prereq of subject.prerequisites) {
+          const availName = this.config.availabilities.find(a => a.id === prereq.availabilityId)?.name ?? prereq.availabilityId;
+          let items = '';
+          for (const dep of prereq.dependencies) {
+            const statusName = this.config.statuses.find(s => s.id === dep.statusId)?.name ?? dep.statusId;
+            for (const subjectId of dep.subjects) {
+              const fullName = this.subjectsList.find(s => s.id === subjectId)?.name ?? subjectId;
+              const satisfied = hoveredNode.satisfies(subjectId, dep.statusId);
+              const label = `${fullName} (${statusName})`;
+              items += satisfied ? `<li><del>${label}</del></li>` : `<li>${label}</li>`;
+            }
+          }
+          html += `<div class="cy-tooltip-section"><span class="cy-tooltip-availability">${availName}:</span><ul>${items}</ul></div>`;
+        }
+        tooltip.innerHTML = html;
+      } else {
+        tooltip.textContent = e.target.data('name');
+      }
       tooltip.style.display = 'block';
     });
     this.cy.on('mousemove', 'node[nodeType="subject"]', e => {

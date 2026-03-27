@@ -717,6 +717,11 @@ select.skeleton {
   box-shadow: var(--shadow);
   display: none;
 }
+.cy-tooltip strong { display: block; margin-bottom: 4px; }
+.cy-tooltip ul { margin: 2px 0 0 0; padding-left: 16px; list-style: disc; }
+.cy-tooltip li { margin: 1px 0; }
+.cy-tooltip-section { margin-top: 6px; }
+.cy-tooltip-availability { font-size: 0.75rem; opacity: 0.8; }
 
 /* GitHub Corner */
 .github-corner {
