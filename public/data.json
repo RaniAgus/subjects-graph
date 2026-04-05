@@ -1507,7 +1507,7 @@
               "availabilityId": "AVAILABLE",
               "dependencies": [
                 {
-                  "statusId": "AVAILABLE",
+                  "statusId": "FINAL_EXAM_PENDING",
                   "subjects": ["14", "16"]
                 },
                 {

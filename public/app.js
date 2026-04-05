@@ -1328,7 +1328,7 @@ class GraphApp {
               items += satisfied ? `<li><del>${label}</del></li>` : `<li>${label}</li>`;
             }
           }
-          html += `<div class="cy-tooltip-section"><span class="cy-tooltip-availability">${availName}:</span><ul>${items}</ul></div>`;
+          html += `<div class="cy-tooltip-section"><span class="cy-tooltip-availability">${availName.replace('Disponible', 'Requisitos')}:</span><ul>${items}</ul></div>`;
         }
         tooltip.innerHTML = html;
       } else {

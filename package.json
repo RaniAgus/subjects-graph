@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "python3 -m http.server 8000 -d public",
     "test": "vitest run",
     "typecheck": "tsc -p jsconfig.json --noEmit"
   },
