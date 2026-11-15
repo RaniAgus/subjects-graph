@@ -68,4 +68,150 @@
  * @typedef {new (container: HTMLElement, options: SubjectsGraphOptions) => SubjectsGraphAPI} SubjectsGraphConstructor
  */
 
-export {};
+import cytoscape from 'cytoscape';
+import { Graph } from './core.js';
+import { CytoscapeDrawer } from './cytoscape-drawer.js';
+import { buildStylesheet } from './cytoscape-styles.js';
+import { mergeTheme, resolveColor } from './theme.js';
+
+/** A graph view whose DOM, renderer, and palette belong to this instance. */
+export class SubjectsGraph {
+  /** @type {Plan} */
+  #plan;
+  /** @type {Progress} */
+  #progress;
+  /** @type {Theme} */
+  #theme;
+  /** @type {boolean} */
+  #editable;
+  /** @type {HTMLDivElement} */
+  #root;
+  /** @type {import('cytoscape').Core} */
+  #cy;
+  /** @type {ResizeObserver} */
+  #resizeObserver;
+  #destroyed = false;
+
+  /** @param {HTMLElement} container
+   * @param {SubjectsGraphOptions} options
+   */
+  constructor(container, { plan, progress = {}, theme = {}, editable = false }) {
+    this.#plan = structuredClone(plan);
+    this.#progress = structuredClone(progress);
+    this.#theme = mergeTheme(theme);
+    this.#editable = editable;
+    const elements = this.#buildElements();
+
+    this.#root = container.ownerDocument.createElement('div');
+    this.#root.className = `subjects-graph${editable ? ' subjects-graph-editable' : ''}`;
+    const surface = container.ownerDocument.createElement('div');
+    surface.className = 'subjects-graph-surface';
+    this.#root.append(surface);
+    this.#applyTheme();
+    container.append(this.#root);
+
+    this.#cy = cytoscape({
+      container: surface,
+      elements,
+      style: buildStylesheet(editable, this.#theme),
+      layout: { name: 'preset', fit: false },
+      minZoom: 0.3,
+      maxZoom: 3,
+    });
+    this.fit();
+    this.#resizeObserver = new ResizeObserver(() => {
+      if (!this.#destroyed) this.#preserveViewport(() => this.#cy.resize());
+    });
+    this.#resizeObserver.observe(container);
+  }
+
+  /** @param {Plan} plan
+   * @param {SetPlanOptions} [options]
+   */
+  setPlan(plan, { progress = {} } = {}) {
+    this.#assertAlive();
+    this.#plan = structuredClone(plan);
+    this.#progress = structuredClone(progress);
+    this.#render();
+  }
+
+  /** @param {Theme} theme */
+  setTheme(theme) {
+    this.#assertAlive();
+    for (const property of Object.keys(this.#theme)) this.#root.style.removeProperty(property);
+    this.#theme = mergeTheme(theme);
+    this.#applyTheme();
+    this.#render();
+  }
+
+  fit() {
+    this.#assertAlive();
+    this.#cy.fit(undefined, 50);
+  }
+
+  /** @param {PNGOptions} [options]
+   * @returns {Promise<Blob>}
+   */
+  async exportPNG({ scale = 4, bg = 'transparent', full = true } = {}) {
+    this.#assertAlive();
+    return this.#cy.png({ output: 'blob', scale, bg, full });
+  }
+
+  destroy() {
+    if (this.#destroyed) return;
+    this.#destroyed = true;
+    this.#resizeObserver.disconnect();
+    this.#cy.destroy();
+    this.#root.remove();
+  }
+
+  #assertAlive() {
+    if (this.#destroyed) throw new Error('SubjectsGraph has been destroyed.');
+  }
+
+  #applyTheme() {
+    for (const [property, value] of Object.entries(this.#theme)) {
+      this.#root.style.setProperty(property, value);
+    }
+  }
+
+  #buildElements() {
+    const config = {
+      statuses: this.#plan.statuses.map(status => ({
+        ...status,
+        color: resolveColor(status.color, this.#theme),
+        textColor: resolveColor(status.textColor, this.#theme),
+        leafTextColor: status.leafTextColor === undefined ? undefined : resolveColor(status.leafTextColor, this.#theme),
+      })),
+      availabilities: this.#plan.availabilities.map(availability => ({
+        ...availability, color: resolveColor(availability.color, this.#theme),
+      })),
+    };
+    const subjects = this.#plan.subjects.map(subject => ({
+      ...subject,
+      status: this.#progress[subject.id] ?? subject.status ?? this.#plan.statuses[0].id,
+    }));
+    const drawer = new CytoscapeDrawer(this.#editable);
+    new Graph(config, subjects, this.#plan.edges).render(drawer);
+    return drawer.getElements();
+  }
+
+  #render() {
+    const elements = this.#buildElements();
+    this.#preserveViewport(() => {
+      this.#cy.batch(() => {
+        this.#cy.elements().remove();
+        this.#cy.add(elements);
+        this.#cy.style(buildStylesheet(this.#editable, this.#theme));
+      });
+    });
+  }
+
+  /** @param {() => void} update */
+  #preserveViewport(update) {
+    const zoom = this.#cy.zoom();
+    const pan = { ...this.#cy.pan() };
+    update();
+    this.#cy.viewport({ zoom, pan });
+  }
+}

@@ -1,5 +1,5 @@
 /**
- * Public library entry point. Contracts are re-exported without runtime stubs.
+ * Public library entry point and contracts.
  *
  * @typedef {import('./subjects-graph.js').Status} Status
  * @typedef {import('./subjects-graph.js').Availability} Availability
@@ -25,4 +25,4 @@
  * @typedef {import('./subjects-graph.js').SubjectsGraphEventListener<K>} SubjectsGraphEventListener
  */
 
-export {};
+export { SubjectsGraph } from './subjects-graph.js';
