@@ -42,7 +42,7 @@ materias, estados y disponibilidades:
   "variants": {
     "tu-plan": {
       "name": "Universidad - Carrera - Plan",
-      "progress": {...}
+      "progress": {...},
       "statuses": [...],
       "availabilities": [...],
       "subjects": [...],
@@ -86,9 +86,9 @@ Los bordes y flechas indican la disponibilidad y se configuran en `availabilitie
 
 ```json
 "availabilities": [
-  { "id": "NOT_AVAILABLE", "name": "No disponible", "borderColor": "--border-color-2" },
-  { "id": "ENROLL_AVAILABLE", "name": "Disponible para cursar", "borderColor": "--border-color-3" },
-  { "id": "FINAL_EXAM_AVAILABLE", "name": "Disponible para aprobar", "borderColor": "--border-color-4" }
+  { "id": "NOT_AVAILABLE", "name": "No disponible", "color": "--border-color-2" },
+  { "id": "ENROLL_AVAILABLE", "name": "Disponible para cursar", "color": "--border-color-3" },
+  { "id": "FINAL_EXAM_AVAILABLE", "name": "Disponible para aprobar", "color": "--border-color-4" }
 ]
 ```
 
@@ -170,14 +170,15 @@ Ejemplo:
 - [**Lucide**](https://lucide.dev/) - Iconos de UI
 - [**Github Corners**](https://github.com/tholman/github-corners) - Banner "Fork me on GitHub"
 
-Y eso es todo, sin frameworks ni package managers. Todo el código se encuentra
-en la carpeta `public/`.
+La web no usa frameworks ni requiere compilación: se sirve directamente desde `public/`.
+El mismo código del grafo se distribuye también como biblioteca ESM para integrar en otras webs.
 
 ## Infraestructura
 
 - **Progressive Web App (PWA)** - Soporte offline y experiencia nativa
-- **Vitest** - Para pruebas unitarias de la lógica del grafo (por eso hay un `package.json` en la raíz!)
-- **GitHub Actions** - CI/CD para despliegue de la carpeta `public/` en GitHub Pages
+- **Vitest y TypeScript** - Pruebas y comprobación de JavaScript con JSDoc
+- **esbuild** - Empaquetado de la biblioteca y declaraciones `.d.ts` generadas desde JSDoc
+- **GitHub Actions** - Verificación, publicación npm por tags y despliegue independiente en Pages
 
 ## Getting Started
 
@@ -195,10 +196,10 @@ subjects-graph/
 ├── public/
 │   ├── index.html           # HTML principal
 │   ├── app.js               # Lógica de aplicación (UI, eventos)
-│   ├── graph.js             # Lógica de renderizado de grafo
+│   ├── graph.js             # Reexportación compatible del núcleo puro
 │   ├── styles.css           # Estilos
 │   ├── data.json            # Variantes y datos de cada plan de estudio
-│   ├── lib/                 # Bibliotecas de terceros
+│   ├── lib/subjects-graph/  # Biblioteca, núcleo puro, renderer privado y CSS
 │   └── icons/               # Iconos de la app
 ├── tests/                   # Pruebas unitarias (Vitest)
 │   ├── bugs/                # Pruebas de regresión sobre bugs reportados
@@ -241,14 +242,180 @@ para mantener el progreso, el tema y los planes personalizados.
 Primero debemos instalar las dependencias con [pnpm](https://pnpm.io/):
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
 Luego podemos correr las pruebas directamente desde el IDE o con:
 
 ```bash
 pnpm test
+pnpm typecheck
+pnpm build:lib
 ```
+
+`pnpm start` sirve `public/` en el puerto 8000. No hay servidor de desarrollo Vite,
+build de la web ni demo separada. `build:lib` genera ESM, CSS y declaraciones en
+`dist/` (ignorado por Git); no modifica la web. El paquete incluye `dist/`, README,
+LICENSE y los metadatos npm. `prepack` ejecuta ese build automáticamente; si tu
+configuración omite scripts, para empaquetar este proyecto conocido usá
+`npm pack --ignore-scripts=false`. No hace falta habilitar scripts globalmente.
+
+## Usar la biblioteca
+
+El paquete `frba-subjects-graph` exporta `SubjectsGraph` como export nombrado y el
+núcleo puro por `frba-subjects-graph/core`. Su CSS se importa explícitamente:
+
+```js
+import { SubjectsGraph } from 'frba-subjects-graph';
+import 'frba-subjects-graph/styles.css';
+
+const graph = new SubjectsGraph(document.querySelector('#graph'), { plan });
+```
+
+El contenedor debe tener dimensiones, por ejemplo `height: 600px`. Para usar las
+fuentes directamente en HTML servido desde `public/`:
+
+```html
+<link rel="stylesheet" href="./lib/subjects-graph/styles.css">
+<div id="graph" style="height: 600px"></div>
+<script type="importmap">
+{"imports":{"cytoscape":"https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.esm.mjs"}}
+</script>
+<script type="module">
+  import { SubjectsGraph } from './lib/subjects-graph/index.js';
+  const data = await fetch('./data.json').then(response => response.json());
+  const graph = new SubjectsGraph(document.querySelector('#graph'), {
+    plan: data.variants['frba-k08']
+  });
+</script>
+```
+
+### Plan y progreso
+
+`plan` define el catálogo de estados, disponibilidades, materias, correlativas,
+posiciones y conectores (`edges`). Por ejemplo:
+
+```js
+const plan = {
+  name: 'Plan mínimo',
+  statuses: [
+    { id: 'PENDING', name: 'Pendiente', color: '--fill-color-1', textColor: '--text-primary' },
+    { id: 'APPROVED', name: 'Aprobada', color: '--fill-color-4', textColor: '--bg-primary' }
+  ],
+  availabilities: [
+    { id: 'BLOCKED', name: 'Bloqueada', color: '--border-color-2' },
+    { id: 'READY', name: 'Disponible', color: '--border-color-4' }
+  ],
+  subjects: [
+    { id: '1', name: 'Álgebra', shortName: 'A', position: { x: 0, y: 0 }, prerequisites: [] },
+    { id: '2', name: 'Análisis', shortName: 'AM', position: { x: 200, y: 0 },
+      prerequisites: [{ availabilityId: 'READY', dependencies: [{ statusId: 'APPROVED', subjects: ['1'] }] }] }
+  ],
+  edges: []
+};
+const progress = { '1': 'APPROVED' };
+```
+
+`progress` es el mapa personal de ID de materia (string) a ID de estado; `plan.statuses`
+es el catálogo y su orden define el avance y el ciclo al siguiente estado al hacer click.
+El orden de `plan.availabilities` define los niveles de disponibilidad: la evaluación
+se detiene ante el primer nivel cuyos requisitos no se cumplen.
+Para materias omitidas se usa `subject.status` si existe, o el primer
+estado del catálogo. `setProgress(progress)` reemplaza el mapa completo; `{}` vuelve
+a esos valores iniciales. `getProgress()` devuelve una copia completa del progreso
+efectivo, no un porcentaje. La biblioteca toma copias de sus entradas.
+
+### API y temas
+
+`new SubjectsGraph(container, { plan, progress = {}, theme = {}, editable = false })`
+crea una instancia y ajusta inicialmente el grafo al contenedor.
+
+| Método | Comportamiento |
+| --- | --- |
+| `setPlan(plan, { progress = {} } = {})` | Reemplaza plan y progreso, conservando pan y zoom. |
+| `getProgress()` | Devuelve una copia del mapa efectivo completo. |
+| `setProgress(progress)` | Reemplaza el progreso. |
+| `setTheme(theme)` | Reemplaza las personalizaciones sobre la paleta Default Dark. |
+| `setEditable(boolean)` | Habilita solicitudes de edición y movimiento. |
+| `fit()` | Ajusta explícitamente el grafo al contenedor. |
+| `exportPNG({ scale = 4, bg = 'transparent', full = true } = {})` | Devuelve `Promise<Blob>` del grafo, sin controles de la web. |
+| `addEventListener(type, listener, options)` | Escucha solicitudes con opciones estándar, incluyendo `once` y `signal`. |
+| `removeEventListener(type, listener, options)` | Quita un listener con las opciones estándar. |
+| `destroy()` | Libera renderer, observadores, listeners y DOM de la instancia; es idempotente. |
+
+Los demás métodos lanzan un error después de `destroy()`. Reemplazar el plan o destruir
+la instancia cancela el tap pendiente con `clearTimeout`.
+
+Un tema es un mapa de tokens a colores CSS, por ejemplo
+`graph.setTheme({ '--fill-color-4': '#24b47e' })`. Los tokens omitidos conservan
+exactamente la paleta Default Dark definida en `theme.js`; cada llamada reemplaza
+las personalizaciones anteriores. Los colores de estados y disponibilidades aceptan
+tokens como `--fill-color-4`, `var(--fill-color-4)` o colores literales como `#24b47e`.
+Las variables se aplican al elemento de cada instancia, sin modificar `document.documentElement`.
+
+### Estado controlado y eventos
+
+El consumidor decide si acepta cada solicitud y conserva su estado:
+
+```js
+let ownedPlan = plan;
+let ownedProgress = {};
+const graph = new SubjectsGraph(document.querySelector('#graph'), { plan: ownedPlan });
+graph.addEventListener('statusrequest', event => {
+  const { subjectId, nextStatusId } = event.detail;
+  ownedProgress = { ...ownedProgress, [subjectId]: nextStatusId };
+  graph.setProgress(ownedProgress);
+});
+
+graph.addEventListener('nodepositionrequest', event => {
+  const { nodeId, position } = event.detail;
+  ownedPlan = { ...ownedPlan,
+    subjects: ownedPlan.subjects.map(node => node.id === nodeId ? { ...node, position } : node),
+    edges: ownedPlan.edges.map(node => node.id === nodeId ? { ...node, position } : node)
+  };
+  graph.setPlan(ownedPlan, { progress: ownedProgress });
+});
+```
+
+Si se ignora una solicitud de movimiento, el nodo vuelve a la posición del plan. Un `statusrequest` ignorado
+conserva el estado actual. En modo editable, `editrequest` identifica el elemento
+para abrir la UI propia del consumidor:
+
+| `event.detail.kind` | Otros campos de `detail` |
+| --- | --- |
+| `subject` o `connector` | `nodeId` |
+| `connection` | `sourceId`, `targetId`, `position` |
+| `background` | `position` |
+
+El consumidor aplica las ediciones mediante un plan actualizado y `setPlan`; ignorar
+la solicitud deja el plan intacto. Las declaraciones TypeScript infieren `event.detail`
+por nombre de evento. Los setters no emiten solicitudes de vuelta.
+
+La biblioteca no usa almacenamiento ni registra service workers. La aplicación en
+`app.js` conserva selectores, indicador de progreso, leyenda, editor, importación y
+exportación JSON, almacenamiento, capturas y PWA.
+
+## Publicación npm y Pages
+
+`.github/workflows/publish.yml` verifica tests, tipos y build en `main` y en PRs hacia
+`main`. Publica solamente al pushear un tag de versión SemVer, con prefijo `v` opcional:
+`1.2.4` o `v1.2.4` publica con dist-tag `latest`; `1.2.4-alpha.1`, `1.2.4-beta.1`,
+`1.2.4-rc.1` u otra versión con identificador prerelease válido publica con `next`
+(por ejemplo `v1.2.4-rc.1`).
+La versión se toma del tag durante el job; CI no actualiza ni commitea la versión de
+las fuentes. No hay publicaciones snapshot ni commits automáticos.
+
+Antes de publicar, el propietario debe disponer del paquete npm `frba-subjects-graph`
+y configurar **Settings > Trusted Publishing**: proveedor **GitHub Actions**, usuario
+**RaniAgus**, repositorio **subjects-graph**, archivo de workflow **publish.yml** y
+**Environment** vacío. También debe permitir publicación npm directa; las opciones
+nuevas de npm pueden permitir solamente publicación staged. Ver la
+[documentación oficial de Trusted Publishing](https://docs.npmjs.com/trusted-publishers/).
+Se usa OIDC, sin secreto `NPM_TOKEN` ni GPG. La configuración externa y disponibilidad
+inicial del paquete requieren al propietario; estos archivos no las realizan.
+
+Pages continúa desplegando `public/` directamente con su workflow independiente,
+reemplazando `{{COMMIT_SHA}}` en `sw.js`. El empaquetado npm no interviene en ese despliegue.
 
 ## Licencia
 
