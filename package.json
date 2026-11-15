@@ -1,5 +1,5 @@
 {
-  "name": "frba-subjects-graph",
+  "name": "@raniagus/subjects-graph",
   "version": "1.0.0",
   "description": "Embeddable interactive university subject prerequisite graphs.",
   "repository": {

@@ -94,7 +94,7 @@ to `main` affecting `public/**`, injecting the commit SHA into `sw.js`.
 `.github/workflows/publish.yml` verifies tests, types and library build on main/PRs. Only version
 tag pushes (optional `v`) publish npm: stable versions use `latest`, all prereleases use `next`.
 The release helper changes the package version only in the job; no version commits or snapshots.
-Publishing uses npm Trusted Publishing/OIDC and requires owner-side setup described in README;
+Publishing uses npm Trusted Publishing/OIDC and requires owner-side setup;
 do not assume it is configured or the package has been published. No `NPM_TOKEN` or GPG is needed.
 `prepack` builds the library. npm packaging includes dist, README, LICENSE and package metadata;
 for a known local pack with scripts otherwise disabled, use `npm pack --ignore-scripts=false`

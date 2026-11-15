@@ -178,7 +178,7 @@ El mismo código del grafo se distribuye también como biblioteca ESM para integ
 - **Progressive Web App (PWA)** - Soporte offline y experiencia nativa
 - **Vitest y TypeScript** - Pruebas y comprobación de JavaScript con JSDoc
 - **esbuild** - Empaquetado de la biblioteca y declaraciones `.d.ts` generadas desde JSDoc
-- **GitHub Actions** - Verificación, publicación npm por tags y despliegue independiente en Pages
+- **GitHub Actions** - Verificación de tests, tipos y build de la biblioteca
 
 ## Getting Started
 
@@ -262,12 +262,12 @@ configuración omite scripts, para empaquetar este proyecto conocido usá
 
 ## Usar la biblioteca
 
-El paquete `frba-subjects-graph` exporta `SubjectsGraph` como export nombrado y el
-núcleo puro por `frba-subjects-graph/core`. Su CSS se importa explícitamente:
+El paquete `@raniagus/subjects-graph` exporta `SubjectsGraph` como export nombrado y el
+núcleo puro por `@raniagus/subjects-graph/core`. Su CSS se importa explícitamente:
 
 ```js
-import { SubjectsGraph } from 'frba-subjects-graph';
-import 'frba-subjects-graph/styles.css';
+import { SubjectsGraph } from '@raniagus/subjects-graph';
+import '@raniagus/subjects-graph/styles.css';
 
 const graph = new SubjectsGraph(document.querySelector('#graph'), { plan });
 ```
@@ -394,28 +394,6 @@ por nombre de evento. Los setters no emiten solicitudes de vuelta.
 La biblioteca no usa almacenamiento ni registra service workers. La aplicación en
 `app.js` conserva selectores, indicador de progreso, leyenda, editor, importación y
 exportación JSON, almacenamiento, capturas y PWA.
-
-## Publicación npm y Pages
-
-`.github/workflows/publish.yml` verifica tests, tipos y build en `main` y en PRs hacia
-`main`. Publica solamente al pushear un tag de versión SemVer, con prefijo `v` opcional:
-`1.2.4` o `v1.2.4` publica con dist-tag `latest`; `1.2.4-alpha.1`, `1.2.4-beta.1`,
-`1.2.4-rc.1` u otra versión con identificador prerelease válido publica con `next`
-(por ejemplo `v1.2.4-rc.1`).
-La versión se toma del tag durante el job; CI no actualiza ni commitea la versión de
-las fuentes. No hay publicaciones snapshot ni commits automáticos.
-
-Antes de publicar, el propietario debe disponer del paquete npm `frba-subjects-graph`
-y configurar **Settings > Trusted Publishing**: proveedor **GitHub Actions**, usuario
-**RaniAgus**, repositorio **subjects-graph**, archivo de workflow **publish.yml** y
-**Environment** vacío. También debe permitir publicación npm directa; las opciones
-nuevas de npm pueden permitir solamente publicación staged. Ver la
-[documentación oficial de Trusted Publishing](https://docs.npmjs.com/trusted-publishers/).
-Se usa OIDC, sin secreto `NPM_TOKEN` ni GPG. La configuración externa y disponibilidad
-inicial del paquete requieren al propietario; estos archivos no las realizan.
-
-Pages continúa desplegando `public/` directamente con su workflow independiente,
-reemplazando `{{COMMIT_SHA}}` en `sw.js`. El empaquetado npm no interviene en ese despliegue.
 
 ## Licencia
 
