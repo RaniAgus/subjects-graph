@@ -1,6 +1,6 @@
 {
   "name": "@raniagus/subjects-graph",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Embeddable interactive university subject prerequisite graphs.",
   "repository": {
     "type": "git",
