@@ -14,6 +14,6 @@
       "~/*": ["./public/*"]
     }
   },
-  "include": ["public/graph.js", "tests/**/*.js"],
+  "include": ["public/graph.js", "public/lib/subjects-graph/**/*.js", "tests/**/*.js"],
   "exclude": ["public/cytoscape.min.js", "public/lucide.min.js", "node_modules"]
 }
