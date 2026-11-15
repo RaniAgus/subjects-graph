@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subjects Graph · Quickstart CDN</title>
+  <link rel="stylesheet" href="https://unpkg.com/@raniagus/subjects-graph@0.1.0/dist/styles.css">
+  <script type="importmap">
+    { "imports": {
+      "@raniagus/subjects-graph": "https://unpkg.com/@raniagus/subjects-graph@0.1.0/dist/index.js",
+      "cytoscape": "https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.esm.mjs"
+    } }
+  </script>
+</head>
+<body>
+  <h1>K23 · Quickstart</h1>
+  <p>Hacé clic en las materias para cambiar su estado.</p>
+  <div id="graph" style="height: 70vh"></div>
+  <script type="module">
+    import { SubjectsGraph } from '@raniagus/subjects-graph';
+    import plan from './plan.json' with { type: 'json' };
+
+    const graph = new SubjectsGraph(document.querySelector('#graph'), { plan });
+    graph.addEventListener('statusrequest', ({ detail }) => {
+      graph.setProgress({ ...graph.getProgress(), [detail.subjectId]: detail.nextStatusId });
+    });
+  </script>
+</body>
+</html>

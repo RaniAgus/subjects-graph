@@ -1,0 +1,205 @@
+{
+  "name": "UTN FRBA - Ingeniería en Sistemas de Información - Plan K23 · Rama de software (reducida)",
+  "statuses": [
+    {
+      "id": "PENDING",
+      "name": "Pendiente",
+      "color": "--fill-color-1",
+      "textColor": "--text-primary",
+      "leafTextColor": "--accent-color"
+    },
+    {
+      "id": "IN_PROGRESS",
+      "name": "En curso",
+      "color": "--fill-color-2",
+      "textColor": "--text-primary",
+      "leafTextColor": "--accent-color"
+    },
+    {
+      "id": "FINAL_EXAM_PENDING",
+      "name": "Cursada",
+      "color": "--fill-color-3",
+      "textColor": "--text-primary"
+    },
+    {
+      "id": "APPROVED",
+      "name": "Aprobada",
+      "color": "--fill-color-4",
+      "textColor": "--bg-primary"
+    }
+  ],
+  "availabilities": [
+    {
+      "id": "NOT_AVAILABLE",
+      "name": "No disponible",
+      "color": "--border-color-2"
+    },
+    {
+      "id": "AVAILABLE",
+      "name": "Disponible",
+      "color": "--border-color-4"
+    }
+  ],
+  "subjects": [
+    {
+      "id": "5",
+      "name": "Lógica y Estructuras Discretas",
+      "prerequisites": [],
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "shortName": "LyED"
+    },
+    {
+      "id": "6",
+      "name": "Algoritmos y Estructuras de Datos",
+      "prerequisites": [],
+      "position": {
+        "x": 0,
+        "y": 180
+      },
+      "shortName": "AyED"
+    },
+    {
+      "id": "8",
+      "name": "Sistemas y Procesos de Negocio",
+      "prerequisites": [],
+      "position": {
+        "x": 0,
+        "y": 360
+      },
+      "shortName": "SyPN"
+    },
+    {
+      "id": "13",
+      "name": "Sintaxis y Semántica de los Lenguajes",
+      "prerequisites": [
+        {
+          "availabilityId": "AVAILABLE",
+          "dependencies": [
+            {
+              "statusId": "FINAL_EXAM_PENDING",
+              "subjects": [
+                "5",
+                "6"
+              ]
+            }
+          ]
+        }
+      ],
+      "position": {
+        "x": 280,
+        "y": 0
+      },
+      "shortName": "SSL"
+    },
+    {
+      "id": "14",
+      "name": "Paradigmas de Programación",
+      "prerequisites": [
+        {
+          "availabilityId": "AVAILABLE",
+          "dependencies": [
+            {
+              "statusId": "FINAL_EXAM_PENDING",
+              "subjects": [
+                "5",
+                "6"
+              ]
+            }
+          ]
+        }
+      ],
+      "position": {
+        "x": 280,
+        "y": 180
+      },
+      "shortName": "PdeP"
+    },
+    {
+      "id": "16",
+      "name": "Análisis de Sistemas de Información",
+      "prerequisites": [
+        {
+          "availabilityId": "AVAILABLE",
+          "dependencies": [
+            {
+              "statusId": "FINAL_EXAM_PENDING",
+              "subjects": [
+                "6",
+                "8"
+              ]
+            }
+          ]
+        }
+      ],
+      "position": {
+        "x": 280,
+        "y": 360
+      },
+      "shortName": "ASI"
+    },
+    {
+      "id": "19",
+      "name": "Bases de Datos",
+      "prerequisites": [
+        {
+          "availabilityId": "AVAILABLE",
+          "dependencies": [
+            {
+              "statusId": "FINAL_EXAM_PENDING",
+              "subjects": [
+                "13",
+                "16"
+              ]
+            },
+            {
+              "statusId": "APPROVED",
+              "subjects": [
+                "5",
+                "6"
+              ]
+            }
+          ]
+        }
+      ],
+      "position": {
+        "x": 560,
+        "y": 90
+      },
+      "shortName": "BDD"
+    },
+    {
+      "id": "20",
+      "name": "Desarrollo de Software",
+      "prerequisites": [
+        {
+          "availabilityId": "AVAILABLE",
+          "dependencies": [
+            {
+              "statusId": "FINAL_EXAM_PENDING",
+              "subjects": [
+                "14",
+                "16"
+              ]
+            },
+            {
+              "statusId": "APPROVED",
+              "subjects": [
+                "5",
+                "6"
+              ]
+            }
+          ]
+        }
+      ],
+      "position": {
+        "x": 560,
+        "y": 270
+      },
+      "shortName": "DdS"
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subjects Graph · Integración completa</title>
+  <link rel="stylesheet" href="https://unpkg.com/@raniagus/subjects-graph@0.1.0/dist/styles.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+    { "imports": {
+      "@raniagus/subjects-graph": "https://unpkg.com/@raniagus/subjects-graph@0.1.0/dist/index.js",
+      "cytoscape": "https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.esm.mjs"
+    } }
+  </script>
+</head>
+<body>
+  <header>
+    <a href="../">Ejemplos CDN</a>
+    <h1>K23 · Tu progreso, en dos vistas</h1>
+    <p>Cambiá una materia desde el grafo o desde la tabla: ambas vistas comparten el mismo progreso.
+      Los cambios viven en memoria y se pierden al recargar.</p>
+  </header>
+  <p id="message" role="status">Cargando la biblioteca…</p>
+  <fieldset id="controls" disabled>
+    <legend>Controles del grafo</legend>
+    <div class="toolbar">
+      <label>Plan <select id="plan"><option value="software">Rama de software · 8 materias</option><option value="base">Primer año · 3 materias</option></select></label>
+      <label>Tema <select id="theme"><option value="custom">Azul y verde</option><option value="default">Default Dark</option></select></label>
+      <button id="fit" type="button">Ajustar vista</button>
+      <button id="reset" type="button">Reiniciar progreso</button>
+      <button id="png" type="button">Descargar PNG</button>
+    </div>
+    <div class="toolbar">
+      <label><input id="accept" type="checkbox" checked>Aceptar clics del grafo</label>
+      <label><input id="editable" type="checkbox">Editar y mover nodos</label>
+      <button id="destroy" type="button">Destruir instancia</button>
+    </div>
+  </fieldset>
+  <button id="create" type="button" disabled>Crear instancia de nuevo</button>
+  <main>
+    <section aria-label="Grafo">
+      <div id="graph"></div>
+      <p>Arrastrá el fondo y usá la rueda para navegar. En modo edición, arrastrá nodos para guardar
+        sus posiciones o hacé doble clic en una materia, conector, flecha o fondo para abrir el editor del plan.</p>
+    </section>
+    <section aria-labelledby="table-title">
+      <h2 id="table-title">Materias <output id="count" aria-live="polite"></output></h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th scope="col">Materia</th><th scope="col">Estado</th></tr></thead>
+        <tbody id="subjects"></tbody>
+      </table></div>
+    </section>
+  </main>
+  <details id="editor">
+    <summary>Editar el plan en JSON</summary>
+    <p id="edit-context">Editá materias, correlativas, conectores y posiciones. Aplicar reemplaza el plan y conserva el progreso de las materias existentes.</p>
+    <form id="plan-form">
+      <label for="plan-json">Plan completo</label>
+      <textarea id="plan-json" rows="18" spellcheck="false"></textarea>
+      <button type="submit" id="apply-plan" disabled>Aplicar plan</button>
+    </form>
+  </details>
+  <details><summary>Progreso actual</summary><pre id="progress">{}</pre></details>
+  <details><summary>Últimas solicitudes del grafo</summary><pre id="events">Sin solicitudes.</pre></details>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
