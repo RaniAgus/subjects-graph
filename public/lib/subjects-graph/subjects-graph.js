@@ -210,7 +210,7 @@ export class SubjectsGraph {
     for (const property of Object.keys(this.#theme)) this.#root.style.removeProperty(property);
     this.#theme = mergeTheme(theme);
     this.#applyTheme();
-    this.#render();
+    this.#render(true);
   }
 
   /** @param {boolean} editable */
@@ -219,7 +219,7 @@ export class SubjectsGraph {
     this.#editable = editable;
     this.#root.className = `subjects-graph${editable ? ' subjects-graph-editable' : ''}`;
     this.#updateCursor();
-    this.#render();
+    this.#render(true);
   }
 
   fit() {
@@ -452,13 +452,14 @@ export class SubjectsGraph {
     return drawer.getElements();
   }
 
-  #render() {
+  /** @param {boolean} [updateStyles] */
+  #render(updateStyles = false) {
     const elements = this.#buildElements();
     this.#preserveViewport(() => {
       this.#cy.batch(() => {
-        this.#cy.elements().remove();
-        this.#cy.add(elements);
-        this.#cy.style(buildStylesheet(this.#editable, this.#theme));
+        // Reconcile by ID so existing elements retain their transition state.
+        this.#cy.json({ elements });
+        if (updateStyles) this.#cy.style(buildStylesheet(this.#editable, this.#theme));
       });
     });
     this.#updateGrid();

@@ -65,6 +65,8 @@ class RendererDouble {
   });
   elements = () => ({ remove: () => { this.content = { nodes: [], edges: [] }; } });
   add = vi.fn((/** @type {import('cytoscape').ElementsDefinition} */ elements) => { this.content = elements; });
+  /** @param {{ elements: import('cytoscape').ElementsDefinition }} value */
+  json({ elements }) { this.content = elements; }
   batch = (/** @type {() => void} */ callback) => callback();
   style = vi.fn((/** @type {import('cytoscape').StylesheetStyle[]} */ _styles) => {});
   fit = vi.fn();
@@ -203,6 +205,36 @@ describe('SubjectsGraph controlled progress and requests', () => {
     vi.runOnlyPendingTimers();
     expect(listener).toHaveBeenCalledTimes(1);
     expect('dispatchEvent' in graph).toBe(false);
+  });
+
+  it('preserves real Cytoscape elements across progress updates and reconciles plan changes', async () => {
+    const { default: realCytoscape } = await vi.importActual('cytoscape');
+    const renderer = /** @type {typeof cytoscape} */ (realCytoscape)({ headless: true });
+    /** @param {import('cytoscape').CytoscapeOptions} [options] */
+    const createRenderer = (options) => {
+      renderer.add(/** @type {import('cytoscape').ElementsDefinition} */ (options?.elements ?? { nodes: [], edges: [] }));
+      return renderer;
+    };
+    vi.mocked(cytoscape).mockImplementationOnce(/** @type {typeof cytoscape} */ (createRenderer));
+    const plan = makePlan();
+    const { graph } = mount({ plan });
+    const subject = renderer.getElementById(plan.subjects[0].id);
+    const edge = renderer.edges()[0];
+    const before = subject.data('fillColor');
+    const remove = vi.fn();
+    renderer.on('remove', remove);
+
+    graph.setProgress({ [subject.id()]: plan.statuses.at(-1)?.id ?? '' });
+
+    expect(renderer.getElementById(subject.id())[0]).toBe(subject[0]);
+    expect(renderer.getElementById(edge.id())[0]).toBe(edge[0]);
+    expect(subject.data('fillColor')).not.toBe(before);
+    expect(remove).not.toHaveBeenCalled();
+
+    graph.setPlan({ ...plan, subjects: [plan.subjects[0]], edges: [] });
+    expect(renderer.nodes()).toHaveLength(1);
+    expect(renderer.edges()).toHaveLength(0);
+    expect(renderer.nodes()[0]).toBe(subject[0]);
   });
 
   it('lets consumers accept requests through setProgress and rerenders availability and edge colors without moving the viewport', () => {
