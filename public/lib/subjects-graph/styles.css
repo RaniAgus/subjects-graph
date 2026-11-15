@@ -1,0 +1,35 @@
+/* The host supplies the outer dimensions; each instance owns its subtree. */
+.subjects-graph {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.subjects-graph .subjects-graph-surface {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: var(--bg-primary);
+  cursor: grab;
+}
+.subjects-graph.subjects-graph-editable .subjects-graph-surface {
+  border: 2px dashed var(--accent-color);
+  cursor: move;
+}
+.subjects-graph .subjects-graph-tooltip {
+  position: absolute;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+  display: none;
+}
+.subjects-graph .subjects-graph-tooltip strong { display: block; margin-bottom: 4px; }
+.subjects-graph .subjects-graph-tooltip ul { margin: 2px 0 0 0; padding-left: 16px; list-style: disc; }
+.subjects-graph .subjects-graph-tooltip li { margin: 1px 0; }
+.subjects-graph .subjects-graph-tooltip-section { margin-top: 6px; }
+.subjects-graph .subjects-graph-tooltip-availability { font-size: 0.75rem; opacity: 0.8; }
