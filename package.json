@@ -2,6 +2,10 @@
   "name": "frba-subjects-graph",
   "version": "1.0.0",
   "description": "Embeddable interactive university subject prerequisite graphs.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RaniAgus/subjects-graph.git"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -30,6 +34,7 @@
   "license": "BSD-3-Clause",
   "packageManager": "pnpm@10.24.0",
   "devDependencies": {
+    "@types/node": "^24.0.0",
     "esbuild": "0.25.12",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
