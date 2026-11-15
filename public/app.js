@@ -413,7 +413,7 @@ class GraphApp {
       this.currentTheme = newThemeId;
       this.themeColors = newTheme.colors;
       this.applyTheme(newTheme);
-      localStorage.setItem(this.VARIANT_STORAGE_KEY, newThemeId);
+      localStorage.setItem(this.THEME_STORAGE_KEY, newThemeId);
       this.renderGraph();
     }
   }
