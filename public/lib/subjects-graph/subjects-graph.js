@@ -90,6 +90,9 @@ export class SubjectsGraph {
   #cy;
   /** @type {ResizeObserver} */
   #resizeObserver;
+  #events = new EventTarget();
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  #tapTimer;
   #destroyed = false;
 
   /** @param {HTMLElement} container
@@ -118,6 +121,19 @@ export class SubjectsGraph {
       minZoom: 0.3,
       maxZoom: 3,
     });
+    this.#cy.on('tap', 'node[nodeType="subject"]', event => {
+      if (this.#destroyed) return;
+      const subjectId = event.target.id();
+      this.#cancelPendingTap();
+      this.#tapTimer = setTimeout(() => {
+        this.#tapTimer = undefined;
+        if (this.#destroyed) return;
+        const currentStatusId = this.#effectiveProgress()[subjectId];
+        const currentIndex = this.#plan.statuses.findIndex(status => status.id === currentStatusId);
+        const nextStatusId = this.#plan.statuses[(currentIndex + 1) % this.#plan.statuses.length].id;
+        this.#events.dispatchEvent(new CustomEvent('statusrequest', { detail: { subjectId, nextStatusId } }));
+      }, this.#editable ? 200 : 0);
+    });
     this.fit();
     this.#resizeObserver = new ResizeObserver(() => {
       if (!this.#destroyed) this.#preserveViewport(() => this.#cy.resize());
@@ -130,9 +146,43 @@ export class SubjectsGraph {
    */
   setPlan(plan, { progress = {} } = {}) {
     this.#assertAlive();
+    this.#cancelPendingTap();
     this.#plan = structuredClone(plan);
     this.#progress = structuredClone(progress);
     this.#render();
+  }
+
+  /** @returns {Progress} */
+  getProgress() {
+    this.#assertAlive();
+    return this.#effectiveProgress();
+  }
+
+  /** @param {Progress} progress */
+  setProgress(progress) {
+    this.#assertAlive();
+    this.#progress = structuredClone(progress);
+    this.#render();
+  }
+
+  /** @template {keyof SubjectsGraphEventMap} K
+   * @param {K} type
+   * @param {SubjectsGraphEventListener<K>} listener
+   * @param {boolean | AddEventListenerOptions} [options]
+   */
+  addEventListener(type, listener, options) {
+    this.#assertAlive();
+    this.#events.addEventListener(type, /** @type {EventListener} */ (listener), options);
+  }
+
+  /** @template {keyof SubjectsGraphEventMap} K
+   * @param {K} type
+   * @param {SubjectsGraphEventListener<K>} listener
+   * @param {boolean | EventListenerOptions} [options]
+   */
+  removeEventListener(type, listener, options) {
+    this.#assertAlive();
+    this.#events.removeEventListener(type, /** @type {EventListener} */ (listener), options);
   }
 
   /** @param {Theme} theme */
@@ -160,13 +210,28 @@ export class SubjectsGraph {
   destroy() {
     if (this.#destroyed) return;
     this.#destroyed = true;
+    this.#cancelPendingTap();
+    this.#events = new EventTarget();
     this.#resizeObserver.disconnect();
+    this.#cy.removeAllListeners();
     this.#cy.destroy();
     this.#root.remove();
   }
 
   #assertAlive() {
     if (this.#destroyed) throw new Error('SubjectsGraph has been destroyed.');
+  }
+
+  #cancelPendingTap() {
+    clearTimeout(this.#tapTimer);
+    this.#tapTimer = undefined;
+  }
+
+  /** @returns {Progress} */
+  #effectiveProgress() {
+    return Object.fromEntries(this.#plan.subjects.map(subject => [
+      subject.id, this.#progress[subject.id] ?? subject.status ?? this.#plan.statuses[0].id,
+    ]));
   }
 
   #applyTheme() {
@@ -187,9 +252,10 @@ export class SubjectsGraph {
         ...availability, color: resolveColor(availability.color, this.#theme),
       })),
     };
+    const progress = this.#effectiveProgress();
     const subjects = this.#plan.subjects.map(subject => ({
       ...subject,
-      status: this.#progress[subject.id] ?? subject.status ?? this.#plan.statuses[0].id,
+      status: progress[subject.id],
     }));
     const drawer = new CytoscapeDrawer(this.#editable);
     new Graph(config, subjects, this.#plan.edges).render(drawer);

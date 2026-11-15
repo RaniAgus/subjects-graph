@@ -35,6 +35,12 @@ class ResizeObserverDouble {
 
 /** Renderer boundary double; graph logic, drawer, and palette stay real. */
 class RendererDouble {
+  /** @type {{type: string, selector: string, handler: import('cytoscape').EventHandler}[]} */
+  listeners = [];
+  on = vi.fn((/** @type {string} */ type, /** @type {string} */ selector, /** @type {import('cytoscape').EventHandler} */ handler) => {
+    this.listeners.push({ type, selector, handler });
+  });
+  removeAllListeners = vi.fn(() => { this.listeners = []; });
   /** @param {import('cytoscape').CytoscapeOptions} options */
   constructor(options) {
     this.options = options;
@@ -61,6 +67,15 @@ class RendererDouble {
     const node = this.content.nodes.find(node => node.data.id === id);
     if (!node) throw new Error(`Missing rendered node ${id}`);
     return node;
+  }
+  /** @param {string} id */
+  tap(id) {
+    const node = this.node(id);
+    for (const listener of this.listeners) {
+      if (listener.type === 'tap' && listener.selector === `node[nodeType="${node.data.nodeType}"]`) {
+        listener.handler(/** @type {import('cytoscape').EventObject} */ ({ target: { id: () => id } }));
+      }
+    }
   }
 }
 
@@ -97,8 +112,199 @@ beforeEach(() => {
 });
 afterEach(() => {
   for (const graph of graphs) graph.destroy();
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.clearAllMocks();
+});
+
+describe('SubjectsGraph controlled progress and requests', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+
+  it('returns complete effective snapshots and replaces sparse progress, with an empty map resetting plan defaults', () => {
+    const plan = makePlan();
+    const [first, second, third] = plan.subjects;
+    first.status = plan.statuses[1].id;
+    delete third.status;
+    const initial = { [second.id]: plan.statuses[2].id };
+    const { graph, renderer } = mount({ plan, progress: initial });
+    const expected = Object.fromEntries(plan.subjects.map(subject => [subject.id, initial[subject.id] ?? subject.status ?? plan.statuses[0].id]));
+    expect(graph.getProgress()).toEqual(expected);
+    const copy = graph.getProgress();
+    copy[first.id] = plan.statuses[0].id;
+    delete copy[second.id];
+    initial[second.id] = plan.statuses[0].id;
+    expect(graph.getProgress()).toEqual(expected);
+    const replacement = { [third.id]: plan.statuses[1].id };
+    graph.setProgress(replacement);
+    replacement[third.id] = plan.statuses[0].id;
+    graph.setTheme({});
+    expect(graph.getProgress()[first.id]).toBe(first.status);
+    expect(graph.getProgress()[second.id]).toBe(second.status ?? plan.statuses[0].id);
+    expect(renderer.node(third.id).data.status).toBe(plan.statuses[1].id);
+    graph.setProgress({});
+    expect(graph.getProgress()).toEqual(Object.fromEntries(plan.subjects.map(subject => [subject.id, subject.status ?? plan.statuses[0].id])));
+    for (const subject of plan.subjects) expect(renderer.node(subject.id).data.status).toBe(graph.getProgress()[subject.id]);
+  });
+
+  it('emits snapshot requests only on subject taps and leaves ignored requests unchanged', () => {
+    const plan = makePlan();
+    const { graph, renderer } = mount({ plan });
+    const listener = vi.fn();
+    graph.addEventListener('statusrequest', listener);
+    const before = structuredClone(renderer.content);
+    const progress = graph.getProgress();
+    const id = plan.subjects[0].id;
+    renderer.tap(id);
+    expect(listener).not.toHaveBeenCalled();
+    vi.runOnlyPendingTimers();
+    expect(listener).toHaveBeenCalledTimes(1);
+    const event = listener.mock.calls[0][0];
+    expect(event).toBeInstanceOf(CustomEvent);
+    expect(event.detail).toEqual({ subjectId: id, nextStatusId: plan.statuses[1].id });
+    event.detail.subjectId = 'caller change';
+    event.detail.nextStatusId = 'caller change';
+    expect(graph.getProgress()).toEqual(progress);
+    expect(renderer.content).toEqual(before);
+    const connector = renderer.content.nodes.find(node => node.data.nodeType === 'connector');
+    if (!connector?.data.id) throw new Error('Missing fixture connector');
+    renderer.tap(connector.data.id);
+    vi.runOnlyPendingTimers();
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect('dispatchEvent' in graph).toBe(false);
+  });
+
+  it('lets consumers accept requests through setProgress and rerenders availability and edge colors without moving the viewport', () => {
+    const plan = makePlan();
+    const dependency = plan.subjects.flatMap(subject => subject.prerequisites.flatMap(prerequisite => prerequisite.dependencies))
+      .find(dependency => plan.statuses.findIndex(status => status.id === dependency.statusId) > 0 && dependency.subjects.length);
+    if (!dependency) throw new Error('Missing fixture dependency');
+    const nextStatus = dependency.statusId;
+    const previousStatus = plan.statuses[plan.statuses.findIndex(status => status.id === nextStatus) - 1].id;
+    const id = dependency.subjects[0];
+    const progress = Object.fromEntries(plan.subjects.map(subject => [subject.id, plan.statuses.at(-1)?.id ?? '']));
+    progress[id] = previousStatus;
+    const { graph, renderer } = mount({ plan, progress });
+    const bordersBefore = renderer.content.nodes.map(node => node.data.borderColor);
+    const edgesBefore = renderer.content.edges.map(edge => edge.data.color);
+    renderer.zoomValue = 2;
+    renderer.panValue = { x: -75, y: 100 };
+    const listener = vi.fn((/** @type {import('~/lib/subjects-graph/index.js').SubjectsGraphEventMap['statusrequest']} */ event) => {
+      graph.setProgress({ ...graph.getProgress(), [event.detail.subjectId]: event.detail.nextStatusId });
+    });
+    graph.addEventListener('statusrequest', listener);
+    renderer.tap(id);
+    vi.runOnlyPendingTimers();
+    expect(renderer.node(id).data.status).toBe(nextStatus);
+    expect(renderer.content.nodes.map(node => node.data.borderColor)).not.toEqual(bordersBefore);
+    expect(renderer.content.edges.map(edge => edge.data.color)).not.toEqual(edgesBefore);
+    expect(renderer.zoomValue).toBe(2);
+    expect(renderer.panValue).toEqual({ x: -75, y: 100 });
+    expect(renderer.fit).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it('follows the supplied catalog order and wraps using the latest controlled state', () => {
+    const plan = makePlan();
+    plan.statuses.reverse();
+    const id = plan.subjects[0].id;
+    const { graph, renderer } = mount({ plan, progress: { [id]: plan.statuses[0].id } });
+    const listener = vi.fn();
+    graph.addEventListener('statusrequest', listener);
+    for (let index = 0; index < plan.statuses.length; index++) {
+      graph.setProgress({ [id]: plan.statuses[index].id });
+      renderer.tap(id);
+      vi.runOnlyPendingTimers();
+      expect(listener).toHaveBeenLastCalledWith(expect.objectContaining({ detail: {
+        subjectId: id, nextStatusId: plan.statuses[(index + 1) % plan.statuses.length].id,
+      } }));
+    }
+    expect(listener).toHaveBeenCalledTimes(plan.statuses.length);
+  });
+
+  it('does not emit requests from construction or setters', () => {
+    const plan = makePlan();
+    const { graph } = mount({ plan });
+    const listener = vi.fn();
+    graph.addEventListener('statusrequest', listener);
+    graph.addEventListener('editrequest', listener);
+    graph.addEventListener('nodepositionrequest', listener);
+    graph.setProgress({ [plan.subjects[0].id]: plan.statuses[1].id });
+    graph.setPlan(plan);
+    graph.setTheme({ '--accent-color': 'red' });
+    vi.runOnlyPendingTimers();
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it('supports once, AbortSignal, removal, capture, and isolated instance subscriptions', () => {
+    const plan = makePlan();
+    const first = mount({ plan });
+    const second = mount({ plan });
+    const id = plan.subjects[0].id;
+    const once = vi.fn();
+    const aborted = vi.fn();
+    const removed = vi.fn();
+    const captured = vi.fn();
+    const other = vi.fn();
+    const controller = new AbortController();
+    first.graph.addEventListener('statusrequest', once, { once: true });
+    first.graph.addEventListener('statusrequest', aborted, { signal: controller.signal });
+    first.graph.addEventListener('statusrequest', removed, false);
+    first.graph.addEventListener('statusrequest', captured, { capture: true });
+    second.graph.addEventListener('statusrequest', other);
+    controller.abort();
+    first.graph.removeEventListener('statusrequest', removed, { capture: false });
+    first.renderer.tap(id);
+    vi.runOnlyPendingTimers();
+    first.graph.removeEventListener('statusrequest', captured, { capture: true });
+    first.renderer.tap(id);
+    vi.runOnlyPendingTimers();
+    expect(once).toHaveBeenCalledTimes(1);
+    expect(captured).toHaveBeenCalledTimes(1);
+    expect(aborted).not.toHaveBeenCalled();
+    expect(removed).not.toHaveBeenCalled();
+    expect(other).not.toHaveBeenCalled();
+    second.renderer.tap(id);
+    vi.runOnlyPendingTimers();
+    expect(other).toHaveBeenCalledTimes(1);
+  });
+
+  it('delays editable taps by 200 ms, replaces pending taps, and cancels pending requests when replacing the plan', () => {
+    const plan = makePlan();
+    const { graph, renderer } = mount({ plan, editable: true });
+    const listener = vi.fn();
+    graph.addEventListener('statusrequest', listener);
+    renderer.tap(plan.subjects[0].id);
+    vi.advanceTimersByTime(100);
+    renderer.tap(plan.subjects[1].id);
+    vi.advanceTimersByTime(199);
+    expect(listener).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(listener).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ detail: {
+      subjectId: plan.subjects[1].id, nextStatusId: plan.statuses[1].id,
+    } }));
+    renderer.tap(plan.subjects[0].id);
+    graph.setPlan(plan);
+    vi.runOnlyPendingTimers();
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels pending timers and releases renderer and consumer listeners on idempotent destruction', () => {
+    const plan = makePlan();
+    const { graph, renderer } = mount({ plan, editable: true });
+    const listener = vi.fn();
+    graph.addEventListener('statusrequest', listener);
+    renderer.tap(plan.subjects[0].id);
+    const queuedRendererHandler = renderer.listeners[0].handler;
+    graph.destroy();
+    graph.destroy();
+    queuedRendererHandler(/** @type {import('cytoscape').EventObject} */ ({ target: { id: () => plan.subjects[0].id } }));
+    vi.runOnlyPendingTimers();
+    expect(listener).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+    expect(renderer.removeAllListeners).toHaveBeenCalledTimes(1);
+    expect(renderer.listeners).toEqual([]);
+    expect(renderer.destroy).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('SubjectsGraph mounted view', () => {
