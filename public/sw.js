@@ -6,6 +6,7 @@ const ASSETS_TO_CACHE = [
   './styles.css',
   './app.js',
   './graph.js',
+  './lib/subjects-graph/core.js',
   'https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.esm.mjs',
   './lib/lucide.min.js',
   './data.json',

@@ -2,11 +2,11 @@
  * Public contracts for the subjects graph library. The host UI owns inputs and
  * persistence; implementations snapshot inputs and never mutate caller data.
  *
- * @typedef {import('../../graph.js').Status} Status
- * @typedef {import('../../graph.js').Availability} Availability
- * @typedef {import('../../graph.js').Edge} Edge
- * @typedef {import('../../graph.js').Position} Position
- * @typedef {Omit<import('../../graph.js').Subject, 'status'> & {status?: string}} PlanSubject
+ * @typedef {import('./core.js').Status} Status
+ * @typedef {import('./core.js').Availability} Availability
+ * @typedef {import('./core.js').Edge} Edge
+ * @typedef {import('./core.js').Position} Position
+ * @typedef {Omit<import('./core.js').Subject, 'status'> & {status?: string}} PlanSubject
  * @typedef {Record<string, string>} Progress
  * @typedef {Record<string, string>} Theme
  *
