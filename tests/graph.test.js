@@ -249,7 +249,14 @@ describe('Edge nodes', () => {
           ['10', am2Status],
           ['17', pyeStatus],
         );
-        const testEdges = edges(['AM1,AGA:AM2,PyE'], ['2', '1', '10', '17']);
+        const testEdges = [
+          {
+            id: 'AM1,AGA:AM2,PyE',
+            position: { x: 900, y: 200 },
+            dependencies: ['1', '2'],
+            targets: ['10', '17'],
+          },
+        ];
 
         const graph = new Graph(config, testSubjects, testEdges);
         const drawer = createMockDrawer();
