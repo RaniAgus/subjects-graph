@@ -283,7 +283,7 @@ fuentes directamente en HTML servido desde `public/`:
 </script>
 <script type="module">
   import { SubjectsGraph } from './lib/subjects-graph/index.js';
-  const data = await fetch('./data.json').then(response => response.json());
+  import data from './data.json' with { type: 'json' };
   const graph = new SubjectsGraph(document.querySelector('#graph'), {
     plan: data.variants['frba-k08']
   });
