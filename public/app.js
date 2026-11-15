@@ -1744,6 +1744,7 @@ class GraphApp {
   }
 
   async registerServiceWorker() {
+    if (new URLSearchParams(location.search).get('pwa') === 'off') return;
     if (!('serviceWorker' in navigator)) return;
     try {
       await navigator.serviceWorker.register('./sw.js');

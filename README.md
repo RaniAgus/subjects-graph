@@ -226,6 +226,16 @@ npx serve public
 - Con [VS Code Live Server Extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer),
 abrir `public/index.html` y hacer click en "Go Live".
 
+Para desarrollar sin registrar el service worker, abrir
+[http://localhost:8000/?pwa=off](http://localhost:8000/?pwa=off) y mantener `pwa=off` en la URL.
+Las demás URLs conservan el comportamiento PWA habitual.
+
+Si ya usaste la app localmente con PWA, hacer una única limpieza manual en DevTools:
+en **Application > Service Workers**, pulsar **Unregister** para el service worker de esta app
+y luego recargar. Recargar por sí solo no elimina el registro. Si hace falta, borrar también
+las cachés `subjects-graph-cache-*` en **Application > Cache Storage**. Conservar Local Storage
+para mantener el progreso, el tema y los planes personalizados.
+
 ### Ejecutar Unit Tests
 
 Primero debemos instalar las dependencias con [pnpm](https://pnpm.io/):
