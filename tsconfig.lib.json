@@ -1,0 +1,14 @@
+{
+  "extends": "./jsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "public/lib/subjects-graph",
+    "outDir": "dist",
+    "types": []
+  },
+  "include": ["public/lib/subjects-graph/**/*.js"],
+  "exclude": ["node_modules", "tests"]
+}

@@ -1,18 +1,36 @@
 {
   "name": "frba-subjects-graph",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Embeddable interactive university subject prerequisite graphs.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": ["dist"],
+  "sideEffects": ["**/*.css"],
   "scripts": {
     "start": "python3 -m http.server 8000 -d public",
     "test": "vitest run",
-    "typecheck": "tsc -p jsconfig.json --noEmit"
+    "typecheck": "tsc -p jsconfig.json --noEmit",
+    "build:lib": "node scripts/build-lib.mjs",
+    "prepack": "pnpm run build:lib"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "BSD-3-Clause",
   "packageManager": "pnpm@10.24.0",
   "devDependencies": {
+    "esbuild": "0.25.12",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
   },
