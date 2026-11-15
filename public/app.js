@@ -1,88 +1,4 @@
-import cytoscape from 'https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.esm.mjs';
-import { Graph } from "./graph.js";
-
-class CytoscapeDrawer {
-  constructor(draggable = false) {
-    this.nodes = [];
-    this.edges = [];
-    this.positions = new Set();
-    this.draggable = draggable;
-  }
-  drawCircle({ id, label, tooltip, position: { x, y }, fillColor, borderColor, textColor, status }) {
-    this.nodes.push({
-      data: {
-        id,
-        label,
-        name: tooltip,
-        nodeType: 'subject',
-        status,
-        fillColor,
-        borderColor,
-        textColor,
-      },
-      position: { x, y },
-      locked: !this.draggable,
-    });
-    this.#addPosition({ x, y });
-  }
-  drawDiamond({ id, position: { x, y }, borderColor }) {
-    this.nodes.push({
-      data: {
-        id,
-        nodeType: 'connector',
-        isInvisible: false,
-        borderColor,
-      },
-      position: { x, y },
-      locked: !this.draggable,
-    });
-    this.#addPosition({ x, y });
-  }
-  drawEdge({ id, position: { x, y } }) {
-    this.nodes.push({
-      data: {
-        id,
-        nodeType: 'connector',
-        isInvisible: true,
-        withGap: this.#hasPosition({ x, y }),
-        borderColor: '#FFFFFF',
-      },
-      position: { x, y },
-      locked: !this.draggable,
-    });
-    this.#addPosition({ x, y });
-  }
-  drawArrow({ id, from, to, color }) {
-    const fromNode = this.nodes.find(n => n.data.id === from);
-    if (!fromNode) {
-      console.warn(`Edge ${id} has invalid from node ${from}`);
-      return;
-    }
-    const toNode = this.nodes.find(n => n.data.id === to);
-    if (!toNode) {
-      console.warn(`Edge ${id} has invalid to node ${to}`);
-      return;
-    }
-    this.edges.push({
-      data: {
-        id,
-        source: from,
-        target: to,
-        toInvisible: toNode.data.isInvisible ?? false,
-        color,
-      },
-    });
-  }
-  getElements() {
-    return { nodes: this.nodes, edges: this.edges };
-  }
-  #addPosition({ x, y }) {
-    this.positions.add(`${x},${y}`);
-  }
-  #hasPosition({ x, y }) {
-    return this.positions.has(`${x},${y}`);
-  }
-}
+import { SubjectsGraph } from './lib/subjects-graph/index.js';
 
 class GraphApp {
 
@@ -126,8 +42,8 @@ class GraphApp {
     this.nodeEditorSubjectsTable = document.getElementById('node-editor-subjects-table');
 
     // State
-    this.cy = null;
     this.graph = null;
+    this.progress = {};
     this.appData = null;
     this.currentVariant = null;
     this.currentTheme = null;
@@ -293,18 +209,51 @@ class GraphApp {
     };
     this.generateLegend();
     this.updateProgressPosition(variantData.progress?.position);
-    const savedStatuses = this.loadStatuses();
-    const defaultStatus = this.config.statuses[0].id;
-    const subjects = variantData.subjects.map(s => ({
-      ...s,
-      status: savedStatuses[s.id] || s.status || defaultStatus,
-    }));
-    this.subjectsList = subjects;
-    this.graph = new Graph(this.config, subjects, variantData.edges);
-    const drawer = new CytoscapeDrawer(this.isEditMode);
-    this.graph.render(drawer);
-    this.initCytoscape(drawer.getElements());
+    this.progress = this.loadStatuses();
+    if (!this.graph) {
+      this.graph = new SubjectsGraph(this.cyContainer, {
+        plan: variantData,
+        progress: this.progress,
+        theme: this.themeColors,
+        editable: this.isEditMode,
+      });
+      this.initGraphEventListeners();
+    } else {
+      this.graph.setPlan(variantData, { progress: this.progress });
+      this.graph.setTheme(this.themeColors);
+      this.graph.setEditable(this.isEditMode);
+      this.graph.fit();
+    }
+    this.progress = this.graph.getProgress();
+    this.updateProgress();
     this.updateResetButton();
+  }
+
+  initGraphEventListeners() {
+    this.graph.addEventListener('statusrequest', ({ detail: { subjectId, nextStatusId } }) => {
+      this.progress[subjectId] = nextStatusId;
+      this.graph.setProgress(this.progress);
+      this.progress = this.graph.getProgress();
+      this.saveStatuses();
+      this.updateProgress();
+    });
+    this.graph.addEventListener('nodepositionrequest', ({ detail: { nodeId, position } }) => {
+      this.updateNodePosition(nodeId, position);
+    });
+    this.graph.addEventListener('editrequest', ({ detail }) => {
+      switch (detail.kind) {
+        case 'subject':
+        case 'connector':
+          this.openNodeEditor(detail.nodeId);
+          break;
+        case 'connection':
+          this.openNewEdgeEditor(detail.sourceId, detail.targetId, detail.position);
+          break;
+        case 'background':
+          this.openNewSubjectEditor(detail.position);
+          break;
+      }
+    });
   }
 
   /**
@@ -537,7 +486,6 @@ class GraphApp {
       this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar Plan';
       this.exportBtn.title = 'Exportar Plan Personalizado';
       this.importBtn.title = 'Importar Plan Personalizado';
-      this.cyContainer.classList.add('edit-mode');
       this.controlsTitle.textContent = 'Modo edición';
       this.normalModeControls.style.display = 'none';
       this.editModeControls.style.display = 'block';
@@ -552,7 +500,6 @@ class GraphApp {
       this.importBtn.innerHTML = '<i data-lucide="download"></i> Importar';
       this.exportBtn.title = 'Exportar Progreso';
       this.importBtn.title = 'Importar Progreso';
-      this.cyContainer.classList.remove('edit-mode');
       this.controlsTitle.textContent = 'Controles';
       this.normalModeControls.style.display = 'block';
       this.editModeControls.style.display = 'none';
@@ -560,70 +507,11 @@ class GraphApp {
       this.roundPositionsBtn.style.display = 'none';
       this.screenshotBtn.style.display = 'flex';
       this.progressCircle.classList.remove('editable');
-      // Clear grid background
-      this.cyContainer.style.backgroundImage = '';
-      this.cyContainer.style.backgroundSize = '';
-      this.cyContainer.style.backgroundPosition = '';
     }
 
     // Regenerate legend to show/hide edit buttons
     this.generateLegend();
     lucide.createIcons();
-  }
-
-  /**
-   * Update the edit mode grid based on current pan and zoom
-   */
-  updateGrid() {
-    if (!this.isEditMode || !this.cy) return;
-
-    const zoom = this.cy.zoom();
-    const pan = this.cy.pan();
-    const gridSize = 100 * zoom;
-
-    // Calculate where origin (0,0) is in rendered coordinates
-    const originX = pan.x;
-    const originY = pan.y;
-
-    const containerWidth = this.cyContainer.offsetWidth;
-    const containerHeight = this.cyContainer.offsetHeight;
-
-    const gridColor = 'rgba(255, 255, 255, 0.1)';
-    const axisColor = 'rgba(255, 255, 255, 0.15)';
-
-    // Check if axes are visible within container bounds
-    const showYAxis = originX >= 0 && originX <= containerWidth;
-    const showXAxis = originY >= 0 && originY <= containerHeight;
-
-    const layers = [];
-    const sizes = [];
-    const positions = [];
-
-    // Y axis (vertical line at x=0)
-    if (showYAxis) {
-      layers.push(`linear-gradient(to right, ${axisColor} 1px, transparent 1px)`);
-      sizes.push('100% 100%');
-      positions.push(`${originX}px 0`);
-    }
-
-    // X axis (horizontal line at y=0)
-    if (showXAxis) {
-      layers.push(`linear-gradient(to bottom, ${axisColor} 1px, transparent 1px)`);
-      sizes.push('100% 100%');
-      positions.push(`0 ${originY}px`);
-    }
-
-    // Grid lines (always visible)
-    layers.push(
-      `linear-gradient(to right, ${gridColor} 1px, transparent 1px)`,
-      `linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)`
-    );
-    sizes.push(`${gridSize}px ${gridSize}px`, `${gridSize}px ${gridSize}px`);
-    positions.push(`${originX}px ${originY}px`, `${originX}px ${originY}px`);
-
-    this.cyContainer.style.backgroundImage = layers.join(', ');
-    this.cyContainer.style.backgroundSize = sizes.join(', ');
-    this.cyContainer.style.backgroundPosition = positions.join(', ');
   }
 
   /**
@@ -639,6 +527,7 @@ class GraphApp {
       subject.position = { x: Math.round(position.x), y: Math.round(position.y) };
       this.customVariantTouched = true;
       this.saveCustomVariant();
+      this.graph.setPlan(this.customVariantData, { progress: this.progress });
       return;
     }
 
@@ -648,6 +537,7 @@ class GraphApp {
       edge.position = { x: Math.round(position.x), y: Math.round(position.y) };
       this.customVariantTouched = true;
       this.saveCustomVariant();
+      this.graph.setPlan(this.customVariantData, { progress: this.progress });
     }
   }
 
@@ -1108,10 +998,11 @@ class GraphApp {
   saveStatuses() {
     const statuses = {};
     const defaultStatus = this.config.statuses[0].id;
-    this.cy.nodes('[nodeType="subject"]').forEach(node => {
-      const status = node.data('status');
+    const progress = this.graph.getProgress();
+    this.getVariantData().subjects.forEach(subject => {
+      const status = progress[subject.id];
       if (status !== defaultStatus) {
-        statuses[node.id()] = status;
+        statuses[subject.id] = status;
       }
     });
     localStorage.setItem(this.getStorageKey(), JSON.stringify(statuses));
@@ -1221,258 +1112,26 @@ class GraphApp {
     this.progressPosition = { vertical, horizontal };
   }
 
-  initCytoscape(elements) {
-    this.cy = cytoscape({
-      container: this.cyContainer,
-      elements: elements,
-      style: this.buildStylesheet(),
-      layout: {
-        name: 'preset',
-        fit: true,
-        padding: 50
-      },
-      minZoom: 0.3,
-      maxZoom: 3,
-    });
-    this.updateProgress();
-
-    // Tap handling with delay to distinguish single vs double tap
-    let tapTimeout = null;
-
-    // Click handler for subject nodes - toggle status (only in non-edit mode)
-    this.cy.on('tap', 'node[nodeType="subject"]', evt => {
-      // Use timeout to allow double-tap to cancel single tap
-      if (tapTimeout) clearTimeout(tapTimeout);
-      tapTimeout = setTimeout(() => {
-        const node = evt.target;
-        this.graph.toggleStatus(node.id());
-        this.reRenderGraph();
-        this.saveStatuses();
-        tapTimeout = null;
-      }, this.isEditMode ? 200 : 0);
-    });
-
-    // Drag event for edit mode - update positions
-    if (this.isEditMode) {
-      this.cy.on('dragfree', 'node', evt => {
-        const node = evt.target;
-        const position = node.position();
-        this.updateNodePosition(node.id(), position);
-      });
-    }
-
-    // Tooltip
-    const tooltip = document.createElement('div');
-    tooltip.className = 'cy-tooltip';
-    this.cyContainer.appendChild(tooltip);
-
-    // Double-click handlers for edit mode
-    if (this.isEditMode) {
-      // Double-click on subject node to edit
-      this.cy.on('dbltap', 'node[nodeType="subject"]', evt => {
-        if (tapTimeout) clearTimeout(tapTimeout);
-        tapTimeout = null;
-        const node = evt.target;
-        this.openNodeEditor(node.id());
-      });
-
-      // Double-click on connector node to edit
-      this.cy.on('dbltap', 'node[nodeType="connector"]', evt => {
-        if (tapTimeout) clearTimeout(tapTimeout);
-        tapTimeout = null;
-        const node = evt.target;
-        this.openNodeEditor(node.id());
-      });
-
-      // Double-click on edge to create a new connector at that position
-      this.cy.on('dbltap', 'edge', evt => {
-        if (tapTimeout) clearTimeout(tapTimeout);
-        tapTimeout = null;
-        const edge = evt.target;
-        const position = evt.position;
-        this.openNewEdgeEditor(edge.data('source'), edge.data('target'), position);
-      });
-
-      // Double-click on background to create a new subject
-      this.cy.on('dbltap', evt => {
-        // Only trigger if clicking on background (not on a node or edge)
-        if (evt.target === this.cy) {
-          if (tapTimeout) clearTimeout(tapTimeout);
-          tapTimeout = null;
-          const position = evt.position;
-          this.openNewSubjectEditor(position);
-        }
-      });
-
-      // Update grid on pan/zoom
-      this.updateGrid();
-      this.cy.on('pan zoom', () => this.updateGrid());
-    }
-
-    this.cy.on('mouseover', 'node[nodeType="subject"]', e => {
-      this.cyContainer.style.cursor = this.isEditMode ? 'move' : 'pointer';
-      const nodeId = e.target.id();
-      const subject = this.subjectsList?.find(s => s.id === nodeId);
-      const hoveredNode = this.graph.getNodeById(nodeId);
-      if (subject?.prerequisites?.length > 0 && hoveredNode) {
-        let html = `<strong>${e.target.data('name')}</strong>`;
-        for (const prereq of subject.prerequisites) {
-          const availName = this.config.availabilities.find(a => a.id === prereq.availabilityId)?.name ?? prereq.availabilityId;
-          let items = '';
-          for (const dep of prereq.dependencies) {
-            const statusName = this.config.statuses.find(s => s.id === dep.statusId)?.name ?? dep.statusId;
-            for (const subjectId of dep.subjects) {
-              const fullName = this.subjectsList.find(s => s.id === subjectId)?.name ?? subjectId;
-              const satisfied = hoveredNode.satisfies(subjectId, dep.statusId);
-              const label = `${fullName} (${statusName})`;
-              items += satisfied ? `<li><del>${label}</del></li>` : `<li>${label}</li>`;
-            }
-          }
-          html += `<div class="cy-tooltip-section"><span class="cy-tooltip-availability">${availName.replace('Disponible', 'Requisitos')}:</span><ul>${items}</ul></div>`;
-        }
-        tooltip.innerHTML = html;
-      } else {
-        tooltip.textContent = e.target.data('name');
-      }
-      tooltip.style.display = 'block';
-    });
-    this.cy.on('mousemove', 'node[nodeType="subject"]', e => {
-      const pos = e.renderedPosition;
-      const offset = 15;
-      const tipW = tooltip.offsetWidth;
-      const tipH = tooltip.offsetHeight;
-      const vpW = this.cyContainer.offsetWidth;
-      const vpH = this.cyContainer.offsetHeight;
-      const left = (pos.x + offset + tipW > vpW) ? pos.x - offset - tipW : pos.x + offset;
-      const top = (pos.y + offset + tipH > vpH) ? pos.y - offset - tipH : pos.y + offset;
-      tooltip.style.left = left + 'px';
-      tooltip.style.top = top + 'px';
-    });
-    this.cy.on('mouseout', 'node', () => {
-      this.cyContainer.style.cursor = this.isEditMode ? 'move' : 'grab';
-      tooltip.style.display = 'none';
-    });
-  }
-
-  buildStylesheet() {
-    return [
-      {
-        selector: 'node[nodeType="subject"]',
-        style: {
-          'width': 60,
-          'height': 60,
-          'shape': 'ellipse',
-          'label': 'data(label)',
-          'text-valign': 'center',
-          'text-halign': 'center',
-          'color': 'data(textColor)',
-          'font-size': '16px',
-          'font-weight': 'bold',
-          'font-family': 'Open Sans, -apple-system, BlinkMacSystemFont, sans-serif',
-          'border-width': 4,
-          'border-opacity': 1,
-          'background-color': 'data(fillColor)',
-          'border-color': 'data(borderColor)',
-          'transition-property': 'background-color, border-color',
-          'transition-duration': '0.3s'
-        }
-      },
-      {
-        selector: 'node[nodeType="connector"]',
-        style: {
-          'width': 15,
-          'height': 15,
-          'shape': 'diamond',
-          'label': '',
-          'background-opacity': 0,
-          'border-width': 4,
-          'border-color': 'data(borderColor)',
-          'transition-property': 'border-color',
-          'transition-duration': '0.3s',
-          'events': this.isEditMode ? 'yes' : 'no',
-        }
-      },
-      {
-        selector: 'node[?isInvisible]',
-        style: {
-          'opacity': this.isEditMode ? 0.5 : 0,
-          'width': this.isEditMode ? 15 : 0.0001,
-          'height': this.isEditMode ? 15 : 0.0001,
-          'border-width': this.isEditMode ? 2 : 0,
-          'border-color': 'var(--accent-color)',
-          'border-style': 'dashed',
-          'events': this.isEditMode ? 'yes' : 'no',
-          'label': '',
-        }
-      },
-      {
-        selector: 'node[?isInvisible][?withGap]',
-        style: {
-          'width': 20,
-          'height': 20
-        }
-      },
-      {
-        selector: 'edge',
-        style: {
-          'width': 4,
-          'line-color': 'data(color)',
-          'target-arrow-color': 'data(color)',
-          'target-arrow-shape': 'vee',
-          'curve-style': 'bezier',
-          'arrow-scale': 1.5,
-          'transition-property': 'line-color, target-arrow-color',
-          'transition-duration': '0.3s',
-          'events': this.isEditMode ? 'yes' : 'no',
-        }
-      },
-      {
-        selector: 'edge[?toInvisible]',
-        style: {
-          'target-arrow-shape': 'none'
-        }
-      }
-    ];
-  }
-
-  reRenderGraph() {
-    const drawer = new CytoscapeDrawer();
-    this.graph.render(drawer);
-    const elements = drawer.getElements();
-    this.cy.batch(() => {
-      elements.nodes.forEach(newNode => {
-        const cyNode = this.cy.getElementById(newNode.data.id);
-        if (cyNode.length) {
-          cyNode.data('status', newNode.data.status);
-          cyNode.data('fillColor', newNode.data.fillColor);
-          cyNode.data('borderColor', newNode.data.borderColor);
-          cyNode.data('textColor', newNode.data.textColor);
-        }
-      });
-      elements.edges.forEach(newEdge => {
-        const cyEdge = this.cy.getElementById(newEdge.data.id);
-        if (cyEdge.length) {
-          cyEdge.data('color', newEdge.data.color);
-        }
-      });
-    });
-    this.updateProgress();
-  }
-
-  updateProgress() {
-    const totalSubjects = this.cy.nodes('[nodeType="subject"]').length;
+  getProgressPercentages() {
+    const subjects = this.getVariantData().subjects;
+    const progress = this.graph.getProgress();
+    const totalSubjects = subjects.length;
     let approvedCount = 0;
     let pendingCount = 0;
     const approvedIndex = this.config.statuses.length - 1;
     const pendingIndex = this.config.statuses.length - 2;
-    this.cy.nodes('[nodeType="subject"]').forEach(node => {
-      const status = node.data('status');
-      const statusIndex = this.config.statuses.findIndex(s => s.id === status);
+    subjects.forEach(subject => {
+      const statusIndex = this.config.statuses.findIndex(s => s.id === progress[subject.id]);
       if (statusIndex >= approvedIndex) approvedCount++;
       if (statusIndex >= pendingIndex) pendingCount++;
     });
-    const approvedPercent = Math.round((approvedCount / totalSubjects) * 100);
-    const pendingPercent = Math.round((pendingCount / totalSubjects) * 100);
+    const approvedPercent = totalSubjects ? Math.round((approvedCount / totalSubjects) * 100) : 0;
+    const pendingPercent = totalSubjects ? Math.round((pendingCount / totalSubjects) * 100) : 0;
+    return { approvedPercent, pendingPercent };
+  }
+
+  updateProgress() {
+    const { approvedPercent, pendingPercent } = this.getProgressPercentages();
     if (this.progressPercentage) {
       this.progressPercentage.textContent = `${approvedPercent}%`;
     }
@@ -1545,7 +1204,7 @@ class GraphApp {
   }
 
   fit(e) {
-    this.cy.fit(50);
+    this.graph.fit();
   }
 
   export(e) {
@@ -1619,11 +1278,10 @@ class GraphApp {
     input.click();
   }
 
-  screenshot(e) {
+  async screenshot(e) {
     try {
       const scale = 4;
-      const png = this.cy.png({
-        output: 'blob',
+      const png = await this.graph.exportPNG({
         scale: scale,
         bg: 'transparent',
         full: true
@@ -1684,8 +1342,7 @@ class GraphApp {
     const centerY = y + size / 2;
     const radius = 45 * gaugeScale;
     const strokeWidth = 8 * gaugeScale;
-    const approvedPercent = this.progressPercentage ? parseInt(this.progressPercentage.textContent) : 0;
-    const pendingPercent = this.progressPendingText ? parseInt(this.progressPendingText.textContent) : 0;
+    const { approvedPercent, pendingPercent } = this.getProgressPercentages();
     const bgColor = this.themeColors['--bg-secondary'] || '#161b22';
     const trackColor = this.themeColors['--bg-tertiary'] || '#21262d';
     const pendingColor = this.themeColors['--fill-color-3'] || '#2255d4';

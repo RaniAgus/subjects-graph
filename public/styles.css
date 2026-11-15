@@ -151,13 +151,6 @@ header h1 {
   height: 700px;
   border-radius: 8px;
   background: var(--bg-primary);
-  cursor: grab;
-}
-
-/* Edit mode indicator */
-#cy.edit-mode {
-  border: 2px dashed var(--accent-color);
-  cursor: move;
 }
 
 /* Watermark */
@@ -703,25 +696,6 @@ select.skeleton {
     padding: 18px;
   }
 }
-
-/* Cytoscape tooltip (if needed) */
-.cy-tooltip {
-  position: absolute;
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  pointer-events: none;
-  z-index: 1000;
-  box-shadow: var(--shadow);
-  display: none;
-}
-.cy-tooltip strong { display: block; margin-bottom: 4px; }
-.cy-tooltip ul { margin: 2px 0 0 0; padding-left: 16px; list-style: disc; }
-.cy-tooltip li { margin: 1px 0; }
-.cy-tooltip-section { margin-top: 6px; }
-.cy-tooltip-availability { font-size: 0.75rem; opacity: 0.8; }
 
 /* GitHub Corner */
 .github-corner {
