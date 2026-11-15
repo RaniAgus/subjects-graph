@@ -8,13 +8,22 @@ vi.mock('cytoscape', () => ({ default: vi.fn() }));
 
 /** Minimal owned-subtree DOM double: no document or browser globals needed. */
 class ElementDouble {
+  /** @param {string} [tagName] */
+  constructor(tagName = 'div') { this.tagName = tagName; }
   className = '';
-  style = { setProperty: vi.fn(), removeProperty: vi.fn() };
+  style = { setProperty: vi.fn(), removeProperty: vi.fn(), display: '', left: '', top: '', cursor: '', backgroundImage: '', backgroundSize: '', backgroundPosition: '' };
+  offsetWidth = 800;
+  offsetHeight = 600;
+  text = '';
+  /** @param {string} value */
+  set textContent(value) { this.text = value; this.replaceChildren(); }
+  get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
   /** @type {ElementDouble[]} */
   children = [];
   /** @type {ElementDouble | undefined} */
   parent;
-  ownerDocument = { createElement: () => new ElementDouble() };
+  ownerDocument = { createElement: (/** @type {string} */ tagName) => new ElementDouble(tagName) };
+  replaceChildren() { for (const child of this.children) child.parent = undefined; this.children = []; }
   /** @param {ElementDouble} child */
   append(child) { this.children.push(child); child.parent = this; }
   remove() {
@@ -35,10 +44,10 @@ class ResizeObserverDouble {
 
 /** Renderer boundary double; graph logic, drawer, and palette stay real. */
 class RendererDouble {
-  /** @type {{type: string, selector: string, handler: import('cytoscape').EventHandler}[]} */
+  /** @type {{type: string, selector?: string, handler: import('cytoscape').EventHandler}[]} */
   listeners = [];
-  on = vi.fn((/** @type {string} */ type, /** @type {string} */ selector, /** @type {import('cytoscape').EventHandler} */ handler) => {
-    this.listeners.push({ type, selector, handler });
+  on = vi.fn((/** @type {string} */ type, /** @type {string | import('cytoscape').EventHandler} */ selector, /** @type {import('cytoscape').EventHandler | undefined} */ handler = undefined) => {
+    this.listeners.push(typeof selector === 'string' ? { type, selector, handler: /** @type {import('cytoscape').EventHandler} */ (handler) } : { type, handler: selector });
   });
   removeAllListeners = vi.fn(() => { this.listeners = []; });
   /** @param {import('cytoscape').CytoscapeOptions} options */
@@ -57,7 +66,7 @@ class RendererDouble {
   elements = () => ({ remove: () => { this.content = { nodes: [], edges: [] }; } });
   add = vi.fn((/** @type {import('cytoscape').ElementsDefinition} */ elements) => { this.content = elements; });
   batch = (/** @type {() => void} */ callback) => callback();
-  style = vi.fn();
+  style = vi.fn((/** @type {import('cytoscape').StylesheetStyle[]} */ _styles) => {});
   fit = vi.fn();
   resize = vi.fn(() => { this.panValue = { x: 0, y: 0 }; this.zoomValue = 1; });
   destroy = vi.fn();
@@ -69,13 +78,36 @@ class RendererDouble {
     return node;
   }
   /** @param {string} id */
-  tap(id) {
-    const node = this.node(id);
+  getElementById(id) {
+    return {
+      length: this.content.nodes.some(node => node.data.id === id) ? 1 : 0,
+      position: (/** @type {{x: number, y: number}} */ value) => { this.node(id).position = value; },
+    };
+  }
+  /** @param {string} type
+   * @param {string} [id]
+   * @param {{x: number, y: number}} [position]
+   */
+  emit(type, id, position = { x: 100, y: 150 }) {
+    const node = this.content.nodes.find(node => node.data.id === id);
+    const edge = this.content.edges.find(edge => edge.data.id === id);
+    const element = node ?? edge;
+    const target = element ? {
+      id: () => id,
+      data: (/** @type {string} */ key) => element.data[key],
+      position: () => node?.position,
+    } : this;
     for (const listener of this.listeners) {
-      if (listener.type === 'tap' && listener.selector === `node[nodeType="${node.data.nodeType}"]`) {
-        listener.handler(/** @type {import('cytoscape').EventObject} */ ({ target: { id: () => id } }));
-      }
+      const selector = listener.selector;
+      if (!listener.type.split(' ').includes(type)) continue;
+      if (selector && !(selector === 'node' && node) && !(selector === 'edge' && edge)
+        && !(node && selector === `node[nodeType="${node.data.nodeType}"]`)) continue;
+      listener.handler(/** @type {import('cytoscape').EventObject} */ (/** @type {unknown} */ ({ target, position, renderedPosition: position })));
     }
+  }
+  /** @param {string} id */
+  tap(id) {
+    this.emit('tap', id);
   }
 }
 
@@ -231,6 +263,8 @@ describe('SubjectsGraph controlled progress and requests', () => {
     graph.setProgress({ [plan.subjects[0].id]: plan.statuses[1].id });
     graph.setPlan(plan);
     graph.setTheme({ '--accent-color': 'red' });
+    graph.setEditable(true);
+    graph.setEditable(false);
     vi.runOnlyPendingTimers();
     expect(listener).not.toHaveBeenCalled();
   });
@@ -444,5 +478,203 @@ describe('SubjectsGraph mounted view', () => {
     expect(renderer.destroy).toHaveBeenCalledTimes(1);
     expect(renderer.resize).toHaveBeenCalledTimes(1);
     expect(container.children).toEqual([sibling]);
+  });
+});
+
+describe('SubjectsGraph editing interactions', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+
+  it('toggles locks, connector styles and local grid without changing progress, viewport, or subscriptions', () => {
+    const { graph, renderer, container } = mount({ plan: makePlan() });
+    const before = graph.getProgress();
+    const subscriptions = renderer.on.mock.calls.length;
+    renderer.zoomValue = 2;
+    renderer.panValue = { x: -35, y: 60 };
+    graph.setEditable(true);
+    expect(container.children[0].className).toBe('subjects-graph subjects-graph-editable');
+    expect(renderer.content.nodes.every(node => node.locked === false)).toBe(true);
+    const styles = /** @type {import('cytoscape').StylesheetStyle[]} */ (renderer.style.mock.calls.at(-1)?.[0]);
+    expect(styles.find(style => style.selector === 'node[?isInvisible]')?.style).toMatchObject({ opacity: 0.5 });
+    const surface = container.children[0].children[0];
+    expect(surface.style.backgroundSize).toBe('100% 100%, 200px 200px, 200px 200px');
+    expect(surface.style.backgroundPosition).toBe('0 60px, -35px 60px, -35px 60px');
+    graph.setEditable(false);
+    expect(renderer.content.nodes.every(node => node.locked)).toBe(true);
+    expect(surface.style.backgroundImage).toBe('');
+    expect(surface.style.backgroundSize).toBe('');
+    expect(surface.style.backgroundPosition).toBe('');
+    expect(surface.style.cursor).toBe('grab');
+    expect(container.children[0].className).toBe('subjects-graph');
+    expect(graph.getProgress()).toEqual(before);
+    expect(renderer.zoomValue).toBe(2);
+    expect(renderer.panValue).toEqual({ x: -35, y: 60 });
+    expect(renderer.on).toHaveBeenCalledTimes(subscriptions);
+    expect(renderer.fit).toHaveBeenCalledTimes(1);
+  });
+
+  it('emits only the editable request shapes, snapshots world positions, and suppresses pending status taps', () => {
+    const plan = makePlan();
+    const { graph, renderer } = mount({ plan });
+    const requests = vi.fn();
+    const statuses = vi.fn();
+    graph.addEventListener('editrequest', requests);
+    graph.addEventListener('statusrequest', statuses);
+    const subjectId = plan.subjects[0].id;
+    const connectorId = renderer.content.nodes.find(node => node.data.nodeType === 'connector')?.data.id;
+    const edge = renderer.content.edges[0];
+    if (!connectorId || !edge.data.id) throw new Error('Missing fixture connections');
+    for (const id of [subjectId, connectorId, edge.data.id, undefined]) renderer.emit('dbltap', id);
+    expect(requests).not.toHaveBeenCalled();
+    graph.setEditable(true);
+    renderer.tap(subjectId);
+    renderer.emit('dbltap', subjectId);
+    renderer.emit('dbltap', connectorId);
+    const position = { x: -12.5, y: 42.25 };
+    renderer.emit('dbltap', edge.data.id, position);
+    renderer.emit('dbltap', undefined, position);
+    position.x = 999;
+    expect(requests.mock.calls.map(([event]) => event.detail)).toEqual([
+      { kind: 'subject', nodeId: subjectId },
+      { kind: 'connector', nodeId: connectorId },
+      { kind: 'connection', sourceId: edge.data.source, targetId: edge.data.target, position: { x: -12.5, y: 42.25 } },
+      { kind: 'background', position: { x: -12.5, y: 42.25 } },
+    ]);
+    vi.runOnlyPendingTimers();
+    expect(statuses).not.toHaveBeenCalled();
+  });
+
+  it('settles ignored subject and connector drags at authoritative plan positions and copies request coordinates', () => {
+    const plan = makePlan();
+    const { graph, renderer } = mount({ plan });
+    const listener = vi.fn();
+    graph.addEventListener('nodepositionrequest', listener);
+    const subjectId = plan.subjects[0].id;
+    renderer.emit('dragfree', subjectId);
+    expect(listener).not.toHaveBeenCalled();
+    graph.setEditable(true);
+    const connector = plan.edges.find(edge => renderer.content.nodes.some(node => node.data.id === edge.id));
+    if (!connector) throw new Error('Missing fixture connector');
+    for (const definition of [plan.subjects[0], connector]) {
+      const dragged = { x: 7.25, y: -8.5 };
+      renderer.node(definition.id).position = dragged;
+      renderer.emit('dragfree', definition.id);
+      expect(listener).toHaveBeenLastCalledWith(expect.objectContaining({ detail: { nodeId: definition.id, position: { x: 7.25, y: -8.5 } } }));
+      dragged.x = 999;
+      expect(listener.mock.calls.at(-1)?.[0].detail.position).toEqual({ x: 7.25, y: -8.5 });
+      expect(renderer.node(definition.id).position).toEqual(definition.position);
+    }
+    graph.setTheme({});
+    expect(renderer.node(subjectId).position).toEqual(plan.subjects[0].position);
+  });
+
+  it('settles accepted drags at the replacement plan position and permits synchronous destruction', () => {
+    const plan = makePlan();
+    const { graph, renderer } = mount({ plan, editable: true });
+    const subject = plan.subjects[0];
+    graph.addEventListener('nodepositionrequest', event => {
+      subject.position = { x: Math.round(event.detail.position.x), y: Math.round(event.detail.position.y) };
+      graph.setPlan(plan);
+    }, { once: true });
+    renderer.node(subject.id).position = { x: 10.6, y: 20.3 };
+    renderer.emit('dragfree', subject.id);
+    expect(renderer.node(subject.id).position).toEqual({ x: 11, y: 20 });
+    graph.addEventListener('nodepositionrequest', () => graph.destroy());
+    const lookup = vi.spyOn(renderer, 'getElementById');
+    renderer.emit('dragfree', subject.id);
+    expect(lookup).not.toHaveBeenCalled();
+    expect(renderer.destroy).toHaveBeenCalledTimes(1);
+  });
+
+  it('tracks pan, zoom, resize and render in the grid, with axes only inside the surface', () => {
+    const { graph, renderer, container } = mount({ plan: makePlan(), editable: true });
+    const surface = container.children[0].children[0];
+    expect(surface.style.backgroundSize).toBe('100% 100%, 100% 100%, 80px 80px, 80px 80px');
+    renderer.zoomValue = 1.5;
+    renderer.panValue = { x: 900, y: -10 };
+    renderer.emit('pan');
+    expect(surface.style.backgroundSize).toBe('150px 150px, 150px 150px');
+    expect(surface.style.backgroundPosition).toBe('900px -10px, 900px -10px');
+    surface.offsetWidth = 1000;
+    ResizeObserverDouble.instances[0].notify();
+    expect(surface.style.backgroundSize).toBe('100% 100%, 150px 150px, 150px 150px');
+    renderer.zoomValue = 2.5;
+    renderer.emit('zoom');
+    expect(surface.style.backgroundSize).toContain('250px 250px');
+    graph.setProgress({});
+    expect(surface.style.backgroundPosition).toBe('900px 0, 900px -10px, 900px -10px');
+    expect(renderer.zoomValue).toBe(2.5);
+    expect(renderer.panValue).toEqual({ x: 900, y: -10 });
+  });
+
+  it('leaves no callbacks or DOM effects after destruction, including already queued renderer handlers', () => {
+    const { graph, renderer, container } = mount({ plan: makePlan(), editable: true });
+    const handlers = [...renderer.listeners];
+    const listener = vi.fn();
+    graph.addEventListener('editrequest', listener);
+    graph.addEventListener('nodepositionrequest', listener);
+    const root = container.children[0];
+    graph.destroy();
+    const before = structuredClone(root.children.map(child => child.style.backgroundImage));
+    for (const { handler } of handlers) handler(/** @type {import('cytoscape').EventObject} */ (/** @type {unknown} */ ({ target: renderer, position: { x: 0, y: 0 } })));
+    ResizeObserverDouble.instances[0].notify();
+    vi.runOnlyPendingTimers();
+    expect(listener).not.toHaveBeenCalled();
+    expect(root.children.map(child => child.style.backgroundImage)).toEqual(before);
+    expect(container.children).toEqual([]);
+  });
+});
+
+describe('SubjectsGraph subject tooltips', () => {
+  it('uses literal titles, prerequisite sections and status names, then refreshes satisfaction with progress', () => {
+    const plan = makePlan();
+    const subject = plan.subjects.find(subject => subject.prerequisites.some(prerequisite => prerequisite.dependencies.some(dependency => dependency.subjects.length)));
+    if (!subject) throw new Error('Missing fixture prerequisites');
+    subject.name = '<img src=x onerror=alert(1)> & title';
+    const dependency = subject.prerequisites[0].dependencies[0];
+    const prerequisiteSubject = plan.subjects.find(item => item.id === dependency.subjects[0]);
+    if (!prerequisiteSubject) throw new Error('Missing fixture dependency');
+    prerequisiteSubject.name = '<script>literal dependency</script>';
+    const { graph, renderer, container } = mount({ plan });
+    const tooltip = container.children[0].children[1];
+    const surface = container.children[0].children[0];
+    renderer.emit('mouseover', subject.id);
+    expect(tooltip.style.display).toBe('block');
+    expect(surface.style.cursor).toBe('pointer');
+    expect(tooltip.children[0].tagName).toBe('strong');
+    expect(tooltip.children[0].textContent).toBe(subject.name);
+    const section = tooltip.children[1];
+    expect(section.children[0].textContent).toBe(`${plan.availabilities.find(item => item.id === subject.prerequisites[0].availabilityId)?.name.replace('Disponible', 'Requisitos')}:`);
+    expect(section.children[1].children[0].textContent).toBe(`${prerequisiteSubject.name} (${plan.statuses.find(item => item.id === dependency.statusId)?.name})`);
+    expect(section.children[1].children[0].children).toEqual([]);
+    graph.setProgress(Object.fromEntries(plan.subjects.map(item => [item.id, plan.statuses.at(-1)?.id ?? ''])));
+    expect(tooltip.children[1].children[1].children[0].children[0].tagName).toBe('del');
+    graph.setProgress({});
+    expect(tooltip.children[1].children[1].children[0].children).toEqual([]);
+    graph.setEditable(true);
+    expect(surface.style.cursor).toBe('move');
+    renderer.emit('mouseout', subject.id);
+    expect(tooltip.style.display).toBe('none');
+    expect(surface.style.cursor).toBe('move');
+  });
+
+  it('bounds tooltip placement near the pointer, refreshes replacement names and hides removed subjects', () => {
+    const plan = makePlan();
+    const subject = plan.subjects[0];
+    const { graph, renderer, container } = mount({ plan });
+    const tooltip = container.children[0].children[1];
+    tooltip.offsetWidth = 200;
+    tooltip.offsetHeight = 100;
+    renderer.emit('mouseover', subject.id, { x: 790, y: 590 });
+    expect(tooltip.style.left).toBe('575px');
+    expect(tooltip.style.top).toBe('475px');
+    renderer.emit('mousemove', subject.id, { x: -30, y: -20 });
+    expect(tooltip.style.left).toBe('0px');
+    expect(tooltip.style.top).toBe('0px');
+    subject.name = 'Changed live title';
+    graph.setPlan(plan);
+    expect(tooltip.children[0].textContent).toBe(subject.name);
+    graph.setPlan({ ...plan, subjects: [], edges: [] });
+    expect(tooltip.style.display).toBe('none');
+    expect(container.children[0].children[0].style.cursor).toBe('grab');
   });
 });
