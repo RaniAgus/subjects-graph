@@ -111,3 +111,8 @@ consumer). The adapter uses Angular 21 partial compilation. Its separate workflo
 publishes only on `angular-v*` version tags, with its own package version and npm
 Trusted Publishing configuration. Keep root package dependencies, exports and
 `build:lib` independent of Angular.
+
+`docs/angular-api.md` documents the adapter API. `examples/angular/` is a private
+Angular CLI application consuming both local workspace packages. Build both
+libraries first, then use `pnpm --filter subjects-graph-angular-example start`
+or `build`. The example is separate from the static PWA and npm artifacts.

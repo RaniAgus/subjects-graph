@@ -363,3 +363,6 @@ cómo descargar o mostrar el Blob resultante.
 
 Los [ejemplos CDN](../examples/cdn/README.md) muestran una integración mínima y otra
 con todos estos flujos en una app HTML.
+
+Para aplicaciones Angular, consultá la [API del adaptador Angular](angular-api.md)
+y su [ejemplo ejecutable](../examples/angular/README.md).

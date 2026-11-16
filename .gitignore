@@ -32,3 +32,6 @@ node_modules/
 # Generated browser tests and results
 .features-gen/
 test-results/
+
+# Angular example cache
+.cache/angular-example/

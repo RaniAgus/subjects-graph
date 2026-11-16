@@ -1,0 +1,56 @@
+<main>
+  <header>
+    <p class="eyebrow">Subjects Graph · Angular</p>
+    <h1>{{ plan().name }}</h1>
+    <p>Explorá las correlativas y llevá tu progreso. Los cambios duran hasta recargar la página.</p>
+  </header>
+
+  <nav aria-label="Controles del grafo">
+    <button type="button" (click)="toggleMode()" [attr.aria-pressed]="!automatic()">Confirmar cambios: {{ automatic() ? 'no' : 'sí' }}</button>
+    <button type="button" (click)="editable.set(!editable())" [attr.aria-pressed]="editable()">Edición: {{ editable() ? 'sí' : 'no' }}</button>
+    <button type="button" (click)="gauge.set(!gauge())" [attr.aria-pressed]="gauge()">Indicador: {{ gauge() ? 'sí' : 'no' }}</button>
+    <button type="button" (click)="toggleTheme()">Cambiar tema</button>
+    <button type="button" (click)="graph.fit()" [disabled]="!ready()">Encuadrar</button>
+    <button type="button" (click)="download(graph)" [disabled]="!ready() || exporting()">{{ exporting() ? 'Exportando…' : 'Descargar PNG' }}</button>
+    <button type="button" (click)="reset()">Reiniciar progreso</button>
+  </nav>
+
+  @if (pending(); as request) {
+    <section class="confirmation" aria-label="Confirmar cambio de estado">
+      <p>¿Cambiar {{ subjectName(request.subjectId) }} a {{ statusName(request.nextStatusId) }}?</p>
+      <button type="button" (click)="acceptStatus()">Aceptar</button>
+      <button type="button" (click)="pending.set(null)">Rechazar</button>
+    </section>
+  }
+
+  <p role="status">{{ message() }}</p>
+  @if (editable()) {
+    <p>Arrastrá las materias para moverlas. Hacé doble clic en una materia para renombrarla.</p>
+  }
+
+  <subjects-graph #graph
+    [plan]="plan()" [(progress)]="progress" [theme]="theme()"
+    [editable]="editable()" [progressGauge]="gauge()"
+    [autoUpdateProgress]="automatic()" (ready)="ready.set(true)"
+    (statusRequest)="requestStatus($event)"
+    (nodePositionRequest)="moveNode($event)" (editRequest)="edit($event)"
+  />
+
+  <section aria-labelledby="subjects-heading">
+    <h2 id="subjects-heading">Materias</h2>
+    <ul>
+      @for (subject of plan().subjects; track subject.id) {
+        <li>
+          <label [for]="'status-' + subject.id">{{ subject.name }}</label>
+          <select #status [id]="'status-' + subject.id"
+            [value]="progress()[subject.id] ?? subject.status ?? plan().statuses[0]?.id"
+            (change)="changeStatus(subject.id, status.value)">
+            @for (option of plan().statuses; track option.id) {
+              <option [value]="option.id">{{ option.name }}</option>
+            }
+          </select>
+        </li>
+      }
+    </ul>
+  </section>
+</main>

@@ -382,3 +382,6 @@ En modo editable emite `editrequest` con `{ kind: 'progress' }` al activarlo.
 El adaptador standalone se distribuye por separado como
 [`@raniagus/subjects-graph-angular`](packages/angular/README.md).
 La librería base no depende de Angular.
+
+Consultá la [referencia de la API Angular](docs/angular-api.md) y el
+[ejemplo de aplicación Angular](examples/angular/README.md).

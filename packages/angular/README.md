@@ -94,3 +94,7 @@ Los tipos del dominio se importan del paquete base. `getProgress(): Progress`
 devuelve el progreso efectivo completo; `fit(): void` ajusta el viewport y
 `exportPNG(options?: PNGOptions): Promise<Blob>` exporta la imagen. El componente
 funciona con Zone.js y en aplicaciones zoneless.
+
+La [referencia completa de la API Angular](https://github.com/RaniAgus/subjects-graph/blob/main/docs/angular-api.md)
+y el [ejemplo ejecutable](https://github.com/RaniAgus/subjects-graph/tree/main/examples/angular)
+detallan la integración y los contratos del componente.
