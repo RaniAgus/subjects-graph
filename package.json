@@ -23,7 +23,7 @@
   "files": ["dist"],
   "sideEffects": ["**/*.css"],
   "scripts": {
-    "start": "python3 -m http.server 8000 -d public",
+    "start": "pnpm dlx http-server public -p 8000 -c-1",
     "test": "vitest run",
     "typecheck": "tsc -p jsconfig.json --noEmit",
     "build:lib": "node scripts/build-lib.mjs",

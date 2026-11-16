@@ -253,7 +253,8 @@ pnpm typecheck
 pnpm build:lib
 ```
 
-`pnpm start` sirve `public/` en el puerto 8000. No hay servidor de desarrollo Vite,
+`pnpm start` sirve `public/` en el puerto 8000 con `http-server` y la caché HTTP
+desactivada (`-c-1`). No hay servidor de desarrollo Vite,
 build de la web ni demo separada. `build:lib` genera ESM, CSS y declaraciones en
 `dist/` (ignorado por Git); no modifica la web. El paquete incluye `dist/`, README,
 LICENSE y los metadatos npm. `prepack` ejecuta ese build automáticamente; si tu
