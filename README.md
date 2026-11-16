@@ -6,7 +6,7 @@ dirigido.
 ![Graph Visualization](https://img.shields.io/badge/Graph-Cytoscape.js-blue)
 ![License](https://img.shields.io/badge/License-BSD%203--Clause-green)
 
-![Application Interface](image.png)
+![Application Interface](screenshot-v2.png)
 
 ## Funcionalidades
 
