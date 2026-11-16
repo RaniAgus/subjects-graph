@@ -262,138 +262,88 @@ configuración omite scripts, para empaquetar este proyecto conocido usá
 
 ## Usar la biblioteca
 
-El paquete `@raniagus/subjects-graph` exporta `SubjectsGraph` como export nombrado y el
-núcleo puro por `@raniagus/subjects-graph/core`. Su CSS se importa explícitamente:
+Podés integrar el grafo en tu propia app con `@raniagus/subjects-graph`.
+La biblioteca dibuja las materias y sus correlativas; tu app define el plan,
+acepta los cambios de progreso y decide cómo guardarlos.
+
+### Instalación
+
+Si tu proyecto usa un empaquetador que admite imports de CSS, instalá el paquete:
+
+```bash
+npm install @raniagus/subjects-graph
+```
+
+### Integración
+
+Tu app debe proporcionar un contenedor `#graph` con dimensiones (por ejemplo,
+`height: 600px`) y un archivo `plan.json` con estados, disponibilidades, materias
+y correlativas. La [referencia de la API](https://github.com/RaniAgus/subjects-graph/blob/main/docs/library-api.md#plan-y-progreso)
+describe su estructura.
 
 ```js
 import { SubjectsGraph } from '@raniagus/subjects-graph';
 import '@raniagus/subjects-graph/styles.css';
+import plan from './plan.json' with { type: 'json' };
 
-const graph = new SubjectsGraph(document.querySelector('#graph'), { plan });
-```
+let progress = {};
+const graph = new SubjectsGraph(document.querySelector('#graph'), { plan, progress });
 
-El contenedor debe tener dimensiones, por ejemplo `height: 600px`. Para usar las
-fuentes directamente en HTML servido desde `public/`:
-
-```html
-<link rel="stylesheet" href="./lib/subjects-graph/styles.css">
-<div id="graph" style="height: 600px"></div>
-<script type="importmap">
-{"imports":{"cytoscape":"https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.esm.mjs"}}
-</script>
-<script type="module">
-  import { SubjectsGraph } from './lib/subjects-graph/index.js';
-  import data from './data.json' with { type: 'json' };
-  const graph = new SubjectsGraph(document.querySelector('#graph'), {
-    plan: data.variants['frba-k08']
-  });
-</script>
-```
-
-### Plan y progreso
-
-`plan` define el catálogo de estados, disponibilidades, materias, correlativas,
-posiciones y conectores (`edges`). Por ejemplo:
-
-```js
-const plan = {
-  name: 'Plan mínimo',
-  statuses: [
-    { id: 'PENDING', name: 'Pendiente', color: '--fill-color-1', textColor: '--text-primary' },
-    { id: 'APPROVED', name: 'Aprobada', color: '--fill-color-4', textColor: '--bg-primary' }
-  ],
-  availabilities: [
-    { id: 'BLOCKED', name: 'Bloqueada', color: '--border-color-2' },
-    { id: 'READY', name: 'Disponible', color: '--border-color-4' }
-  ],
-  subjects: [
-    { id: '1', name: 'Álgebra', shortName: 'A', position: { x: 0, y: 0 }, prerequisites: [] },
-    { id: '2', name: 'Análisis', shortName: 'AM', position: { x: 200, y: 0 },
-      prerequisites: [{ availabilityId: 'READY', dependencies: [{ statusId: 'APPROVED', subjects: ['1'] }] }] }
-  ],
-  edges: []
-};
-const progress = { '1': 'APPROVED' };
-```
-
-`progress` es el mapa personal de ID de materia (string) a ID de estado; `plan.statuses`
-es el catálogo y su orden define el avance y el ciclo al siguiente estado al hacer click.
-El orden de `plan.availabilities` define los niveles de disponibilidad: la evaluación
-se detiene ante el primer nivel cuyos requisitos no se cumplen.
-Para materias omitidas se usa `subject.status` si existe, o el primer
-estado del catálogo. `setProgress(progress)` reemplaza el mapa completo; `{}` vuelve
-a esos valores iniciales. `getProgress()` devuelve una copia completa del progreso
-efectivo, no un porcentaje. La biblioteca toma copias de sus entradas.
-
-### API y temas
-
-`new SubjectsGraph(container, { plan, progress = {}, theme = {}, editable = false })`
-crea una instancia y ajusta inicialmente el grafo al contenedor.
-
-| Método | Comportamiento |
-| --- | --- |
-| `setPlan(plan, { progress = {} } = {})` | Reemplaza plan y progreso, conservando pan y zoom. |
-| `getProgress()` | Devuelve una copia del mapa efectivo completo. |
-| `setProgress(progress)` | Reemplaza el progreso. |
-| `setTheme(theme)` | Reemplaza las personalizaciones sobre la paleta Default Dark. |
-| `setEditable(boolean)` | Habilita solicitudes de edición y movimiento. |
-| `fit()` | Ajusta explícitamente el grafo al contenedor. |
-| `exportPNG({ scale = 4, bg = 'transparent', full = true } = {})` | Devuelve `Promise<Blob>` del grafo, sin controles de la web. |
-| `addEventListener(type, listener, options)` | Escucha solicitudes con opciones estándar, incluyendo `once` y `signal`. |
-| `removeEventListener(type, listener, options)` | Quita un listener con las opciones estándar. |
-| `destroy()` | Libera renderer, observadores, listeners y DOM de la instancia; es idempotente. |
-
-Los demás métodos lanzan un error después de `destroy()`. Reemplazar el plan o destruir
-la instancia cancela el tap pendiente con `clearTimeout`.
-
-Un tema es un mapa de tokens a colores CSS, por ejemplo
-`graph.setTheme({ '--fill-color-4': '#24b47e' })`. Los tokens omitidos conservan
-exactamente la paleta Default Dark definida en `theme.js`; cada llamada reemplaza
-las personalizaciones anteriores. Los colores de estados y disponibilidades aceptan
-tokens como `--fill-color-4`, `var(--fill-color-4)` o colores literales como `#24b47e`.
-Las variables se aplican al elemento de cada instancia, sin modificar `document.documentElement`.
-
-### Estado controlado y eventos
-
-El consumidor decide si acepta cada solicitud y conserva su estado:
-
-```js
-let ownedPlan = plan;
-let ownedProgress = {};
-const graph = new SubjectsGraph(document.querySelector('#graph'), { plan: ownedPlan });
 graph.addEventListener('statusrequest', event => {
   const { subjectId, nextStatusId } = event.detail;
-  ownedProgress = { ...ownedProgress, [subjectId]: nextStatusId };
-  graph.setProgress(ownedProgress);
-});
-
-graph.addEventListener('nodepositionrequest', event => {
-  const { nodeId, position } = event.detail;
-  ownedPlan = { ...ownedPlan,
-    subjects: ownedPlan.subjects.map(node => node.id === nodeId ? { ...node, position } : node),
-    edges: ownedPlan.edges.map(node => node.id === nodeId ? { ...node, position } : node)
-  };
-  graph.setPlan(ownedPlan, { progress: ownedProgress });
+  progress = { ...progress, [subjectId]: nextStatusId };
+  graph.setProgress(progress);
 });
 ```
 
-Si se ignora una solicitud de movimiento, el nodo vuelve a la posición del plan. Un `statusrequest` ignorado
-conserva el estado actual. En modo editable, `editrequest` identifica el elemento
-para abrir la UI propia del consumidor:
+### Progreso y eventos
 
-| `event.detail.kind` | Otros campos de `detail` |
-| --- | --- |
-| `subject` o `connector` | `nodeId` |
-| `connection` | `sourceId`, `targetId`, `position` |
-| `background` | `position` |
+El plan describe la carrera. `progress` guarda el estado personal de cada materia,
+por ejemplo `{ '1': 'APPROVED' }`. El orden de `plan.statuses` define el ciclo
+que recorre una materia al hacer clic.
 
-El consumidor aplica las ediciones mediante un plan actualizado y `setPlan`; ignorar
-la solicitud deja el plan intacto. Las declaraciones TypeScript infieren `event.detail`
-por nombre de evento. Los setters no emiten solicitudes de vuelta.
+El clic emite `statusrequest`: tu app acepta el cambio llamando a `setProgress`,
+como muestra el ejemplo. Si no lo hace, el estado de la materia se mantiene.
+Esto permite guardar el progreso en Local Storage o en un servidor desde tu app.
+El ejemplo lo conserva en memoria, por lo que se pierde al recargar.
 
-La biblioteca no usa almacenamiento ni registra service workers. La aplicación en
-`app.js` conserva selectores, indicador de progreso, leyenda, editor, importación y
-exportación JSON, almacenamiento, capturas y PWA.
+`graph.getProgress()` devuelve una copia con el estado de todas las materias.
+`graph.setProgress(progress)` reemplaza el progreso completo; `graph.setProgress({})`
+restaura los estados iniciales del plan.
+
+### Temas
+
+Pasá colores en la opción `theme` al crear el grafo, o cambialos después con
+`setTheme`. Por ejemplo, sobre la instancia del ejemplo anterior:
+
+```js
+graph.setTheme({
+  '--bg-primary': '#10141d',
+  '--fill-color-1': '#334155',
+  '--fill-color-4': '#22c55e',
+  '--text-primary': '#f8fafc',
+  '--border-color-4': '#22c55e'
+});
+```
+
+Los nombres como `--fill-color-4` son los tokens usados por los estados del plan.
+Cada llamada a `setTheme` reemplaza las personalizaciones anteriores; los colores
+omitidos usan la paleta Default Dark. `graph.setTheme({})` restaura esa paleta.
+El tema afecta sólo a esa instancia, así que podés mostrar varios grafos con temas distintos.
+
+Para reemplazar planes, habilitar edición, exportar PNG o liberar la instancia,
+consultá la [referencia de la API](https://github.com/RaniAgus/subjects-graph/blob/main/docs/library-api.md).
+
+En [examples/cdn](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn)
+hay dos ejemplos que consumen el paquete publicado sin instalar dependencias ni compilar:
+
+- [Quickstart mínimo](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn/minimal):
+  lo indispensable para mostrar un grafo y aceptar cambios de estado.
+- [Integración completa](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn/complete):
+  un recorte del K23 con tabla sincronizada en ambos sentidos, temas, edición,
+  cambio de plan, exportación PNG y creación y destrucción de la instancia.
+
+Sus README incluyen los pasos para ejecutarlos con un servidor estático.
 
 ## Licencia
 
