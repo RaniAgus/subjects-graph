@@ -1,6 +1,6 @@
 {
   "name": "@raniagus/subjects-graph",
-  "version": "0.1.1",
+  "version": "0.3.0",
   "description": "Embeddable interactive university subject prerequisite graphs.",
   "repository": {
     "type": "git",
@@ -20,8 +20,12 @@
     },
     "./styles.css": "./dist/styles.css"
   },
-  "files": ["dist"],
-  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "start": "pnpm dlx http-server public -p 8000 -c-1",
     "test": "vitest run",

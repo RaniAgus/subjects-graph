@@ -226,6 +226,6 @@ try {
   ({ SubjectsGraph } = await import('@raniagus/subjects-graph'));
   createGraph();
 } catch (error) {
-  report('No se pudo cargar la biblioteca. Verificá la conexión y la disponibilidad de 0.1.0 en npm.');
+  report('No se pudo cargar la biblioteca. Verificá la conexión y la disponibilidad de 0.3.0 en npm.');
   console.error(error);
 }
