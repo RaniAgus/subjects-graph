@@ -1,7 +1,7 @@
 # Releases conjuntos
 
-CI (`ci.yml`) verifica pushes a main y PRs: tests, tipos, ambas bibliotecas y el
-build del ejemplo Angular. No publica. `publish.yml` solo responde a tags
+CI (`ci.yml`) verifica pushes a main y PRs: tests, tipos y builds de ambas
+bibliotecas. No publica. `publish.yml` solo responde a tags
 `v<SemVer>` completos; rechaza los inválidos antes de modificar manifests.
 Los tags sin `v` y los antiguos `angular-v*` no ejecutan releases.
 

@@ -1,4 +1,4 @@
-name: Verify libraries and example
+name: Verify libraries
 
 on:
   push:
@@ -26,4 +26,3 @@ jobs:
 
       - run: pnpm --filter @raniagus/subjects-graph-angular build
       - run: pnpm --filter @raniagus/subjects-graph-angular test
-      - run: pnpm --filter subjects-graph-angular-example build
