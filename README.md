@@ -64,7 +64,7 @@ graph.addEventListener('statusrequest', ({ detail }) => {
 npm install @raniagus/subjects-graph @raniagus/subjects-graph-angular
 ```
 
-Importá `SubjectsGraphComponent` en tu componente standalone y agregá el CSS
+Importá `SubjectsGraphComponent` en tu componente y agregá el CSS
 a los estilos globales:
 
 ```css
