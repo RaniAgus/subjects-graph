@@ -16,14 +16,8 @@ class GraphApp {
     this.screenshotBtn = document.getElementById('screenshot-btn');
     this.statusLegend = document.getElementById('status-legend');
     this.borderLegend = document.getElementById('border-legend');
-    this.progressPercentage = document.getElementById('progress-percentage');
-    this.progressPendingText = document.getElementById('progress-pending-text');
     this.legendItems = document.querySelector('.legend-items');
     this.cyContainer = document.getElementById('cy');
-    this.progressApproved = document.getElementById('progress-approved');
-    this.progressPending = document.getElementById('progress-pending');
-    this.progressContainer = document.querySelector('.progress-container');
-    this.progressCircle = document.querySelector('.progress-circle');
     this.controlsTitle = document.getElementById('controls-title');
     this.normalModeControls = document.getElementById('normal-mode-controls');
     this.editModeControls = document.getElementById('edit-mode-controls');
@@ -53,7 +47,6 @@ class GraphApp {
     this.isEditMode = false;
     this.customVariantTouched = false; // Track if custom variant has been modified
     this.originalVariant = null; // Store original variant before entering edit mode
-    this.progressPosition = { vertical: 'bottom', horizontal: 'right' }; // Default progress gauge position
     this.editingNodeId = null; // Currently editing node ID
     this.editingNodeType = null; // 'subject' or 'edge'
     this.isCreatingNode = false; // Are we creating a new node?
@@ -93,7 +86,7 @@ class GraphApp {
       if (e.target === this.nodeEditorModal) this.closeNodeEditor();
     });
     this.nodeEditorTextarea.addEventListener('input', this.validateNodeJson.bind(this));
-    this.progressCircle.addEventListener('click', this.onProgressCircleClick.bind(this));
+
   }
 
   async init() {
@@ -208,7 +201,7 @@ class GraphApp {
       availabilities: variantData.availabilities.map(a => ({ ...a, color: this.resolveCssColor(a.color) })),
     };
     this.generateLegend();
-    this.updateProgressPosition(variantData.progress?.position);
+
     this.progress = this.loadStatuses();
     if (!this.graph) {
       this.graph = new SubjectsGraph(this.cyContainer, {
@@ -216,6 +209,7 @@ class GraphApp {
         progress: this.progress,
         theme: this.themeColors,
         editable: this.isEditMode,
+        progressGauge: true,
       });
       this.initGraphEventListeners();
     } else {
@@ -224,8 +218,8 @@ class GraphApp {
       this.graph.setEditable(this.isEditMode);
       this.graph.fit();
     }
+    this.graph.setProgressGauge({ offset: { x: 30, y: variantData.progress?.position?.vertical === 'bottom' && variantData.progress?.position?.horizontal === 'left' ? 90 : 30 } });
     this.progress = this.graph.getProgress();
-    this.updateProgress();
     this.updateResetButton();
   }
 
@@ -235,13 +229,16 @@ class GraphApp {
       this.graph.setProgress(this.progress);
       this.progress = this.graph.getProgress();
       this.saveStatuses();
-      this.updateProgress();
+
     });
     this.graph.addEventListener('nodepositionrequest', ({ detail: { nodeId, position } }) => {
       this.updateNodePosition(nodeId, position);
     });
     this.graph.addEventListener('editrequest', ({ detail }) => {
       switch (detail.kind) {
+        case 'progress':
+          this.openProgressEditor();
+          break;
         case 'subject':
         case 'connector':
           this.openNodeEditor(detail.nodeId);
@@ -492,7 +489,7 @@ class GraphApp {
       this.deletePlanBtn.style.display = 'flex';
       this.roundPositionsBtn.style.display = 'flex';
       this.screenshotBtn.style.display = 'none';
-      this.progressCircle.classList.add('editable');
+
     } else {
       this.editModeBtn.classList.remove('active');
       this.editModeBtn.title = 'Crear Plan Personalizado';
@@ -506,7 +503,7 @@ class GraphApp {
       this.deletePlanBtn.style.display = 'none';
       this.roundPositionsBtn.style.display = 'none';
       this.screenshotBtn.style.display = 'flex';
-      this.progressCircle.classList.remove('editable');
+
     }
 
     // Regenerate legend to show/hide edit buttons
@@ -691,15 +688,6 @@ class GraphApp {
     this.nodeEditorError.style.display = 'none';
     this.nodeEditorDelete.style.display = 'none';
     this.showNodeEditorModal();
-  }
-
-  /**
-   * Handle click on progress circle
-   */
-  onProgressCircleClick() {
-    if (this.isEditMode && this.isCustomVariant) {
-      this.openProgressEditor();
-    }
   }
 
   /**
@@ -1072,81 +1060,6 @@ class GraphApp {
     }
   }
 
-  /**
-   * Update the progress container position based on variant settings
-   * @param {Object} position - e.g. { vertical: 'bottom', horizontal: 'right' }
-   */
-  updateProgressPosition(position) {
-    if (!this.progressContainer) return;
-
-    // Default to bottom-right
-    const { vertical = 'bottom', horizontal = 'right' } = position || {};
-
-    // Reset all positions
-    this.progressContainer.style.top = '';
-    this.progressContainer.style.bottom = '';
-    this.progressContainer.style.left = '';
-    this.progressContainer.style.right = '';
-
-    // Set vertical position
-    if (vertical === 'top') {
-      this.progressContainer.style.top = '30px';
-    } else {
-      this.progressContainer.style.bottom = '30px';
-    }
-
-    // Set horizontal position
-    if (horizontal === 'left') {
-      this.progressContainer.style.left = '30px';
-    } else {
-      this.progressContainer.style.right = '30px';
-    }
-
-    // Adjustment for visualization
-    if (vertical === 'bottom' && horizontal === 'left') {
-      this.progressContainer.style.bottom = '90px';
-    }
-
-
-    // Store current position for screenshot
-    this.progressPosition = { vertical, horizontal };
-  }
-
-  getProgressPercentages() {
-    const subjects = this.getVariantData().subjects;
-    const progress = this.graph.getProgress();
-    const totalSubjects = subjects.length;
-    let approvedCount = 0;
-    let pendingCount = 0;
-    const approvedIndex = this.config.statuses.length - 1;
-    const pendingIndex = this.config.statuses.length - 2;
-    subjects.forEach(subject => {
-      const statusIndex = this.config.statuses.findIndex(s => s.id === progress[subject.id]);
-      if (statusIndex >= approvedIndex) approvedCount++;
-      if (statusIndex >= pendingIndex) pendingCount++;
-    });
-    const approvedPercent = totalSubjects ? Math.round((approvedCount / totalSubjects) * 100) : 0;
-    const pendingPercent = totalSubjects ? Math.round((pendingCount / totalSubjects) * 100) : 0;
-    return { approvedPercent, pendingPercent };
-  }
-
-  updateProgress() {
-    const { approvedPercent, pendingPercent } = this.getProgressPercentages();
-    if (this.progressPercentage) {
-      this.progressPercentage.textContent = `${approvedPercent}%`;
-    }
-    if (this.progressPendingText) {
-      this.progressPendingText.textContent = `${pendingPercent}%`;
-    }
-    const circumference = 100;
-    if (this.progressApproved) {
-      this.progressApproved.style.strokeDashoffset = circumference - (circumference * approvedPercent / 100);
-    }
-    if (this.progressPending) {
-      this.progressPending.style.strokeDashoffset = circumference - (circumference * pendingPercent / 100);
-    }
-  }
-
   reset(e) {
     if (confirm('¿Estás seguro de reiniciar el progreso?')) {
       localStorage.removeItem(this.getStorageKey());
@@ -1290,7 +1203,7 @@ class GraphApp {
       canvas.height = img.height + paddingY * 2;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, paddingX, paddingY);
-      await this.drawProgressGauge(ctx);
+
       this.drawWatermark(ctx);
       const blob = await new Promise((resolve, reject) => {
         canvas.toBlob(result => result ? resolve(result) : reject(new Error('No se pudo generar el PNG.')), 'image/png');
@@ -1320,37 +1233,6 @@ class GraphApp {
     } finally {
       URL.revokeObjectURL(url);
     }
-  }
-
-  async drawProgressGauge(ctx) {
-    // Export the same SVG shown on screen, with resolved styles so it can be
-    // rendered without the page's stylesheet or CSS variables.
-    const source = this.progressCircle.querySelector('svg');
-    const snapshot = source.cloneNode(true);
-    const properties = [
-      'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-dasharray',
-      'stroke-dashoffset', 'font-family', 'font-size', 'font-weight',
-      'font-variant-numeric', 'letter-spacing', 'text-anchor', 'dominant-baseline'
-    ];
-    const originals = [source, ...source.querySelectorAll('*')];
-    const copies = [snapshot, ...snapshot.querySelectorAll('*')];
-    originals.forEach((element, index) => {
-      const computed = getComputedStyle(element);
-      for (const property of properties) copies[index].style.setProperty(property, computed.getPropertyValue(property));
-      // Export final progress even if the on-screen ring is mid-transition.
-      if (element.style.strokeDashoffset) copies[index].style.strokeDashoffset = element.style.strokeDashoffset;
-    });
-    snapshot.setAttribute('width', '108');
-    snapshot.setAttribute('height', '108');
-    const svg = new Blob([new XMLSerializer().serializeToString(snapshot)], { type: 'image/svg+xml;charset=utf-8' });
-    const image = await this.loadImage(svg);
-    const gaugeScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 600;
-    const size = 108 * gaugeScale;
-    const offset = 30 * gaugeScale;
-    const { vertical = 'bottom', horizontal = 'right' } = this.progressPosition || {};
-    const x = horizontal === 'left' ? offset : ctx.canvas.width - size - offset;
-    const y = vertical === 'top' ? offset : ctx.canvas.height - size - offset;
-    ctx.drawImage(image, x, y, size, size);
   }
 
   drawWatermark(ctx) {

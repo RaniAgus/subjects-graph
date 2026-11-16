@@ -39,3 +39,8 @@
 .subjects-graph .subjects-graph-tooltip li { margin: 1px 0; }
 .subjects-graph .subjects-graph-tooltip-section { margin-top: 6px; }
 .subjects-graph .subjects-graph-tooltip-availability { font-size: 0.75rem; opacity: 0.8; }
+.subjects-graph .subjects-graph-gauge { position:absolute; z-index:10; width:108px; height:108px; padding:0; border:0; border-radius:50%; background:transparent; opacity:1; }
+.subjects-graph .subjects-graph-gauge:not(:disabled) { cursor:pointer; }
+.subjects-graph .subjects-graph-gauge:focus-visible { outline:2px solid var(--accent-color); outline-offset:3px; }
+.subjects-graph .subjects-graph-gauge svg { width:100%; height:100%; display:block; }
+@media(max-width:600px) { .subjects-graph .subjects-graph-gauge { width:86px; height:86px; } }

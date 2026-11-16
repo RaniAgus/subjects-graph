@@ -10,6 +10,7 @@ const ASSETS_TO_CACHE = [
   './lib/subjects-graph/index.js',
   './lib/subjects-graph/subjects-graph.js',
   './lib/subjects-graph/core.js',
+  './lib/subjects-graph/progress-gauge.js',
   './lib/subjects-graph/cytoscape-drawer.js',
   './lib/subjects-graph/cytoscape-styles.js',
   './lib/subjects-graph/theme.js',

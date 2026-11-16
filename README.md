@@ -352,3 +352,26 @@ Licencia BSD 3-Clause - ver [LICENSE](LICENSE)
 ---
 
 Made with :heart: by [@RaniAgus](https://github.com/RaniAgus)
+
+### Gauge opcional
+
+Activá el anillo de progreso con `progressGauge: true` en el constructor.
+Usa todos los estados de `plan.statuses`, sus colores y el tema del grafo.
+Cada tramo representa materias en ese estado; los dos textos predeterminados
+representan el último y penúltimo estado acumulados con los posteriores,
+excluyendo el primero. Con dos estados se muestra un único porcentaje.
+
+```js
+graph.setProgressGauge({
+  position: { vertical: 'bottom', horizontal: 'right' },
+  offset: { x: 30, y: 30 },
+  labels: { primary: 'APPROVED', secondary: 'FINAL_EXAM_PENDING' },
+});
+```
+
+Los IDs son los del catálogo del plan. Cada texto acepta `false` para ocultarlo;
+un ID inexistente también se oculta. Sin opciones de posición se usa
+`plan.progress.position`, o inferior derecha, con separación de 30 píxeles.
+`setProgressGauge(false)` lo desactiva; cada llamada reemplaza las opciones.
+Se actualiza con el plan, progreso y tema, y aparece en `exportPNG()`.
+En modo editable emite `editrequest` con `{ kind: 'progress' }` al activarlo.

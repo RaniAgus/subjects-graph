@@ -7,6 +7,7 @@
  * @typedef {import('./subjects-graph.js').Position} Position
  * @typedef {import('./subjects-graph.js').PlanSubject} PlanSubject
  * @typedef {import('./subjects-graph.js').Plan} Plan
+ * @typedef {import('./subjects-graph.js').ProgressGaugeOptions} ProgressGaugeOptions
  * @typedef {import('./subjects-graph.js').Progress} Progress
  * @typedef {import('./subjects-graph.js').Theme} Theme
  * @typedef {import('./subjects-graph.js').SubjectsGraphOptions} SubjectsGraphOptions

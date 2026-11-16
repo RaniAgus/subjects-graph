@@ -1,3 +1,4 @@
+import { ProgressGauge } from './progress-gauge.js';
 /**
  * Public contracts for the subjects graph library. The host UI owns inputs and
  * persistence; implementations snapshot inputs and never mutate caller data.
@@ -18,7 +19,10 @@
  * @property {Edge[]} edges
  * @property {{position?: {vertical: 'top' | 'bottom', horizontal: 'left' | 'right'}}} [progress] Host UI metadata.
  *
+ * @typedef {{position?: {vertical: 'top' | 'bottom', horizontal: 'left' | 'right'}, offset?: {x: number, y: number}, labels?: {primary?: string | false, secondary?: string | false}}} ProgressGaugeOptions
+ *
  * @typedef {object} SubjectsGraphOptions
+ * @property {boolean | ProgressGaugeOptions} [progressGauge]
  * @property {Plan} plan
  * @property {Progress} [progress] Defaults to an empty map.
  * @property {Theme} [theme] Overrides default colors and --font-family.
@@ -34,7 +38,7 @@
  *
  * @typedef {{kind: 'subject' | 'connector', nodeId: string} |
  *   {kind: 'connection', sourceId: string, targetId: string, position: Position} |
- *   {kind: 'background', position: Position}} EditRequest
+ *   {kind: 'background', position: Position} | {kind: 'progress'}} EditRequest
  *
  * @typedef {object} SubjectsGraphEventMap
  * @property {CustomEvent<{subjectId: string, nextStatusId: string}>} statusrequest
@@ -59,6 +63,7 @@
  * @property {(progress: Progress) => void} setProgress Replaces progress; missing subjects use their plan status or the first status catalog entry.
  * @property {(theme: Theme) => void} setTheme Replaces overrides on the default palette.
  * @property {(editable: boolean) => void} setEditable
+ * @property {(options: boolean | ProgressGaugeOptions) => void} setProgressGauge
  * @property {() => void} fit
  * @property {(options?: PNGOptions) => Promise<Blob>} exportPNG
  * @property {() => void} destroy Idempotently releases the instance.
@@ -106,11 +111,15 @@ export class SubjectsGraph {
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   #tapTimer;
   #destroyed = false;
+  /** @type {ProgressGauge | undefined} */
+  #gauge;
+  /** @type {boolean | ProgressGaugeOptions} */
+  #gaugeOptions = false;
 
   /** @param {HTMLElement} container
    * @param {SubjectsGraphOptions} options
    */
-  constructor(container, { plan, progress = {}, theme = {}, editable = false }) {
+  constructor(container, { plan, progress = {}, theme = {}, editable = false, progressGauge = false }) {
     this.#plan = structuredClone(plan);
     this.#progress = structuredClone(progress);
     this.#theme = mergeTheme(theme);
@@ -127,6 +136,7 @@ export class SubjectsGraph {
     this.#root.append(this.#tooltip);
     this.#applyTheme();
     container.append(this.#root);
+    this.setProgressGauge(progressGauge);
 
     this.#cy = cytoscape({
       container: this.#surface,
@@ -169,6 +179,7 @@ export class SubjectsGraph {
     this.#plan = structuredClone(plan);
     this.#progress = structuredClone(progress);
     this.#render();
+    this.#updateGauge();
   }
 
   /** @returns {Progress} */
@@ -182,6 +193,7 @@ export class SubjectsGraph {
     this.#assertAlive();
     this.#progress = structuredClone(progress);
     this.#render();
+    this.#updateGauge();
   }
 
   /** @template {keyof SubjectsGraphEventMap} K
@@ -211,6 +223,7 @@ export class SubjectsGraph {
     this.#theme = mergeTheme(theme);
     this.#applyTheme();
     this.#render(true);
+    this.#updateGauge();
   }
 
   /** @param {boolean} editable */
@@ -220,6 +233,23 @@ export class SubjectsGraph {
     this.#root.className = `subjects-graph${editable ? ' subjects-graph-editable' : ''}`;
     this.#updateCursor();
     this.#render(true);
+    this.#updateGauge();
+  }
+
+  /** @param {boolean | ProgressGaugeOptions} options */
+  setProgressGauge(options) {
+    this.#assertAlive();
+    this.#gaugeOptions = structuredClone(options);
+    this.#gauge?.element.remove();
+    this.#gauge = options ? new ProgressGauge(this.#root.ownerDocument, () => {
+      if (this.#editable) this.#events.dispatchEvent(new CustomEvent('editrequest', { detail: { kind: 'progress' } }));
+    }) : undefined;
+    if (this.#gauge) this.#root.append(this.#gauge.element);
+    this.#updateGauge();
+  }
+
+  #updateGauge() {
+    this.#gauge?.update(this.#plan, this.#effectiveProgress(), this.#theme, this.#gaugeOptions === true || this.#gaugeOptions === false ? {} : this.#gaugeOptions, this.#editable);
   }
 
   fit() {
@@ -233,7 +263,8 @@ export class SubjectsGraph {
    */
   async exportPNG({ scale = 4, bg = 'transparent', full = true } = {}) {
     this.#assertAlive();
-    return this.#cy.png({ output: 'blob', scale, bg, full });
+    const blob = this.#cy.png({ output: 'blob', scale, bg, full });
+    return this.#gauge ? this.#gauge.exportPNG(blob) : blob;
   }
 
   destroy() {
