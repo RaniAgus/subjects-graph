@@ -1,20 +1,10 @@
 @import '@raniagus/subjects-graph/styles.css';
 
-:root { color-scheme: dark; font-family: system-ui, sans-serif; background: #10151d; color: #ecf1f7; }
-body { margin: 0; }
-main { max-width: 1100px; margin: auto; padding: 24px; }
-h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin: 8px 0; }
-p { line-height: 1.5; }
-.eyebrow { color: #a5b9cc; }
-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
-button, select { font: inherit; color: inherit; background: #202c3c; border: 1px solid #53667d; border-radius: 6px; padding: 8px 12px; }
-button { cursor: pointer; }
-button:disabled { opacity: .5; cursor: default; }
-button[aria-pressed="true"] { background: #254b61; }
-button:focus-visible, select:focus-visible { outline: 2px solid #8bd6ff; outline-offset: 3px; }
-subjects-graph { height: 520px; border: 1px solid #53667d; border-radius: 8px; }
-.confirmation { border: 1px solid #8bd6ff; border-radius: 8px; padding: 16px; }
-.confirmation button { margin-right: 8px; }
-ul { list-style: none; padding: 0; }
-li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #29384a; }
-@media (max-width: 600px) { main { padding: 16px; } subjects-graph { height: 420px; } li { align-items: stretch; flex-direction: column; gap: 8px; } }
+/* The complete example owns the page theme, just like its CDN counterpart. */
+html:has(app-complete) {
+  color-scheme: dark;
+  background: #10141d;
+}
+body:has(app-complete) {
+  margin: 0;
+}

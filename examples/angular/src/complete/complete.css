@@ -1,0 +1,24 @@
+:host { color-scheme: dark; font-family: system-ui, sans-serif; background: #10141d; color: #e9edf5; }
+:host { display: block; max-width: 1440px; margin: auto; padding: 24px; }
+a { color: #93c5fd; }
+h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); }
+h2 { font-size: 1.1rem; }
+p { line-height: 1.6; color: #bac6da; }
+fieldset, details { border: 1px solid #52617b; border-radius: 8px; padding: 16px; margin: 16px 0; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 10px 0; }
+label { display: inline-flex; gap: 8px; align-items: center; }
+button, select { font: inherit; padding: 8px 12px; border: 1px solid #52617b; border-radius: 6px; background: #232e43; color: inherit; }
+button, summary, select { cursor: pointer; }
+button:disabled, select:disabled { opacity: .5; cursor: default; }
+#create { margin-bottom: 16px; }
+main { display: grid; grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr); gap: 24px; }
+subjects-graph, .empty-graph { height: 580px; border: 1px solid #52617b; border-radius: 8px; overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid #334155; }
+td select { width: 100%; min-width: 145px; }
+output { font-size: .85rem; color: #bac6da; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+textarea { display: block; box-sizing: border-box; width: 100%; margin: 12px 0; padding: 12px; background: #192131; color: inherit; border: 1px solid #52617b; font: .9rem monospace; }
+:focus-visible { outline: 3px solid #a78bfa; outline-offset: 3px; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } subjects-graph, .empty-graph { height: 60vh; min-height: 320px; } :host { display: block; padding: 16px; } }

@@ -1,0 +1,63 @@
+<header>
+  <a routerLink="/">Ejemplos Angular</a>
+  <h1>K23 · Tu progreso, en dos vistas</h1>
+  <p>Cambiá una materia desde el grafo o desde la tabla: ambas vistas comparten el mismo progreso.
+    Los cambios viven en memoria y se pierden al recargar.</p>
+</header>
+<p role="status">{{ message() }}</p>
+<fieldset [disabled]="!ready()">
+  <legend>Controles del grafo</legend>
+  <div class="toolbar">
+    <label>Plan <select #planSelect (change)="selectPlan(planSelect.value)"><option value="software">Rama de software · 8 materias</option><option value="base">Primer año · 3 materias</option></select></label>
+    <label>Tema <select #themeSelect (change)="selectTheme(themeSelect.value)"><option value="custom">Azul y verde</option><option value="default">Default Dark</option></select></label>
+    <button type="button" (click)="graph()?.fit()">Ajustar vista</button>
+    <button type="button" (click)="reset()">Reiniciar progreso</button>
+    <button type="button" [disabled]="exporting()" (click)="downloadGraph()">Descargar PNG</button>
+  </div>
+  <div class="toolbar">
+    <label><input #acceptInput type="checkbox" [checked]="accept()" (change)="toggleAccept(acceptInput.checked)">Aceptar clics del grafo</label>
+    <label><input #editableInput type="checkbox" [checked]="editable()" (change)="editable.set(editableInput.checked)">Editar y mover nodos</label>
+    <button type="button" (click)="destroy()">Destruir instancia</button>
+  </div>
+</fieldset>
+<button id="create" type="button" [disabled]="alive()" (click)="alive.set(true)">Crear instancia de nuevo</button>
+<main>
+  <section aria-label="Grafo">
+    @if (alive()) {
+      <subjects-graph #graphComponent [plan]="plan()" [progress]="progress()" [theme]="theme()"
+        [editable]="editable()" [autoUpdateProgress]="false" (ready)="onReady(graphComponent)"
+        (statusRequest)="requestStatus($event)" (nodePositionRequest)="moveNode($event)"
+        (editRequest)="edit($event, planTextarea)" />
+    } @else { <div class="empty-graph"></div> }
+    <p>Arrastrá el fondo y usá la rueda para navegar. En modo edición, arrastrá nodos para guardar
+      sus posiciones o hacé doble clic en una materia, conector, flecha o fondo para abrir el editor del plan.</p>
+  </section>
+  <section aria-labelledby="table-title">
+    <h2 id="table-title">Materias <output aria-live="polite">· {{ approved() }}/{{ plan().subjects.length }} aprobadas</output></h2>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Materia</th><th scope="col">Estado</th></tr></thead>
+      <tbody>
+        @for (subject of plan().subjects; track subject.id) {
+          <tr><th scope="row">{{ subject.name }}</th><td>
+            <select #status [attr.aria-label]="'Estado de ' + subject.name" [disabled]="!ready()"
+              [value]="progress()[subject.id] ?? subject.status ?? plan().statuses[0]?.id"
+              (change)="changeStatus(subject.id, status.value)">
+              @for (option of plan().statuses; track option.id) { <option [value]="option.id">{{ option.name }}</option> }
+            </select>
+          </td></tr>
+        }
+      </tbody>
+    </table></div>
+  </section>
+</main>
+<details [open]="editorOpen()" (toggle)="editorOpen.set(editor.open)" #editor>
+  <summary>Editar el plan en JSON</summary>
+  <p>{{ editContext() }}</p>
+  <form (submit)="applyPlan($event)">
+    <label for="plan-json">Plan completo</label>
+    <textarea #planTextarea id="plan-json" rows="18" spellcheck="false" [value]="planJSON()" (input)="planJSON.set(planTextarea.value)"></textarea>
+    <button type="submit" [disabled]="!ready()">Aplicar plan</button>
+  </form>
+</details>
+<details><summary>Progreso actual</summary><pre>{{ progress() | json }}</pre></details>
+<details><summary>Últimas solicitudes del grafo</summary><pre>{{ events().length ? (events() | json) : 'Sin solicitudes.' }}</pre></details>
