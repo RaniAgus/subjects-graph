@@ -183,6 +183,10 @@ class GraphApp {
     this.updateEditModeUI();
     this.registerServiceWorker();
     lucide.createIcons();
+    const toolbar = document.getElementById('graph-toolbar');
+    toolbar.querySelectorAll('button').forEach(button => { button.disabled = false; });
+    toolbar.hidden = false;
+    document.querySelector('.toolbar-skeleton').remove();
   }
 
   renderGraph() {

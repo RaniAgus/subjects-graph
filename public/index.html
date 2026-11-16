@@ -92,17 +92,16 @@
                 <p>Un árbol de habilidades para compartir cómo vas con la carrera.</p>
             </div>
             <div class="header-controls">
-                <div class="header-skeleton desktop-skeleton"></div>
-                <div class="header-skeleton mobile-skeleton"></div>
-                <div class="header-skeleton mobile-skeleton"></div>
                 <div class="select-field">
                     <label id="variant-label" for="variant-select">Plan de estudio</label>
+                    <div class="header-skeleton" aria-hidden="true"></div>
                     <select id="variant-select" class="variant-select" style="display: none;">
                         <option value="">Seleccionar variante...</option>
                     </select>
                 </div>
                 <div class="select-field">
                     <label id="theme-label" for="theme-select">Apariencia</label>
+                    <div class="header-skeleton" aria-hidden="true"></div>
                     <select id="theme-select" class="theme-select" style="display: none;">
                         <option value="">Seleccionar tema...</option>
                     </select>
@@ -117,13 +116,14 @@
                     <!-- Watermark -->
                     <span class="watermark">raniagus.github.io/subjects-graph</span>
 
-                    <!-- Screenshot Button -->
-                    <div class="screenshot-container">
-                        <button id="fit-btn" class="btn-fit" title="Ajustar Vista"><i data-lucide="maximize"></i></button>
-                        <button id="edit-mode-btn" class="btn-edit-mode" title="Activar Modo Edición" style="display: none;"><i data-lucide="pencil"></i></button>
-                        <button id="screenshot-btn" class="btn-screenshot" title="Capturar Pantalla"><i data-lucide="camera"></i></button>
-                        <button id="round-positions-btn" class="btn-round-positions" title="Redondear Posiciones" style="display: none;"><i data-lucide="grid-3x3"></i></button>
-                        <button id="delete-plan-btn" class="btn-delete-plan" title="Eliminar Plan Personalizado" style="display: none;"><i data-lucide="file-x"></i></button>
+                    <!-- Graph toolbar: one placeholder until initialization completes. -->
+                    <div class="screenshot-container toolbar-skeleton" aria-hidden="true"></div>
+                    <div class="screenshot-container" id="graph-toolbar" hidden>
+                        <button disabled id="fit-btn" class="btn-fit" title="Ajustar Vista"><i data-lucide="maximize"></i></button>
+                        <button disabled id="edit-mode-btn" class="btn-edit-mode" title="Activar Modo Edición" style="display: none;"><i data-lucide="pencil"></i></button>
+                        <button disabled id="screenshot-btn" class="btn-screenshot" title="Capturar Pantalla"><i data-lucide="camera"></i></button>
+                        <button disabled id="round-positions-btn" class="btn-round-positions" title="Redondear Posiciones" style="display: none;"><i data-lucide="grid-3x3"></i></button>
+                        <button disabled id="delete-plan-btn" class="btn-delete-plan" title="Eliminar Plan Personalizado" style="display: none;"><i data-lucide="file-x"></i></button>
                     </div>
                 </div>            <!-- Legend/References Panel -->
             <aside class="legend-panel">

@@ -64,7 +64,7 @@ header h1 { font-size: clamp(1.6rem, 2.5vw, 2.1rem); line-height: 1.25; letter-s
   -webkit-appearance: none;
   width: 100%;
   min-width: 0;
-  height: 46px;
+  height: 48px;
   padding: 0 40px 0 14px;
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -246,8 +246,7 @@ select option { color: var(--text-primary); background: var(--bg-secondary); }
 .legend-edit-btn svg { width: 14px; height: 14px; }
 
 /* Loading */
-.header-skeleton { position: absolute; top: 27px; left: 0; width: 100%; height: 46px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 10px; z-index: 1; animation: skeleton-pulse 1.5s ease-in-out infinite; }
-.mobile-skeleton { display: none; }
+.header-skeleton { flex-shrink: 0; width: 100%; height: 48px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 10px; z-index: 1; animation: skeleton-pulse 1.5s ease-in-out infinite; }
 .skeleton-circle { width: 30px; height: 30px; border-radius: 50%; background: var(--bg-tertiary); flex-shrink: 0; animation: skeleton-pulse 1.5s ease-in-out infinite; }
 .skeleton-text { height: 12px; flex: 1; max-width: 120px; border-radius: 4px; background: var(--bg-tertiary); animation: skeleton-pulse 1.5s ease-in-out infinite; }
 select.skeleton { color: transparent; pointer-events: none; animation: skeleton-pulse 1.5s ease-in-out infinite; }
@@ -307,7 +306,6 @@ select.skeleton { color: transparent; pointer-events: none; animation: skeleton-
   .header-controls { grid-template-columns: minmax(0, 1fr); gap: 14px; }
   .select-field { gap: 6px; }
   .variant-select, .theme-select { height: 48px; font-size: 16px; }
-  .header-skeleton { height: 48px; top: 25px; }
   #cy { height: 65vh; height: 65svh; min-height: 400px; }
   .graph-container { padding: 5px; border-radius: 13px; }
   .watermark { top: 16px; font-size: .6rem; }
@@ -334,4 +332,13 @@ select.skeleton { color: transparent; pointer-events: none; animation: skeleton-
 @media (forced-colors: active) {
   .variant-select, .theme-select { appearance: auto; background-image: none; }
   button { border: 1px solid ButtonText; }
+}
+
+.screenshot-container[hidden] { display: none; }
+.toolbar-skeleton { width: 146px; height: 54px; pointer-events: none; animation: skeleton-pulse 1.5s ease-in-out infinite; }
+@media (max-width: 600px) {
+  .toolbar-skeleton { width: 124px; height: 50px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toolbar-skeleton { animation: none; }
 }
