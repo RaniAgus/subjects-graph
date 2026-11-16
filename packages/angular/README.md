@@ -58,12 +58,11 @@ La compilación genera ESM y declaraciones con compilación parcial Angular en
 `packages/angular/dist/`. Las pruebas incluyen TestBed zoneless, SSR y un
 consumidor AOT con templates estrictos.
 
-Este paquete tiene versión independiente, inicialmente `0.1.0`. El workflow
-`publish-angular.yml` publica exclusivamente este paquete con tags
-`angular-v0.1.0` (o `angular-v0.2.0-beta.1`, al dist-tag `next`). Los tags de la
-librería base conservan su comportamiento. La publicación requiere configurar
-Trusted Publishing/OIDC para este paquete en npm; crear estos archivos no lo
-publica ni configura esa cuenta.
+Este paquete y el core se publican juntos mediante `publish.yml` con la misma
+versión del tag `v<SemVer>`: estables en `latest`, prereleases en `next`.
+Ambos paquetes deben autorizar ese workflow en npm Trusted Publishing/OIDC.
+Después de publicar ambos, las versiones estables generan un commit sobre el
+último `main`. Ver [el proceso de release](../../docs/releases.md).
 
 El paquete declara Angular 21 y `@raniagus/subjects-graph` compatible con `0.1.1`
 como peers requeridos. Angular y las herramientas de prueba viven únicamente en

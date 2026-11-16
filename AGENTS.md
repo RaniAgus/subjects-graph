@@ -91,25 +91,25 @@ Mock drawer pattern: `createMockDrawer()` returns
 `.github/workflows/github-pages.yml` independently deploys `public/` directly to Pages on push
 to `main` affecting `public/**`, injecting the commit SHA into `sw.js`.
 
-`.github/workflows/publish.yml` verifies tests, types and library build on main/PRs. Only version
-tag pushes (optional `v`) publish npm: stable versions use `latest`, all prereleases use `next`.
-The release helper changes the package version only in the job; no version commits or snapshots.
-Publishing uses npm Trusted Publishing/OIDC and requires owner-side setup;
-do not assume it is configured or the package has been published. No `NPM_TOKEN` or GPG is needed.
+`.github/workflows/ci.yml` verifies main/PRs. `publish.yml` runs only for strict
+`v<SemVer>` tags and publishes core then Angular at the same version (`latest`
+for stable, `next` for prereleases). Both npm packages must authorize publish.yml
+for Trusted Publishing/OIDC. Stable releases commit versions and owned references
+on latest main after both publications succeed; prereleases never commit.
+Retries skip existing versions only when npm gitHead matches the tag commit.
+See docs/releases.md. No NPM_TOKEN or GPG is needed.
 `prepack` builds the library. npm packaging includes dist, README, LICENSE and package metadata;
 for a known local pack with scripts otherwise disabled, use `npm pack --ignore-scripts=false`
 without changing global npm configuration.
 
-## Independent Angular adapter
+## Angular adapter
 
-`packages/angular/` publishes `@raniagus/subjects-graph-angular` independently;
+`packages/angular/` publishes `@raniagus/subjects-graph-angular` alongside the core;
 it is not a subpath of the base npm package. Angular dependencies and development
 tools belong only to that workspace. Build the base with `pnpm build:lib` first,
 then run `pnpm --filter @raniagus/subjects-graph-angular build` and
 `pnpm --filter @raniagus/subjects-graph-angular test` (TestBed, SSR, strict AOT
-consumer). The adapter uses Angular 21 partial compilation. Its separate workflow
-publishes only on `angular-v*` version tags, with its own package version and npm
-Trusted Publishing configuration. Keep root package dependencies, exports and
+consumer). The adapter uses Angular 21 partial compilation. Keep root package dependencies, exports and
 `build:lib` independent of Angular.
 
 `docs/angular-api.md` documents the adapter API. `examples/angular/` is a private
