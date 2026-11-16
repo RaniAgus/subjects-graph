@@ -376,3 +376,9 @@ un ID inexistente también se oculta. Sin opciones de posición se usa
 `setProgressGauge(false)` lo desactiva; cada llamada reemplaza las opciones.
 Se actualiza con el plan, progreso y tema, y aparece en `exportPNG()`.
 En modo editable emite `editrequest` con `{ kind: 'progress' }` al activarlo.
+
+### Angular
+
+El adaptador standalone se distribuye por separado como
+[`@raniagus/subjects-graph-angular`](packages/angular/README.md).
+La librería base no depende de Angular.

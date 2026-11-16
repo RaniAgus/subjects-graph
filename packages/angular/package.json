@@ -1,0 +1,48 @@
+{
+  "name": "@raniagus/subjects-graph-angular",
+  "version": "0.1.0",
+  "description": "Angular adapter for Subjects Graph.",
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RaniAgus/subjects-graph.git",
+    "directory": "packages/angular"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "ngc -p tsconfig.json",
+    "typecheck": "ngc -p tsconfig.json --noEmit",
+    "test": "vitest run --config vitest.config.ts && ngc -p tsconfig.consumer.json",
+    "prepack": "pnpm build"
+  },
+  "peerDependencies": {
+    "@angular/core": "^21.0.0",
+    "@raniagus/subjects-graph": "^0.1.1"
+  },
+  "devDependencies": {
+    "@angular/common": "^21.2.26",
+    "@angular/compiler": "^21.2.26",
+    "@angular/compiler-cli": "^21.2.26",
+    "@angular/core": "^21.2.26",
+    "@angular/platform-browser": "^21.2.26",
+    "@angular/platform-server": "^21.2.26",
+    "@raniagus/subjects-graph": "workspace:*",
+    "@types/punycode": "^2.1.4",
+    "jsdom": "^27.0.0",
+    "rxjs": "^7.8.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}

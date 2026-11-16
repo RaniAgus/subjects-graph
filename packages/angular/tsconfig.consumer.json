@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".", "noEmit": true,
+    "paths": { "@raniagus/subjects-graph-angular": ["./dist/index.d.ts"] }
+  },
+  "include": ["tests/consumer.ts"]
+}

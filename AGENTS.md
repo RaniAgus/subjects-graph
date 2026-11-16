@@ -99,3 +99,15 @@ do not assume it is configured or the package has been published. No `NPM_TOKEN`
 `prepack` builds the library. npm packaging includes dist, README, LICENSE and package metadata;
 for a known local pack with scripts otherwise disabled, use `npm pack --ignore-scripts=false`
 without changing global npm configuration.
+
+## Independent Angular adapter
+
+`packages/angular/` publishes `@raniagus/subjects-graph-angular` independently;
+it is not a subpath of the base npm package. Angular dependencies and development
+tools belong only to that workspace. Build the base with `pnpm build:lib` first,
+then run `pnpm --filter @raniagus/subjects-graph-angular build` and
+`pnpm --filter @raniagus/subjects-graph-angular test` (TestBed, SSR, strict AOT
+consumer). The adapter uses Angular 21 partial compilation. Its separate workflow
+publishes only on `angular-v*` version tags, with its own package version and npm
+Trusted Publishing configuration. Keep root package dependencies, exports and
+`build:lib` independent of Angular.
