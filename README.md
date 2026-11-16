@@ -22,6 +22,224 @@ dirigido.
 - **Configuración extensible** de variantes de planes de estudio mediante un mismo archivo JSON
 - **Modo edición** para agregar materias electivas o ingresar nuevos planes de forma más sencilla
 
+## Usar la biblioteca
+
+Podés integrar el grafo en tu propia app con `@raniagus/subjects-graph`.
+La biblioteca dibuja las materias y sus correlativas; tu app define el plan,
+acepta los cambios de progreso y decide cómo guardarlos.
+
+<details>
+<summary>Vanilla JS</summary>
+
+### Instalación
+
+Si tu proyecto usa un empaquetador que admite imports de CSS, instalá el paquete:
+
+```bash
+npm install @raniagus/subjects-graph
+```
+
+### Integración
+
+Tu app debe proporcionar un contenedor `#graph` con dimensiones (por ejemplo,
+`height: 600px`) y un archivo `plan.json` con estados, disponibilidades, materias
+y correlativas. La [referencia de la API](https://github.com/RaniAgus/subjects-graph/blob/main/docs/library-api.md#plan-y-progreso)
+describe su estructura.
+
+```js
+import { SubjectsGraph } from '@raniagus/subjects-graph';
+import '@raniagus/subjects-graph/styles.css';
+import plan from './plan.json' with { type: 'json' };
+
+let progress = {};
+const graph = new SubjectsGraph(document.querySelector('#graph'), { plan, progress });
+
+graph.addEventListener('statusrequest', event => {
+  const { subjectId, nextStatusId } = event.detail;
+  progress = { ...progress, [subjectId]: nextStatusId };
+  graph.setProgress(progress);
+});
+```
+
+### Progreso y eventos
+
+El plan describe la carrera. `progress` guarda el estado personal de cada materia,
+por ejemplo `{ '1': 'APPROVED' }`. El orden de `plan.statuses` define el ciclo
+que recorre una materia al hacer clic.
+
+El clic emite `statusrequest`: tu app acepta el cambio llamando a `setProgress`,
+como muestra el ejemplo. Si no lo hace, el estado de la materia se mantiene.
+Esto permite guardar el progreso en Local Storage o en un servidor desde tu app.
+El ejemplo lo conserva en memoria, por lo que se pierde al recargar.
+
+`graph.getProgress()` devuelve una copia con el estado de todas las materias.
+`graph.setProgress(progress)` reemplaza el progreso completo; `graph.setProgress({})`
+restaura los estados iniciales del plan.
+
+### Temas
+
+Pasá colores en la opción `theme` al crear el grafo, o cambialos después con
+`setTheme`. Por ejemplo, sobre la instancia del ejemplo anterior:
+
+```js
+graph.setTheme({
+  '--bg-primary': '#10141d',
+  '--fill-color-1': '#334155',
+  '--fill-color-4': '#22c55e',
+  '--text-primary': '#f8fafc',
+  '--border-color-4': '#22c55e'
+});
+```
+
+Los nombres como `--fill-color-4` son los tokens usados por los estados del plan.
+Cada llamada a `setTheme` reemplaza las personalizaciones anteriores; los colores
+omitidos usan la paleta Default Dark. `graph.setTheme({})` restaura esa paleta.
+El tema afecta sólo a esa instancia, así que podés mostrar varios grafos con temas distintos.
+
+Para reemplazar planes, habilitar edición, exportar PNG o liberar la instancia,
+consultá la [referencia de la API](https://github.com/RaniAgus/subjects-graph/blob/main/docs/library-api.md).
+
+En [examples/cdn](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn)
+hay dos ejemplos que consumen el paquete publicado sin instalar dependencias ni compilar:
+
+- [Quickstart mínimo](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn/minimal):
+  lo indispensable para mostrar un grafo y aceptar cambios de estado.
+- [Integración completa](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn/complete):
+  un recorte del K23 con tabla sincronizada en ambos sentidos, temas, edición,
+  cambio de plan, exportación PNG y creación y destrucción de la instancia.
+
+Sus README incluyen los pasos para ejecutarlos con un servidor estático.
+
+### Indicador de progreso
+
+La biblioteca puede mostrar un anillo con el porcentaje de materias en cada
+estado. Para activarlo al crear el grafo, agregá `progressGauge: true`:
+
+```js
+const graph = new SubjectsGraph(document.querySelector('#graph'), {
+  plan,
+  progress,
+  progressGauge: true,
+});
+```
+
+El anillo usa los colores de los estados y se actualiza al cambiar el progreso.
+Con los estados del ejemplo, el número principal muestra el porcentaje de materias
+aprobadas y el secundario suma cursadas y aprobadas. También se incluye al exportar PNG.
+
+Podés cambiar su posición y elegir qué estados muestran los porcentajes:
+
+```js
+graph.setProgressGauge({
+  position: { vertical: 'bottom', horizontal: 'right' },
+  offset: { x: 30, y: 30 },
+  labels: { primary: 'APPROVED', secondary: 'FINAL_EXAM_PENDING' },
+});
+```
+
+Cada porcentaje suma las materias del estado elegido y de los estados posteriores
+en `plan.statuses`. Usá los IDs de tu plan o `false` para ocultar un texto.
+Para ocultar todo el indicador, llamá a `graph.setProgressGauge(false)`.
+
+La
+[referencia de la API](https://github.com/RaniAgus/subjects-graph/blob/main/docs/library-api.md)
+detalla los valores predeterminados y el comportamiento en modo edición.
+
+</details>
+
+<details>
+<summary>Angular 21+</summary>
+
+### Instalación
+
+Instalá la biblioteca y su adaptador standalone:
+
+```bash
+npm install @raniagus/subjects-graph @raniagus/subjects-graph-angular
+```
+
+Agregá el CSS de la biblioteca a los estilos globales de tu aplicación:
+
+```css
+@import '@raniagus/subjects-graph/styles.css';
+```
+
+### Integración
+
+Importá `SubjectsGraphComponent` y pasale el plan. `[(progress)]` mantiene el
+progreso sincronizado y acepta automáticamente los cambios al hacer clic:
+
+```ts
+import { Component, signal } from '@angular/core';
+import { SubjectsGraphComponent } from '@raniagus/subjects-graph-angular';
+import type { Plan, Progress } from '@raniagus/subjects-graph';
+import plan from './plan.json';
+
+@Component({
+  selector: 'app-curriculum',
+  imports: [SubjectsGraphComponent],
+  template: `
+    <subjects-graph style="height: 600px"
+      [plan]="plan" [(progress)]="progress" />
+  `,
+})
+export class CurriculumComponent {
+  readonly plan: Plan = plan;
+  readonly progress = signal<Progress>({});
+}
+```
+
+El adaptador administra la creación y destrucción del grafo. Tu aplicación decide
+cómo guardar el progreso. Para validar cada clic antes de aceptarlo, usá
+`[autoUpdateProgress]="false"` y el output `statusRequest`.
+
+### Indicador de progreso
+
+Activá el anillo con el input `progressGauge`:
+
+```html
+<subjects-graph style="height: 600px"
+  [plan]="plan" [(progress)]="progress" [progressGauge]="true" />
+```
+
+Usa los colores de los estados del plan y se actualiza junto con el progreso.
+Con el plan del ejemplo, muestra el porcentaje de aprobadas y el de cursadas más
+aprobadas. También aparece en la exportación PNG.
+
+El input admite un objeto para cambiar la posición y los porcentajes:
+
+```html
+<subjects-graph style="height: 600px"
+  [plan]="plan" [(progress)]="progress"
+  [progressGauge]="{
+    position: { vertical: 'bottom', horizontal: 'right' },
+    offset: { x: 30, y: 30 },
+    labels: { primary: 'APPROVED', secondary: 'FINAL_EXAM_PENDING' }
+  }" />
+```
+
+Cada porcentaje suma las materias del estado elegido y de los posteriores en
+`plan.statuses`. Cada etiqueta acepta `false` para ocultarla;
+`[progressGauge]="false"` oculta el indicador completo.
+
+### Ejemplos y documentación
+
+En [examples/angular](https://github.com/RaniAgus/subjects-graph/tree/main/examples/angular)
+hay una aplicación con tres rutas, equivalente a los ejemplos CDN:
+
+- `/`: índice con enlaces a las dos versiones.
+- `/minimal`: plan K23 de tres materias y cambios de estado con `[(progress)]`.
+- `/complete`: tabla sincronizada, temas, cambio de plan, editor JSON, exportación
+  PNG y destrucción y recreación del componente.
+
+El [README del ejemplo](https://github.com/RaniAgus/subjects-graph/blob/main/examples/angular/README.md)
+incluye los comandos para ejecutarlo. Consultá la
+[referencia Angular](https://github.com/RaniAgus/subjects-graph/blob/main/docs/angular-api.md)
+para todos los inputs, outputs y métodos. El adaptador es un paquete separado;
+la biblioteca base no depende de Angular.
+
+</details>
+
 ## Aportes
 
 ¡Los aportes son bienvenidos! Podés ayudar:
@@ -255,96 +473,11 @@ pnpm build:lib
 
 `pnpm start` sirve `public/` en el puerto 8000 con `http-server` y la caché HTTP
 desactivada (`-c-1`). No hay servidor de desarrollo Vite,
-build de la web ni demo separada. `build:lib` genera ESM, CSS y declaraciones en
+build de la PWA. Los ejemplos CDN y Angular viven en `examples/`. `build:lib` genera ESM, CSS y declaraciones en
 `dist/` (ignorado por Git); no modifica la web. El paquete incluye `dist/`, README,
 LICENSE y los metadatos npm. `prepack` ejecuta ese build automáticamente; si tu
 configuración omite scripts, para empaquetar este proyecto conocido usá
 `npm pack --ignore-scripts=false`. No hace falta habilitar scripts globalmente.
-
-## Usar la biblioteca
-
-Podés integrar el grafo en tu propia app con `@raniagus/subjects-graph`.
-La biblioteca dibuja las materias y sus correlativas; tu app define el plan,
-acepta los cambios de progreso y decide cómo guardarlos.
-
-### Instalación
-
-Si tu proyecto usa un empaquetador que admite imports de CSS, instalá el paquete:
-
-```bash
-npm install @raniagus/subjects-graph
-```
-
-### Integración
-
-Tu app debe proporcionar un contenedor `#graph` con dimensiones (por ejemplo,
-`height: 600px`) y un archivo `plan.json` con estados, disponibilidades, materias
-y correlativas. La [referencia de la API](https://github.com/RaniAgus/subjects-graph/blob/main/docs/library-api.md#plan-y-progreso)
-describe su estructura.
-
-```js
-import { SubjectsGraph } from '@raniagus/subjects-graph';
-import '@raniagus/subjects-graph/styles.css';
-import plan from './plan.json' with { type: 'json' };
-
-let progress = {};
-const graph = new SubjectsGraph(document.querySelector('#graph'), { plan, progress });
-
-graph.addEventListener('statusrequest', event => {
-  const { subjectId, nextStatusId } = event.detail;
-  progress = { ...progress, [subjectId]: nextStatusId };
-  graph.setProgress(progress);
-});
-```
-
-### Progreso y eventos
-
-El plan describe la carrera. `progress` guarda el estado personal de cada materia,
-por ejemplo `{ '1': 'APPROVED' }`. El orden de `plan.statuses` define el ciclo
-que recorre una materia al hacer clic.
-
-El clic emite `statusrequest`: tu app acepta el cambio llamando a `setProgress`,
-como muestra el ejemplo. Si no lo hace, el estado de la materia se mantiene.
-Esto permite guardar el progreso en Local Storage o en un servidor desde tu app.
-El ejemplo lo conserva en memoria, por lo que se pierde al recargar.
-
-`graph.getProgress()` devuelve una copia con el estado de todas las materias.
-`graph.setProgress(progress)` reemplaza el progreso completo; `graph.setProgress({})`
-restaura los estados iniciales del plan.
-
-### Temas
-
-Pasá colores en la opción `theme` al crear el grafo, o cambialos después con
-`setTheme`. Por ejemplo, sobre la instancia del ejemplo anterior:
-
-```js
-graph.setTheme({
-  '--bg-primary': '#10141d',
-  '--fill-color-1': '#334155',
-  '--fill-color-4': '#22c55e',
-  '--text-primary': '#f8fafc',
-  '--border-color-4': '#22c55e'
-});
-```
-
-Los nombres como `--fill-color-4` son los tokens usados por los estados del plan.
-Cada llamada a `setTheme` reemplaza las personalizaciones anteriores; los colores
-omitidos usan la paleta Default Dark. `graph.setTheme({})` restaura esa paleta.
-El tema afecta sólo a esa instancia, así que podés mostrar varios grafos con temas distintos.
-
-Para reemplazar planes, habilitar edición, exportar PNG o liberar la instancia,
-consultá la [referencia de la API](https://github.com/RaniAgus/subjects-graph/blob/main/docs/library-api.md).
-
-En [examples/cdn](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn)
-hay dos ejemplos que consumen el paquete publicado sin instalar dependencias ni compilar:
-
-- [Quickstart mínimo](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn/minimal):
-  lo indispensable para mostrar un grafo y aceptar cambios de estado.
-- [Integración completa](https://github.com/RaniAgus/subjects-graph/tree/main/examples/cdn/complete):
-  un recorte del K23 con tabla sincronizada en ambos sentidos, temas, edición,
-  cambio de plan, exportación PNG y creación y destrucción de la instancia.
-
-Sus README incluyen los pasos para ejecutarlos con un servidor estático.
 
 ## Licencia
 
@@ -353,35 +486,3 @@ Licencia BSD 3-Clause - ver [LICENSE](LICENSE)
 ---
 
 Made with :heart: by [@RaniAgus](https://github.com/RaniAgus)
-
-### Gauge opcional
-
-Activá el anillo de progreso con `progressGauge: true` en el constructor.
-Usa todos los estados de `plan.statuses`, sus colores y el tema del grafo.
-Cada tramo representa materias en ese estado; los dos textos predeterminados
-representan el último y penúltimo estado acumulados con los posteriores,
-excluyendo el primero. Con dos estados se muestra un único porcentaje.
-
-```js
-graph.setProgressGauge({
-  position: { vertical: 'bottom', horizontal: 'right' },
-  offset: { x: 30, y: 30 },
-  labels: { primary: 'APPROVED', secondary: 'FINAL_EXAM_PENDING' },
-});
-```
-
-Los IDs son los del catálogo del plan. Cada texto acepta `false` para ocultarlo;
-un ID inexistente también se oculta. Sin opciones de posición se usa
-`plan.progress.position`, o inferior derecha, con separación de 30 píxeles.
-`setProgressGauge(false)` lo desactiva; cada llamada reemplaza las opciones.
-Se actualiza con el plan, progreso y tema, y aparece en `exportPNG()`.
-En modo editable emite `editrequest` con `{ kind: 'progress' }` al activarlo.
-
-### Angular
-
-El adaptador standalone se distribuye por separado como
-[`@raniagus/subjects-graph-angular`](packages/angular/README.md).
-La librería base no depende de Angular.
-
-Consultá la [referencia de la API Angular](docs/angular-api.md) y el
-[ejemplo de aplicación Angular](examples/angular/README.md).
