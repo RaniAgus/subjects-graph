@@ -12,7 +12,7 @@ function compare(a, b) {
   return a.includes('-') ? -1 : 0;
 }
 
-/** Apply only on an already checked-out latest main. @param {string} tag @param {string} [cwd] */
+/** Commit versions on the current release checkout. @param {string} tag @param {string} [cwd] */
 export function commitRelease(tag, cwd = process.cwd()) {
   const { version, dist_tag } = parseTag(tag);
   if (dist_tag !== 'latest') return false;

@@ -48,13 +48,8 @@ jobs:
           pnpm --dir packages/angular pack --out /tmp/angular.tgz
       - name: Inspect both archives and publish in dependency order
         run: node scripts/publish-release.mjs /tmp/core.tgz /tmp/angular.tgz
-      - name: Update latest main after both publications succeed
+      - name: Commit published version and push to main
         if: steps.release.outputs.dist_tag == 'latest'
         run: |
-          # Use the tag's release helper even when main has moved.
-          cp scripts/commit-release.mjs /tmp/commit-release.mjs
-          cp scripts/prepare-release.mjs /tmp/prepare-release.mjs
-          git fetch origin main
-          git checkout --force -B release-main origin/main
-          node /tmp/commit-release.mjs
+          node scripts/commit-release.mjs
           git push origin HEAD:main

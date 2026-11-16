@@ -95,7 +95,8 @@ to `main` affecting `public/**`, injecting the commit SHA into `sw.js`.
 `v<SemVer>` tags and publishes core then Angular at the same version (`latest`
 for stable, `next` for prereleases). Both npm packages must authorize publish.yml
 for Trusted Publishing/OIDC. Stable releases commit versions and owned references
-on latest main after both publications succeed; prereleases never commit.
+on the current tag checkout after both publications succeed, then push HEAD:main
+without switching branches, merging or force. Prereleases never commit or push.
 Retries skip existing versions only when npm gitHead matches the tag commit.
 See docs/releases.md. No NPM_TOKEN or GPG is needed.
 `prepack` builds the library. npm packaging includes dist, README, LICENSE and package metadata;

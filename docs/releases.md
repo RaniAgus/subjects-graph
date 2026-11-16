@@ -24,12 +24,14 @@ del tag; un error de red o una discrepancia detiene el release. Si Angular falla
 tras publicar core, volver a ejecutar el job completa Angular sin republicar core.
 Ningún fallo de publicación genera el commit.
 
-Después de ambas publicaciones, solo una versión estable actualiza los manifests,
-el peer y las referencias propias de documentación y ejemplos CDN sobre el último
-main, conservando sus cambios. Los enlaces workspace hacen que estos cambios no
-requieran modificar el lockfile. No se escribe un sufijo de desarrollo.
-Se crea `chore: release v<versión>` y se hace push sin force. Una versión antigua
-no rebaja un manifest más nuevo. Si main avanza durante ese paso, el push falla:
-reintentar vuelve a tomar el último main sin repetir publicaciones confirmadas.
+Después de ambas publicaciones, una versión estable actualiza los manifests,
+el peer y las referencias propias de documentación y ejemplos CDN en el checkout
+actual del tag. Elimina el gitHead temporal usado para publicar. Los enlaces
+workspace hacen que estos cambios no requieran modificar el lockfile.
+Se crea `chore: release v<versión>` y se ejecuta `git push origin HEAD:main`,
+incluyendo todos los commits del tag pendientes en main. No cambia de rama,
+no hace merge ni force push. Si main tiene commits divergentes, Git rechaza el
+push y hay que integrar esos cambios antes de reintentar. Los prereleases no
+crean commits ni hacen push.
 
 Pages mantiene su workflow separado y despliega public/ directamente.

@@ -19,7 +19,10 @@ export function prepareRelease(tag, cwd = process.cwd(), gitHead) {
   const manifests = paths.map(path => JSON.parse(readFileSync(resolve(cwd, path), 'utf8')));
   manifests[0].version = manifests[1].version = release.version;
   manifests[1].peerDependencies['@raniagus/subjects-graph'] = `^${release.version}`;
-  if (gitHead) for (const manifest of manifests) manifest.gitHead = gitHead;
+  for (const manifest of manifests) {
+    if (gitHead) manifest.gitHead = gitHead;
+    else delete manifest.gitHead;
+  }
   // Read and validate both inputs before writing either one.
   paths.forEach((path, i) => writeFileSync(resolve(cwd, path), `${JSON.stringify(manifests[i], null, 2)}\n`));
   return release;
