@@ -2,6 +2,7 @@
  * @type {Readonly<import('./subjects-graph.js').Theme>}
  */
 export const DEFAULT_THEME = Object.freeze({
+  '--font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   '--bg-primary': '#060b14', '--bg-secondary': '#0d1520', '--bg-tertiary': '#141f2c',
   '--fill-color-1': '#060b14', '--fill-color-2': '#263447',
   '--fill-color-3': '#6e5d1d', '--fill-color-4': '#dbb138', '--fill-color-5': '#e8c760',

@@ -1,5 +1,6 @@
 /* The host supplies the outer dimensions; each instance owns its subtree. */
 .subjects-graph {
+  font-family: var(--font-family);
   position: relative;
   width: 100%;
   height: 100%;

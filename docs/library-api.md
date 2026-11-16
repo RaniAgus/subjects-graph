@@ -112,6 +112,20 @@ las personalizaciones anteriores. Los colores de estados y disponibilidades acep
 tokens como `--fill-color-4`, `var(--fill-color-4)` o colores literales como `#24b47e`.
 Las variables se aplican al elemento de cada instancia, sin modificar `document.documentElement`.
 
+La tipografía también se puede configurar por instancia con `--font-family`:
+
+```js
+graph.setTheme({
+  '--font-family': 'Georgia, serif',
+  '--fill-color-4': '#24b47e'
+});
+```
+
+La fuente se aplica a las etiquetas del grafo y a sus tooltips. Por defecto usa
+la tipografía del sistema. Si elegís una fuente web, tu app debe cargarla antes
+de crear el grafo o aplicar el tema. Este token está disponible en las fuentes
+del repositorio; para consumirlo desde npm hace falta una versión que lo incluya.
+
 ## Estado controlado y eventos
 
 Los eventos son **solicitudes de cambio**, no avisos de un cambio ya aplicado.

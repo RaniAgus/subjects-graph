@@ -87,17 +87,26 @@
 
     <div class="container">
         <header>
-            <h1>Grafo de Materias</h1>
+            <div class="header-brand">
+                <h1>Grafo de Materias</h1>
+                <p>Un árbol de habilidades para compartir cómo vas con la carrera.</p>
+            </div>
             <div class="header-controls">
                 <div class="header-skeleton desktop-skeleton"></div>
                 <div class="header-skeleton mobile-skeleton"></div>
                 <div class="header-skeleton mobile-skeleton"></div>
-                <select id="variant-select" class="variant-select" style="display: none;">
-                    <option value="">Seleccionar variante...</option>
-                </select>
-                <select id="theme-select" class="theme-select" style="display: none;">
-                    <option value="">Seleccionar tema...</option>
-                </select>
+                <div class="select-field">
+                    <label id="variant-label" for="variant-select">Plan de estudio</label>
+                    <select id="variant-select" class="variant-select" style="display: none;">
+                        <option value="">Seleccionar variante...</option>
+                    </select>
+                </div>
+                <div class="select-field">
+                    <label id="theme-label" for="theme-select">Apariencia</label>
+                    <select id="theme-select" class="theme-select" style="display: none;">
+                        <option value="">Seleccionar tema...</option>
+                    </select>
+                </div>
             </div>
         </header>
 
@@ -111,15 +120,16 @@
                     <!-- Progress Gauge -->
                     <div class="progress-container">
                         <div class="progress-circle">
-                            <svg viewBox="0 0 100 100">
-                                <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
-                                <circle class="progress-bar progress-bar-pending" cx="50" cy="50" r="45" id="progress-pending"></circle>
-                                <circle class="progress-bar progress-bar-approved" cx="50" cy="50" r="45" id="progress-approved"></circle>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" role="img" aria-label="Progreso de la carrera">
+                                <circle class="progress-disc" cx="54" cy="54" r="53.5"></circle>
+                                <g transform="rotate(-90 54 54)">
+                                    <circle class="progress-bg" cx="54" cy="54" r="41"></circle>
+                                    <circle class="progress-bar progress-bar-pending" cx="54" cy="54" r="41" id="progress-pending" pathLength="100"></circle>
+                                    <circle class="progress-bar progress-bar-approved" cx="54" cy="54" r="41" id="progress-approved" pathLength="100"></circle>
+                                </g>
+                                <text id="progress-percentage" x="54" y="50">0%</text>
+                                <text id="progress-pending-text" class="progress-secondary" x="54" y="68">0%</text>
                             </svg>
-                            <div class="progress-text">
-                                <span id="progress-percentage">0%</span>
-                                <span id="progress-pending-text" class="progress-secondary">0%</span>
-                            </div>
                         </div>
                     </div>
 
@@ -203,7 +213,7 @@
                     </button>
                 </div>
             </div>
-            <textarea id="node-editor-textarea" class="node-editor-textarea" spellcheck="false"></textarea>
+            <textarea id="node-editor-textarea" class="node-editor-textarea" spellcheck="false" aria-label="Configuración del elemento en JSON"></textarea>
             <div id="node-editor-error" class="node-editor-error" style="display: none;"></div>
             <details id="node-editor-subjects" class="node-editor-subjects">
                 <summary><i data-lucide="list"></i> Ver IDs de materias</summary>
@@ -232,5 +242,6 @@
 
     <!-- Load app -->
     <script type="module" src="app.js"></script>
+    <script type="module" src="select-controls.js"></script>
 </body>
 </html>

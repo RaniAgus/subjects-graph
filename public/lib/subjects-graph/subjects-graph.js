@@ -21,7 +21,7 @@
  * @typedef {object} SubjectsGraphOptions
  * @property {Plan} plan
  * @property {Progress} [progress] Defaults to an empty map.
- * @property {Theme} [theme] Overrides the default palette.
+ * @property {Theme} [theme] Overrides default colors and --font-family.
  * @property {boolean} [editable] Defaults to false.
  *
  * @typedef {object} SetPlanOptions

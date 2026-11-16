@@ -1138,7 +1138,7 @@ class GraphApp {
     if (this.progressPendingText) {
       this.progressPendingText.textContent = `${pendingPercent}%`;
     }
-    const circumference = 283;
+    const circumference = 100;
     if (this.progressApproved) {
       this.progressApproved.style.strokeDashoffset = circumference - (circumference * approvedPercent / 100);
     }
@@ -1280,106 +1280,77 @@ class GraphApp {
 
   async screenshot(e) {
     try {
-      const scale = 4;
-      const png = await this.graph.exportPNG({
-        scale: scale,
-        bg: 'transparent',
-        full: true
+      await document.fonts.ready;
+      const png = await this.graph.exportPNG({ scale: 4, bg: 'transparent', full: true });
+      const img = await this.loadImage(png);
+      const paddingX = img.width * 0.1;
+      const paddingY = img.height * 0.05;
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width + paddingX * 2;
+      canvas.height = img.height + paddingY * 2;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, paddingX, paddingY);
+      await this.drawProgressGauge(ctx);
+      this.drawWatermark(ctx);
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(result => result ? resolve(result) : reject(new Error('No se pudo generar el PNG.')), 'image/png');
       });
-      const img = new Image();
-      img.onload = () => {
-        const paddingX = img.width * 0.1;
-        const paddingY = img.height * 0.05;
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width + paddingX * 2;
-        canvas.height = img.height + paddingY * 2;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, paddingX, paddingY);
-        this.drawProgressGauge(ctx);
-        this.drawWatermark(ctx);
-        canvas.toBlob(blob => {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.download = `subjects-graph-${this.currentVariant}.png`;
-          link.href = url;
-          link.click();
-          URL.revokeObjectURL(url);
-        }, 'image/png');
-      };
-      img.src = URL.createObjectURL(png);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `subjects-graph-${this.currentVariant}.png`;
+      link.href = url;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (err) {
       console.error('Screenshot error:', err);
       alert('Error al capturar pantalla: ' + err.message);
     }
   }
 
-  drawProgressGauge(ctx) {
-    const minDimension = Math.min(ctx.canvas.width, ctx.canvas.height);
-    const gaugeScale = minDimension / 600;
-    const size = 120 * gaugeScale;
+  async loadImage(blob) {
+    const url = URL.createObjectURL(blob);
+    try {
+      const image = new Image();
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = () => reject(new Error('No se pudo cargar la imagen para la captura.'));
+        image.src = url;
+      });
+      return image;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  async drawProgressGauge(ctx) {
+    // Export the same SVG shown on screen, with resolved styles so it can be
+    // rendered without the page's stylesheet or CSS variables.
+    const source = this.progressCircle.querySelector('svg');
+    const snapshot = source.cloneNode(true);
+    const properties = [
+      'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-dasharray',
+      'stroke-dashoffset', 'font-family', 'font-size', 'font-weight',
+      'font-variant-numeric', 'letter-spacing', 'text-anchor', 'dominant-baseline'
+    ];
+    const originals = [source, ...source.querySelectorAll('*')];
+    const copies = [snapshot, ...snapshot.querySelectorAll('*')];
+    originals.forEach((element, index) => {
+      const computed = getComputedStyle(element);
+      for (const property of properties) copies[index].style.setProperty(property, computed.getPropertyValue(property));
+      // Export final progress even if the on-screen ring is mid-transition.
+      if (element.style.strokeDashoffset) copies[index].style.strokeDashoffset = element.style.strokeDashoffset;
+    });
+    snapshot.setAttribute('width', '108');
+    snapshot.setAttribute('height', '108');
+    const svg = new Blob([new XMLSerializer().serializeToString(snapshot)], { type: 'image/svg+xml;charset=utf-8' });
+    const image = await this.loadImage(svg);
+    const gaugeScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 600;
+    const size = 108 * gaugeScale;
     const offset = 30 * gaugeScale;
-
-    // Get position from variant settings
     const { vertical = 'bottom', horizontal = 'right' } = this.progressPosition || {};
-
-    // Calculate x position
-    let x;
-    if (horizontal === 'left') {
-      x = offset;
-    } else {
-      x = ctx.canvas.width - size - offset;
-    }
-
-    // Calculate y position
-    let y;
-    if (vertical === 'top') {
-      y = offset;
-    } else {
-      y = ctx.canvas.height - size - offset;
-    }
-
-    const centerX = x + size / 2;
-    const centerY = y + size / 2;
-    const radius = 45 * gaugeScale;
-    const strokeWidth = 8 * gaugeScale;
-    const { approvedPercent, pendingPercent } = this.getProgressPercentages();
-    const bgColor = this.themeColors['--bg-secondary'] || '#161b22';
-    const trackColor = this.themeColors['--bg-tertiary'] || '#21262d';
-    const pendingColor = this.themeColors['--fill-color-3'] || '#2255d4';
-    const approvedColor = this.themeColors['--fill-color-4'] || '#3b82f6';
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-    ctx.fillStyle = bgColor;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = trackColor;
-    ctx.lineWidth = strokeWidth;
-    ctx.stroke();
-    if (pendingPercent > 0) {
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * pendingPercent / 100));
-      ctx.strokeStyle = pendingColor;
-      ctx.lineWidth = strokeWidth;
-      ctx.lineCap = 'round';
-      ctx.stroke();
-    }
-    if (approvedPercent > 0) {
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * approvedPercent / 100));
-      ctx.strokeStyle = approvedColor;
-      ctx.lineWidth = strokeWidth;
-      ctx.lineCap = 'round';
-      ctx.stroke();
-    }
-    ctx.fillStyle = approvedColor;
-    ctx.font = `700 ${1.5 * 16 * gaugeScale}px 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`${approvedPercent}%`, centerX, centerY - 6 * gaugeScale);
-    ctx.fillStyle = pendingColor;
-    ctx.font = `600 ${0.75 * 16 * gaugeScale}px 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif`;
-    ctx.fillText(`${pendingPercent}%`, centerX, centerY + 12 * gaugeScale);
+    const x = horizontal === 'left' ? offset : ctx.canvas.width - size - offset;
+    const y = vertical === 'top' ? offset : ctx.canvas.height - size - offset;
+    ctx.drawImage(image, x, y, size, size);
   }
 
   drawWatermark(ctx) {
@@ -1389,7 +1360,7 @@ class GraphApp {
     const fontSize = 12 * wmScale;
     const x = ctx.canvas.width / 2;
     const y = 20 * wmScale;
-    ctx.font = `600 ${fontSize}px "Open Sans", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif`;
+    ctx.font = `500 ${fontSize}px ${getComputedStyle(document.body).fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.strokeStyle = 'black';

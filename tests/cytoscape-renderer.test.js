@@ -91,3 +91,9 @@ it('keeps graph appearance and resolves editable connector styles from the suppl
   expect(normal.find(s => s.selector === 'edge[?toInvisible]')?.style).toEqual({ 'target-arrow-shape': 'none' });
   expect(normal[0].style).toMatchObject({ width: 60, height: 60, 'background-color': 'data(fillColor)', 'border-color': 'data(borderColor)' });
 });
+
+it('applies the instance font family to graph labels', () => {
+  const themed = buildStylesheet(false, { '--font-family': 'Georgia, serif' });
+  expect(themed[0].style).toMatchObject({ 'font-family': 'Georgia, serif', 'font-weight': 600 });
+  expect(buildStylesheet()[0].style).toMatchObject({ 'font-family': DEFAULT_THEME['--font-family'] });
+});

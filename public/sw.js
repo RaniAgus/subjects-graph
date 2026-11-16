@@ -5,6 +5,7 @@ const ASSETS_TO_CACHE = [
   INDEX_PATH,
   './styles.css',
   './app.js',
+  './select-controls.js',
   './graph.js',
   './lib/subjects-graph/index.js',
   './lib/subjects-graph/subjects-graph.js',
