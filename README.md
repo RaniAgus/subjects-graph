@@ -22,6 +22,14 @@ dirigido.
 - **Configuración extensible** de variantes de planes de estudio mediante un mismo archivo JSON
 - **Modo edición** para agregar materias electivas o ingresar nuevos planes de forma más sencilla
 
+## Aportes
+
+¡Los aportes son bienvenidos! Podés ayudar:
+
+- **Agregando nuevos planes de estudio** - Sumándolos a `data.json`
+- **Reportando bugs** - Abrí un issue si algo no funciona como esperabas
+- **Feature requests** - Cualquier idea que tengas para extender la app, también mediante issues
+
 ## Usar la biblioteca
 
 Integrá el grafo en tu app con `@raniagus/subjects-graph`. Tu aplicación define
@@ -97,14 +105,6 @@ export class CurriculumComponent {
 · [Ejemplos mínimo y completo](https://github.com/RaniAgus/subjects-graph/tree/main/examples/angular)
 
 </details>
-
-## Aportes
-
-¡Los aportes son bienvenidos! Podés ayudar:
-
-- **Agregando nuevos planes de estudio** - Sumándolos a `data.json`
-- **Reportando bugs** - Abrí un issue si algo no funciona como esperabas
-- **Feature requests** - Cualquier idea que tengas para extender la app, también mediante issues
 
 ## Personalización
 
