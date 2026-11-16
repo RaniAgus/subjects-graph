@@ -458,8 +458,13 @@ export class SubjectsGraph {
     this.#preserveViewport(() => {
       this.#cy.batch(() => {
         // Reconcile by ID so existing elements retain their transition state.
+        // Cytoscape ignores position updates on locked nodes. The incoming
+        // definitions restore each node's lock after applying its new position.
+        this.#cy.nodes().unlock();
         this.#cy.json({ elements });
-        if (updateStyles) this.#cy.style(buildStylesheet(this.#editable, this.#theme));
+        if (updateStyles) {
+          this.#cy.style(buildStylesheet(this.#editable, this.#theme));
+        }
       });
     });
     this.#updateGrid();

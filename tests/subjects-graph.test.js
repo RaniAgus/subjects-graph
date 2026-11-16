@@ -64,6 +64,7 @@ class RendererDouble {
     this.panValue = value.pan;
   });
   elements = () => ({ remove: () => { this.content = { nodes: [], edges: [] }; } });
+  nodes = () => ({ unlock: () => {} });
   add = vi.fn((/** @type {import('cytoscape').ElementsDefinition} */ elements) => { this.content = elements; });
   /** @param {{ elements: import('cytoscape').ElementsDefinition }} value */
   json({ elements }) { this.content = elements; }
@@ -230,6 +231,22 @@ describe('SubjectsGraph controlled progress and requests', () => {
     expect(renderer.getElementById(edge.id())[0]).toBe(edge[0]);
     expect(subject.data('fillColor')).not.toBe(before);
     expect(remove).not.toHaveBeenCalled();
+
+    const movedPlan = structuredClone(plan);
+    movedPlan.subjects[0].position = { x: 1234, y: 567 };
+    renderer.zoom(1.5);
+    renderer.pan({ x: 12, y: 34 });
+    expect(subject.locked()).toBe(true);
+    graph.setPlan(movedPlan);
+    expect(subject.position()).toEqual(movedPlan.subjects[0].position);
+    expect(subject.locked()).toBe(true);
+    expect(renderer.zoom()).toBe(1.5);
+    expect(renderer.pan()).toEqual({ x: 12, y: 34 });
+    graph.setEditable(true);
+    expect(subject.locked()).toBe(false);
+    graph.setPlan(plan);
+    expect(subject.position()).toEqual(plan.subjects[0].position);
+    expect(subject.locked()).toBe(false);
 
     graph.setPlan({ ...plan, subjects: [plan.subjects[0]], edges: [] });
     expect(renderer.nodes()).toHaveLength(1);
