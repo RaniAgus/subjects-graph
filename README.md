@@ -30,7 +30,7 @@ el plan de materias y decide cómo guardar el progreso.
 <details>
 <summary>Vanilla JS</summary>
 
-```bash
+```sh
 npm install @raniagus/subjects-graph
 ```
 
@@ -60,7 +60,7 @@ graph.addEventListener('statusrequest', ({ detail }) => {
 <details>
 <summary>Angular 21</summary>
 
-```bash
+```sh
 npm install @raniagus/subjects-graph @raniagus/subjects-graph-angular
 ```
 
@@ -71,11 +71,25 @@ a los estilos globales:
 @import '@raniagus/subjects-graph/styles.css';
 ```
 
-Pasale tu plan y un writable signal de progreso inicializado con `{}`:
+```ts
+import { Component, signal } from '@angular/core';
+import { SubjectsGraphComponent } from '@raniagus/subjects-graph-angular';
+import type { Plan, Progress } from '@raniagus/subjects-graph';
+import plan from './plan.json';
 
-```html
-<subjects-graph style="height: 600px"
-  [plan]="plan" [(progress)]="progress" />
+@Component({
+  selector: 'app-curriculum',
+  standalone: true,
+  imports: [SubjectsGraphComponent],
+  template: `
+    <subjects-graph style="height: 600px"
+      [plan]="plan" [(progress)]="progress" />
+  `,
+})
+export class CurriculumComponent {
+  readonly plan: Plan = plan;
+  readonly progress = signal<Progress>({});
+}
 ```
 
 [Guía de integración](https://github.com/RaniAgus/subjects-graph/blob/main/packages/angular/README.md)
