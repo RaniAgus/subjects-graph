@@ -28,3 +28,7 @@ temp/
 dist/
 build/
 node_modules/
+
+# Generated browser tests and results
+.features-gen/
+test-results/

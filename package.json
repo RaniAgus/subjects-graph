@@ -25,6 +25,7 @@
   "scripts": {
     "start": "pnpm dlx http-server public -p 8000 -c-1",
     "test": "vitest run",
+    "test:integration": "bddgen && playwright test",
     "typecheck": "tsc -p jsconfig.json --noEmit",
     "build:lib": "node scripts/build-lib.mjs",
     "prepack": "pnpm run build:lib"
@@ -34,8 +35,10 @@
   "license": "BSD-3-Clause",
   "packageManager": "pnpm@10.24.0",
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@types/node": "^24.0.0",
     "esbuild": "0.25.12",
+    "playwright-bdd": "^9.2.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
   },
