@@ -79,13 +79,17 @@ no reemplaza esa integración.
 | `[progress]` / `[(progress)]` | `Progress` | `{}`. |
 | `[autoUpdateProgress]` | `boolean` | `true`. |
 | `[theme]` | `Theme` | `{}`; paleta Default Dark. |
-| `[readOnly]` | `boolean` | `false`. Bloquea los cambios desde el grafo y tiene prioridad sobre `editable`. |
+| `[readOnly]` | `boolean` | `false`. |
+| `[viewportLocked]` | `boolean` | `false`. |
 | `[editable]` | `boolean` | `false`. |
 | `[progressGauge]` | `boolean \| ProgressGaugeOptions` | `false`. |
 
 `progress` es un model signal y genera el output `progressChange`. En una app
 consumidora puede enlazarse con un writable signal, como arriba, o una propiedad
 `progress: Progress = {}` usando el mismo `[(progress)]="progress"`.
+
+`readOnly` deshabilita la interacción con las materias y tiene prioridad sobre
+`editable`. `viewportLocked` bloquea el zoom y el arrastre del fondo. `fit()` sigue disponible con ambos gestos deshabilitados.
 
 Los inputs de objetos se actualizan por referencia. Reemplazá el objeto o usá
 `signal.set` / `signal.update`; modificar una propiedad anidada no sincroniza el
@@ -111,7 +115,7 @@ escribir el binding explícito:
 />
 ```
 
-El clic funciona con `editable: false` mientras `readOnly` sea `false`. En solo lectura se puede navegar por el grafo y actualizar el progreso desde el componente anfitrión. El siguiente estado se calcula según el
+El clic funciona con `editable: false` mientras `readOnly` sea `false`. El siguiente estado se calcula según el
 orden de `plan.statuses`, volviendo al primero después del último. El avance no
 se bloquea automáticamente por correlativas pendientes.
 

@@ -27,7 +27,8 @@ import { ProgressGauge } from './progress-gauge.js';
  * @property {Progress} [progress] Defaults to an empty map.
  * @property {Theme} [theme] Overrides default colors and --font-family.
  * @property {boolean} [editable] Defaults to false.
- * @property {boolean} [readOnly] Suppresses user changes while preserving navigation. Defaults to false.
+ * @property {boolean} [readOnly] Suppresses user changes. Defaults to false.
+ * @property {boolean} [viewportLocked] Disables user zoom and panning gestures. Defaults to false.
  *
  * @typedef {object} SetPlanOptions
  * @property {Progress} [progress] Defaults to an empty map.
@@ -65,6 +66,7 @@ import { ProgressGauge } from './progress-gauge.js';
  * @property {(theme: Theme) => void} setTheme Replaces overrides on the default palette.
  * @property {(editable: boolean) => void} setEditable
  * @property {(readOnly: boolean) => void} setReadOnly
+ * @property {(locked: boolean) => void} setViewportLocked
  * @property {(options: boolean | ProgressGaugeOptions) => void} setProgressGauge
  * @property {() => void} fit
  * @property {(options?: PNGOptions) => Promise<Blob>} exportPNG
@@ -123,7 +125,7 @@ export class SubjectsGraph {
   /** @param {HTMLElement} container
    * @param {SubjectsGraphOptions} options
    */
-  constructor(container, { plan, progress = {}, theme = {}, editable = false, readOnly = false, progressGauge = false }) {
+  constructor(container, { plan, progress = {}, theme = {}, editable = false, readOnly = false, viewportLocked = false, progressGauge = false }) {
     this.#plan = structuredClone(plan);
     this.#progress = structuredClone(progress);
     this.#theme = mergeTheme(theme);
@@ -148,6 +150,9 @@ export class SubjectsGraph {
       elements,
       style: buildStylesheet(this.#canEdit, this.#theme, this.#readOnly),
       autounselectify: readOnly,
+      userZoomingEnabled: !viewportLocked,
+      userPanningEnabled: !viewportLocked,
+      boxSelectionEnabled: !viewportLocked,
       layout: { name: 'preset', fit: false },
       minZoom: 0.3,
       maxZoom: 3,
@@ -166,6 +171,7 @@ export class SubjectsGraph {
       }, this.#canEdit ? 200 : 0);
     });
     this.#installInteractions();
+    this.#updateCursor();
     this.fit();
     this.#resizeObserver = new ResizeObserver(() => {
       if (this.#destroyed) return;
@@ -252,6 +258,15 @@ export class SubjectsGraph {
     }
     this.#cy.autounselectify(readOnly);
     this.#updateInteractionMode();
+  }
+
+  /** @param {boolean} locked */
+  setViewportLocked(locked) {
+    this.#assertAlive();
+    this.#cy.userZoomingEnabled(!locked);
+    this.#cy.userPanningEnabled(!locked);
+    this.#cy.boxSelectionEnabled(!locked);
+    this.#updateCursor();
   }
 
   get #canEdit() {
@@ -383,7 +398,12 @@ export class SubjectsGraph {
   }
 
   #updateCursor() {
-    this.#surface.style.cursor = this.#canEdit ? 'move' : this.#hoveredSubjectId ? 'pointer' : 'grab';
+    const canPan = this.#cy.userPanningEnabled();
+    if (this.#canEdit && (this.#hoveredSubjectId || canPan)) {
+      this.#surface.style.cursor = 'move';
+    } else {
+      this.#surface.style.cursor = this.#hoveredSubjectId ? 'pointer' : canPan ? 'grab' : 'default';
+    }
   }
 
   #updateGrid() {

@@ -81,7 +81,8 @@ function createGraph() {
     plan, progress,
     theme: $('#theme').value === 'custom' ? theme : {},
     editable: $('#editable').checked,
-    readOnly: $('#read-only').checked
+    readOnly: $('#read-only').checked,
+    viewportLocked: $('#viewport-locked').checked
   });
   listeners = new AbortController();
   const options = { signal: listeners.signal };
@@ -106,6 +107,7 @@ function createGraph() {
   }, options);
   $('#controls').disabled = false;
   $('#read-only').disabled = typeof graph.setReadOnly !== 'function';
+  $('#viewport-locked').disabled = typeof graph.setViewportLocked !== 'function';
   $('#create').disabled = true;
   $('#apply-plan').disabled = false;
   $('#plan-json').value = JSON.stringify(plan, null, 2);
@@ -173,6 +175,7 @@ $('#reset').addEventListener('click', () => applyProgress({}));
 $('#theme').addEventListener('change', event => graph.setTheme(event.target.value === 'custom' ? theme : {}));
 $('#editable').addEventListener('change', event => graph.setEditable(event.target.checked));
 $('#read-only').addEventListener('change', event => graph.setReadOnly(event.target.checked));
+$('#viewport-locked').addEventListener('change', event => graph.setViewportLocked(event.target.checked));
 $('#accept').addEventListener('change', event => {
   if (event.target.checked) graph.addEventListener('statusrequest', acceptStatus, { signal: listeners.signal });
   else graph.removeEventListener('statusrequest', acceptStatus);

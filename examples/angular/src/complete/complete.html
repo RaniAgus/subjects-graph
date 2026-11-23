@@ -18,6 +18,7 @@
     <label><input #acceptInput type="checkbox" [checked]="accept()" (change)="toggleAccept(acceptInput.checked)">Aceptar clics del grafo</label>
     <label><input #editableInput type="checkbox" [checked]="editable()" (change)="editable.set(editableInput.checked)">Editar y mover nodos</label>
     <label><input #readOnlyInput type="checkbox" [checked]="readOnly()" (change)="readOnly.set(readOnlyInput.checked)">Solo lectura</label>
+    <label><input #viewportInput type="checkbox" [checked]="viewportLocked()" (change)="viewportLocked.set(viewportInput.checked)">Bloquear zoom y arrastre del fondo</label>
     <button type="button" (click)="destroy()">Destruir instancia</button>
   </div>
 </fieldset>
@@ -26,7 +27,8 @@
   <section aria-label="Grafo">
     @if (alive()) {
       <subjects-graph #graphComponent [plan]="plan()" [progress]="progress()" [theme]="theme()"
-        [editable]="editable()" [readOnly]="readOnly()" [autoUpdateProgress]="false" (ready)="onReady(graphComponent)"
+        [editable]="editable()" [readOnly]="readOnly()" [viewportLocked]="viewportLocked()"
+        [autoUpdateProgress]="false" (ready)="onReady(graphComponent)"
         (statusRequest)="requestStatus($event)" (nodePositionRequest)="moveNode($event)"
         (editRequest)="edit($event, planTextarea)" />
     } @else { <div class="empty-graph"></div> }

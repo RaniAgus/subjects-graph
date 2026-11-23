@@ -57,6 +57,15 @@ class RendererDouble {
   }
   zoomValue = 0.8;
   panValue = { x: 10, y: 20 };
+  boxSelectionEnabled = vi.fn();
+  userZoomingEnabled = vi.fn((/** @type {boolean | undefined} */ enabled = undefined) => {
+    if (enabled !== undefined) this.options.userZoomingEnabled = enabled;
+    return this.options.userZoomingEnabled;
+  });
+  userPanningEnabled = vi.fn((/** @type {boolean | undefined} */ enabled = undefined) => {
+    if (enabled !== undefined) this.options.userPanningEnabled = enabled;
+    return this.options.userPanningEnabled;
+  });
   zoom = () => this.zoomValue;
   pan = () => this.panValue;
   viewport = vi.fn((/** @type {{zoom: number, pan: {x: number, y: number}}} */ value) => {
@@ -372,6 +381,29 @@ describe('SubjectsGraph controlled progress and requests', () => {
     graph.setPlan(plan);
     vi.runOnlyPendingTimers();
     expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it('locks both viewport gestures while preserving fit and independent read-only mode', () => {
+    const { graph, renderer, container } = mount({
+      plan: makePlan(), readOnly: true, viewportLocked: true,
+    });
+    const surface = container.children[0].children[0];
+    expect(renderer.options.userZoomingEnabled).toBe(false);
+    expect(renderer.options.userPanningEnabled).toBe(false);
+    expect(surface.style.cursor).toBe('default');
+
+    graph.setViewportLocked(false);
+    expect(renderer.options.userZoomingEnabled).toBe(true);
+    expect(renderer.options.userPanningEnabled).toBe(true);
+    expect(surface.style.cursor).toBe('grab');
+    graph.setViewportLocked(true);
+    expect(renderer.boxSelectionEnabled).toHaveBeenLastCalledWith(false);
+
+    graph.setReadOnly(false);
+    graph.fit();
+    expect(renderer.options.userZoomingEnabled).toBe(false);
+    expect(renderer.options.userPanningEnabled).toBe(false);
+    expect(renderer.fit).toHaveBeenCalledTimes(2);
   });
 
   it('suppresses user changes in read-only mode and restores editing when it is disabled', () => {

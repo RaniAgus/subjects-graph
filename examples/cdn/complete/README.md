@@ -13,6 +13,7 @@ biblioteca, sin acceder a su renderer. El grafo y la tabla comparten ese estado:
   pan y zoom; `fit` permite encuadrar el nuevo plan.
 - El selector de tema usa `setTheme`; Default Dark pasa `{}` para restaurar la paleta.
 - «Solo lectura» llama a `setReadOnly`. La tabla sigue actualizando el progreso.
+- «Bloquear zoom y arrastre del fondo» llama a `setViewportLocked`.
   Para probar el control antes de publicar la versión que incorpora esta API,
   ejecutá `pnpm build:lib`, serví la raíz del repositorio y apuntá las referencias
   de la librería y su CSS en `index.html` a `/dist/index.js` y `/dist/styles.css`.

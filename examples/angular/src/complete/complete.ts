@@ -27,6 +27,7 @@ export class CompleteComponent {
   readonly theme = signal<Theme>(customTheme);
   readonly editable = signal(false);
   readonly readOnly = signal(false);
+  readonly viewportLocked = signal(false);
   readonly accept = signal(true);
   readonly alive = signal(true);
   readonly ready = signal(false);

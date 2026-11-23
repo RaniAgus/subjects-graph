@@ -12,6 +12,7 @@ export class SubjectsGraphComponent {
   readonly theme = input<Theme>({});
   readonly editable = input(false);
   readonly readOnly = input(false);
+  readonly viewportLocked = input(false);
   readonly progressGauge = input<boolean | ProgressGaugeOptions>(false);
   readonly autoUpdateProgress = input(true);
   readonly statusRequest = output<SubjectsGraphEventMap['statusrequest']['detail']>();
@@ -21,7 +22,7 @@ export class SubjectsGraphComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly zone = inject(NgZone);
   private readonly instance = signal<SubjectsGraphAPI | undefined>(undefined);
-  private previous?: { plan: Plan; progress: Progress; theme: Theme; editable: boolean; readOnly: boolean; gauge: boolean | ProgressGaugeOptions };
+  private previous?: { plan: Plan; progress: Progress; theme: Theme; editable: boolean; readOnly: boolean; viewportLocked: boolean; gauge: boolean | ProgressGaugeOptions };
 
   constructor() {
     const cleanup: (() => void)[] = [];
@@ -65,6 +66,7 @@ export class SubjectsGraphComponent {
         else if (state.progress !== old.progress) graph.setProgress(state.progress);
         if (state.theme !== old.theme) graph.setTheme(state.theme);
         if (state.readOnly !== old.readOnly) graph.setReadOnly(state.readOnly);
+        if (state.viewportLocked !== old.viewportLocked) graph.setViewportLocked(state.viewportLocked);
         if (state.editable !== old.editable) graph.setEditable(state.editable);
         if (state.gauge !== old.gauge) graph.setProgressGauge(state.gauge);
       });
@@ -76,7 +78,7 @@ export class SubjectsGraphComponent {
       this.instance.set(undefined);
     });
   }
-  private state() { return { plan: this.plan(), progress: this.progress(), theme: this.theme(), editable: this.editable(), readOnly: this.readOnly(), gauge: this.progressGauge() }; }
+  private state() { return { plan: this.plan(), progress: this.progress(), theme: this.theme(), editable: this.editable(), readOnly: this.readOnly(), viewportLocked: this.viewportLocked(), gauge: this.progressGauge() }; }
   private graph(): SubjectsGraphAPI {
     const graph = this.instance();
     if (!graph) throw new Error('SubjectsGraph is unavailable: wait for ready and do not use after destruction.');
