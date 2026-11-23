@@ -27,6 +27,7 @@ import { ProgressGauge } from './progress-gauge.js';
  * @property {Progress} [progress] Defaults to an empty map.
  * @property {Theme} [theme] Overrides default colors and --font-family.
  * @property {boolean} [editable] Defaults to false.
+ * @property {boolean} [readOnly] Suppresses user changes while preserving navigation. Defaults to false.
  *
  * @typedef {object} SetPlanOptions
  * @property {Progress} [progress] Defaults to an empty map.
@@ -63,6 +64,7 @@ import { ProgressGauge } from './progress-gauge.js';
  * @property {(progress: Progress) => void} setProgress Replaces progress; missing subjects use their plan status or the first status catalog entry.
  * @property {(theme: Theme) => void} setTheme Replaces overrides on the default palette.
  * @property {(editable: boolean) => void} setEditable
+ * @property {(readOnly: boolean) => void} setReadOnly
  * @property {(options: boolean | ProgressGaugeOptions) => void} setProgressGauge
  * @property {() => void} fit
  * @property {(options?: PNGOptions) => Promise<Blob>} exportPNG
@@ -91,6 +93,8 @@ export class SubjectsGraph {
   #theme;
   /** @type {boolean} */
   #editable;
+  /** @type {boolean} */
+  #readOnly;
   /** @type {HTMLDivElement} */
   #root;
   /** @type {HTMLDivElement} */
@@ -119,15 +123,16 @@ export class SubjectsGraph {
   /** @param {HTMLElement} container
    * @param {SubjectsGraphOptions} options
    */
-  constructor(container, { plan, progress = {}, theme = {}, editable = false, progressGauge = false }) {
+  constructor(container, { plan, progress = {}, theme = {}, editable = false, readOnly = false, progressGauge = false }) {
     this.#plan = structuredClone(plan);
     this.#progress = structuredClone(progress);
     this.#theme = mergeTheme(theme);
     this.#editable = editable;
+    this.#readOnly = readOnly;
     const elements = this.#buildElements();
 
     this.#root = container.ownerDocument.createElement('div');
-    this.#root.className = `subjects-graph${editable ? ' subjects-graph-editable' : ''}`;
+    this.#root.className = `subjects-graph${this.#canEdit ? ' subjects-graph-editable' : ''}`;
     this.#surface = container.ownerDocument.createElement('div');
     this.#surface.className = 'subjects-graph-surface';
     this.#tooltip = container.ownerDocument.createElement('div');
@@ -141,13 +146,14 @@ export class SubjectsGraph {
     this.#cy = cytoscape({
       container: this.#surface,
       elements,
-      style: buildStylesheet(editable, this.#theme),
+      style: buildStylesheet(this.#canEdit, this.#theme),
+      autounselectify: readOnly,
       layout: { name: 'preset', fit: false },
       minZoom: 0.3,
       maxZoom: 3,
     });
     this.#cy.on('tap', 'node[nodeType="subject"]', event => {
-      if (this.#destroyed) return;
+      if (this.#destroyed || this.#readOnly) return;
       const subjectId = event.target.id();
       this.#cancelPendingTap();
       this.#tapTimer = setTimeout(() => {
@@ -157,7 +163,7 @@ export class SubjectsGraph {
         const currentIndex = this.#plan.statuses.findIndex(status => status.id === currentStatusId);
         const nextStatusId = this.#plan.statuses[(currentIndex + 1) % this.#plan.statuses.length].id;
         this.#events.dispatchEvent(new CustomEvent('statusrequest', { detail: { subjectId, nextStatusId } }));
-      }, this.#editable ? 200 : 0);
+      }, this.#canEdit ? 200 : 0);
     });
     this.#installInteractions();
     this.fit();
@@ -230,7 +236,26 @@ export class SubjectsGraph {
   setEditable(editable) {
     this.#assertAlive();
     this.#editable = editable;
-    this.#root.className = `subjects-graph${editable ? ' subjects-graph-editable' : ''}`;
+    this.#updateInteractionMode();
+  }
+
+  /** @param {boolean} readOnly */
+  setReadOnly(readOnly) {
+    this.#assertAlive();
+    if (this.#readOnly === readOnly) return;
+    this.#readOnly = readOnly;
+    this.#cancelPendingTap();
+    if (readOnly) this.#cy.$(':selected').unselect();
+    this.#cy.autounselectify(readOnly);
+    this.#updateInteractionMode();
+  }
+
+  get #canEdit() {
+    return this.#editable && !this.#readOnly;
+  }
+
+  #updateInteractionMode() {
+    this.#root.className = `subjects-graph${this.#canEdit ? ' subjects-graph-editable' : ''}`;
     this.#updateCursor();
     this.#render(true);
     this.#updateGauge();
@@ -242,14 +267,14 @@ export class SubjectsGraph {
     this.#gaugeOptions = structuredClone(options);
     this.#gauge?.element.remove();
     this.#gauge = options ? new ProgressGauge(this.#root.ownerDocument, () => {
-      if (this.#editable) this.#events.dispatchEvent(new CustomEvent('editrequest', { detail: { kind: 'progress' } }));
+      if (this.#canEdit) this.#events.dispatchEvent(new CustomEvent('editrequest', { detail: { kind: 'progress' } }));
     }) : undefined;
     if (this.#gauge) this.#root.append(this.#gauge.element);
     this.#updateGauge();
   }
 
   #updateGauge() {
-    this.#gauge?.update(this.#plan, this.#effectiveProgress(), this.#theme, this.#gaugeOptions === true || this.#gaugeOptions === false ? {} : this.#gaugeOptions, this.#editable);
+    this.#gauge?.update(this.#plan, this.#effectiveProgress(), this.#theme, this.#gaugeOptions === true || this.#gaugeOptions === false ? {} : this.#gaugeOptions, this.#canEdit);
   }
 
   fit() {
@@ -292,7 +317,7 @@ export class SubjectsGraph {
 
   #installInteractions() {
     this.#cy.on('dragfree', 'node', event => {
-      if (this.#destroyed || !this.#editable) return;
+      if (this.#destroyed || !this.#canEdit) return;
       const node = event.target;
       if (!['subject', 'connector'].includes(node.data('nodeType'))) return;
       const nodeId = node.id();
@@ -306,19 +331,19 @@ export class SubjectsGraph {
     });
     for (const kind of /** @type {const} */ (['subject', 'connector'])) {
       this.#cy.on('dbltap', `node[nodeType="${kind}"]`, event => {
-        if (this.#destroyed || !this.#editable) return;
+        if (this.#destroyed || !this.#canEdit) return;
         this.#requestEdit({ kind, nodeId: event.target.id() });
       });
     }
     this.#cy.on('dbltap', 'edge', event => {
-      if (this.#destroyed || !this.#editable) return;
+      if (this.#destroyed || !this.#canEdit) return;
       this.#requestEdit({
         kind: 'connection', sourceId: event.target.data('source'), targetId: event.target.data('target'),
         position: { x: event.position.x, y: event.position.y },
       });
     });
     this.#cy.on('dbltap', event => {
-      if (this.#destroyed || !this.#editable) return;
+      if (this.#destroyed || !this.#canEdit) return;
       if (event.target === this.#cy) {
         this.#requestEdit({ kind: 'background', position: { x: event.position.x, y: event.position.y } });
       }
@@ -348,17 +373,17 @@ export class SubjectsGraph {
 
   /** @param {EditRequest} detail */
   #requestEdit(detail) {
-    if (this.#destroyed || !this.#editable) return;
+    if (this.#destroyed || !this.#canEdit) return;
     this.#cancelPendingTap();
     this.#events.dispatchEvent(new CustomEvent('editrequest', { detail }));
   }
 
   #updateCursor() {
-    this.#surface.style.cursor = this.#editable ? 'move' : this.#hoveredSubjectId ? 'pointer' : 'grab';
+    this.#surface.style.cursor = this.#canEdit ? 'move' : this.#hoveredSubjectId && !this.#readOnly ? 'pointer' : 'grab';
   }
 
   #updateGrid() {
-    if (!this.#editable) {
+    if (!this.#canEdit) {
       this.#surface.style.backgroundImage = '';
       this.#surface.style.backgroundSize = '';
       this.#surface.style.backgroundPosition = '';
@@ -477,7 +502,7 @@ export class SubjectsGraph {
       ...subject,
       status: progress[subject.id],
     }));
-    const drawer = new CytoscapeDrawer(this.#editable);
+    const drawer = new CytoscapeDrawer(this.#canEdit);
     this.#graph = new Graph(config, subjects, this.#plan.edges);
     this.#graph.render(drawer);
     return drawer.getElements();
@@ -494,7 +519,7 @@ export class SubjectsGraph {
         this.#cy.nodes().unlock();
         this.#cy.json({ elements });
         if (updateStyles) {
-          this.#cy.style(buildStylesheet(this.#editable, this.#theme));
+          this.#cy.style(buildStylesheet(this.#canEdit, this.#theme));
         }
       });
     });

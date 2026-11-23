@@ -10,7 +10,7 @@ vi.mock('@raniagus/subjects-graph', () => ({ SubjectsGraph: class {
   listeners = new Map();
   setPlan = vi.fn((plan, options) => { this.progress = { ...options.progress }; });
   setProgress = vi.fn(progress => { this.progress = { ...progress }; });
-  setTheme = vi.fn(); setEditable = vi.fn(); setProgressGauge = vi.fn();
+  setTheme = vi.fn(); setEditable = vi.fn(); setReadOnly = vi.fn(); setProgressGauge = vi.fn();
   fit = vi.fn(); exportPNG = vi.fn(async () => new Blob(['png'])); destroy = vi.fn();
   constructor(container, options) { this.container = container; this.options = options; this.progress = { ...options.progress }; instances.push(this); }
   getProgress() { return { a: 'initial', ...this.progress }; }
@@ -33,18 +33,21 @@ async function mount(inputs = {}) {
 
 describe('Angular adapter', () => {
   it('creates once, synchronizes inputs without feedback, and tears down', async () => {
-    const { fixture, component, graph } = await mount();
+    const { fixture, component, graph } = await mount({ readOnly: true });
+    expect(graph.options.readOnly).toBe(true);
     const changed = vi.fn(); component.progress.subscribe(changed);
     const nextPlan = { ...plan, name: 'replacement' }; const progress = { a: 'approved' };
     fixture.componentRef.setInput('plan', nextPlan);
     fixture.componentRef.setInput('progress', progress);
     fixture.componentRef.setInput('theme', { '--bg-primary': 'red' });
     fixture.componentRef.setInput('editable', true);
+    fixture.componentRef.setInput('readOnly', false);
     fixture.componentRef.setInput('progressGauge', true);
     fixture.detectChanges(); await fixture.whenStable();
     expect(graph.setPlan).toHaveBeenCalledExactlyOnceWith(nextPlan, { progress });
     expect(graph.setTheme).toHaveBeenCalledWith({ '--bg-primary': 'red' });
     expect(graph.setEditable).toHaveBeenCalledWith(true);
+    expect(graph.setReadOnly).toHaveBeenCalledExactlyOnceWith(false);
     expect(graph.setProgressGauge).toHaveBeenCalledWith(true);
     expect(changed).not.toHaveBeenCalled(); expect(instances).toHaveLength(1);
     component.fit(); expect(graph.fit).toHaveBeenCalledOnce();

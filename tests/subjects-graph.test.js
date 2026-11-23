@@ -65,6 +65,9 @@ class RendererDouble {
   });
   elements = () => ({ remove: () => { this.content = { nodes: [], edges: [] }; } });
   nodes = () => ({ unlock: () => {} });
+  unselect = vi.fn();
+  $ = vi.fn((/** @type {string} */ _selector) => ({ unselect: this.unselect }));
+  autounselectify = vi.fn((/** @type {boolean} */ _enabled) => {});
   add = vi.fn((/** @type {import('cytoscape').ElementsDefinition} */ elements) => { this.content = elements; });
   /** @param {{ elements: import('cytoscape').ElementsDefinition }} value */
   json({ elements }) { this.content = elements; }
@@ -369,6 +372,46 @@ describe('SubjectsGraph controlled progress and requests', () => {
     graph.setPlan(plan);
     vi.runOnlyPendingTimers();
     expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it('suppresses user changes in read-only mode and restores editing when it is disabled', () => {
+    const plan = makePlan();
+    const id = plan.subjects[0].id;
+    const { graph, renderer } = mount({ plan, editable: true, readOnly: true });
+    const status = vi.fn();
+    const edit = vi.fn();
+    const move = vi.fn();
+    graph.addEventListener('statusrequest', status);
+    graph.addEventListener('editrequest', edit);
+    graph.addEventListener('nodepositionrequest', move);
+
+    expect(renderer.node(id).locked).toBe(true);
+    expect(renderer.options.autounselectify).toBe(true);
+    renderer.tap(id);
+    renderer.emit('dbltap', id);
+    renderer.emit('dbltap');
+    renderer.emit('dragfree', id);
+    vi.runOnlyPendingTimers();
+    expect(status).not.toHaveBeenCalled();
+    expect(edit).not.toHaveBeenCalled();
+    expect(move).not.toHaveBeenCalled();
+
+    graph.setProgress({ [id]: plan.statuses[1].id });
+    expect(graph.getProgress()[id]).toBe(plan.statuses[1].id);
+    graph.setReadOnly(false);
+    expect(renderer.node(id).locked).toBe(false);
+    renderer.tap(id);
+    graph.setReadOnly(true);
+    expect(renderer.$).toHaveBeenCalledWith(':selected');
+    expect(renderer.unselect).toHaveBeenCalledOnce();
+    expect(renderer.autounselectify).toHaveBeenLastCalledWith(true);
+    graph.setReadOnly(false);
+    expect(renderer.autounselectify).toHaveBeenLastCalledWith(false);
+    vi.runOnlyPendingTimers();
+    expect(status).not.toHaveBeenCalled();
+    renderer.tap(id);
+    vi.runOnlyPendingTimers();
+    expect(status).toHaveBeenCalledOnce();
   });
 
   it('cancels pending timers and releases renderer and consumer listeners on idempotent destruction', () => {

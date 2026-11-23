@@ -80,7 +80,8 @@ function createGraph() {
   graph = new SubjectsGraph($('#graph'), {
     plan, progress,
     theme: $('#theme').value === 'custom' ? theme : {},
-    editable: $('#editable').checked
+    editable: $('#editable').checked,
+    readOnly: $('#read-only').checked
   });
   listeners = new AbortController();
   const options = { signal: listeners.signal };
@@ -104,6 +105,7 @@ function createGraph() {
     $('#plan-json').focus();
   }, options);
   $('#controls').disabled = false;
+  $('#read-only').disabled = typeof graph.setReadOnly !== 'function';
   $('#create').disabled = true;
   $('#apply-plan').disabled = false;
   $('#plan-json').value = JSON.stringify(plan, null, 2);
@@ -170,6 +172,7 @@ $('#fit').addEventListener('click', () => graph.fit());
 $('#reset').addEventListener('click', () => applyProgress({}));
 $('#theme').addEventListener('change', event => graph.setTheme(event.target.value === 'custom' ? theme : {}));
 $('#editable').addEventListener('change', event => graph.setEditable(event.target.checked));
+$('#read-only').addEventListener('change', event => graph.setReadOnly(event.target.checked));
 $('#accept').addEventListener('change', event => {
   if (event.target.checked) graph.addEventListener('statusrequest', acceptStatus, { signal: listeners.signal });
   else graph.removeEventListener('statusrequest', acceptStatus);

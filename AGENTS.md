@@ -103,6 +103,12 @@ See docs/releases.md. No NPM_TOKEN or GPG is needed.
 for a known local pack with scripts otherwise disabled, use `npm pack --ignore-scripts=false`
 without changing global npm configuration.
 
+## Complete example apps
+
+Every library feature must be demonstrated in both complete example apps
+(`examples/cdn/complete/` and `examples/angular/src/complete/`). Update both examples
+in the same change as the feature. Keep the minimal examples focused on quickstarts.
+
 ## Angular adapter
 
 `packages/angular/` publishes `@raniagus/subjects-graph-angular` alongside the core;

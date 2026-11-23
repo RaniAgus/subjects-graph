@@ -26,6 +26,7 @@ export class CompleteComponent {
   readonly progress = signal<Progress>({});
   readonly theme = signal<Theme>(customTheme);
   readonly editable = signal(false);
+  readonly readOnly = signal(false);
   readonly accept = signal(true);
   readonly alive = signal(true);
   readonly ready = signal(false);

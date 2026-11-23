@@ -79,6 +79,7 @@ no reemplaza esa integración.
 | `[progress]` / `[(progress)]` | `Progress` | `{}`. |
 | `[autoUpdateProgress]` | `boolean` | `true`. |
 | `[theme]` | `Theme` | `{}`; paleta Default Dark. |
+| `[readOnly]` | `boolean` | `false`. Bloquea los cambios desde el grafo y tiene prioridad sobre `editable`. |
 | `[editable]` | `boolean` | `false`. |
 | `[progressGauge]` | `boolean \| ProgressGaugeOptions` | `false`. |
 
@@ -110,7 +111,7 @@ escribir el binding explícito:
 />
 ```
 
-El clic funciona con `editable: false`. El siguiente estado se calcula según el
+El clic funciona con `editable: false` mientras `readOnly` sea `false`. En solo lectura se puede navegar por el grafo y actualizar el progreso desde el componente anfitrión. El siguiente estado se calcula según el
 orden de `plan.statuses`, volviendo al primero después del último. El avance no
 se bloquea automáticamente por correlativas pendientes.
 
