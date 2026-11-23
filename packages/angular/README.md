@@ -64,7 +64,7 @@ Ambos paquetes deben autorizar ese workflow en npm Trusted Publishing/OIDC.
 Después de publicar ambos, las versiones estables generan un commit sobre el
 último `main`. Ver [el proceso de release](../../docs/releases.md).
 
-El paquete declara Angular 21 y `@raniagus/subjects-graph` compatible con `0.3.0`
+El paquete declara Angular 21 y `@raniagus/subjects-graph` compatible con `0.4.0`
 como peers requeridos. Angular y las herramientas de prueba viven únicamente en
 este workspace. El paquete npm base no cambia sus dependencias ni sus exports.
 

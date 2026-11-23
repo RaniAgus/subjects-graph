@@ -1,6 +1,6 @@
 # Ejemplos HTML desde npm
 
-Ambos consumen `@raniagus/subjects-graph@0.3.0` y su CSS desde unpkg.
+Ambos consumen `@raniagus/subjects-graph@0.4.0` y su CSS desde unpkg.
 No usan las fuentes de `public/`, ni requieren instalar dependencias o compilar.
 Necesitan Internet, esa versión publicada y un navegador moderno que admita
 `import plan from './plan.json' with { type: 'json' }`.
