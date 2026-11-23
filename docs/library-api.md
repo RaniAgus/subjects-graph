@@ -56,10 +56,10 @@ crea sus propios elementos dentro de él y observa sus cambios de tamaño.
 | `plan` | Catálogos, materias, correlativas y posiciones. | Obligatorio. |
 | `progress` | Mapa de ID de materia a ID de estado. | `{}`; usa los estados iniciales del plan. |
 | `theme` | Personalizaciones de colores por token. | `{}`; paleta Default Dark. |
-| `readOnly` | Deshabilita los cambios desde el grafo. Tiene prioridad sobre `editable`. | `false`. |
+| `readOnly` | Deshabilita la interacción con las materias y la edición del grafo. Tiene prioridad sobre `editable`. | `false`. |
 | `editable` | Permite arrastrar nodos y solicitar edición con doble clic. | `false`. |
 
-El clic para cambiar el estado de una materia funciona con `editable: false` mientras `readOnly` sea `false`. En solo lectura se mantienen el zoom, el desplazamiento, los tooltips y las actualizaciones programáticas mediante `setProgress` y `setPlan`.
+El clic para cambiar el estado de una materia funciona con `editable: false` mientras `readOnly` sea `false`. En solo lectura se mantienen el zoom, el desplazamiento y las actualizaciones programáticas mediante `setProgress` y `setPlan`.
 La biblioteca copia el plan y el progreso recibidos: modificar los objetos originales
 no actualiza el grafo; para eso se usan los setters.
 

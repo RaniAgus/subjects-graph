@@ -3,9 +3,10 @@ import { mergeTheme, resolveColor } from './theme.js';
 /**
  * @param {boolean} [editable]
  * @param {import('./subjects-graph.js').Theme} [theme]
+ * @param {boolean} [readOnly]
  * @returns {import('cytoscape').StylesheetStyle[]}
  */
-export function buildStylesheet(editable = false, theme = {}) {
+export function buildStylesheet(editable = false, theme = {}, readOnly = false) {
     const colors = mergeTheme(theme);
     return [
       {
@@ -14,6 +15,7 @@ export function buildStylesheet(editable = false, theme = {}) {
           'width': 60,
           'height': 60,
           'shape': 'ellipse',
+          'events': readOnly ? 'no' : 'yes',
           'label': 'data(label)',
           'text-valign': 'center',
           'text-halign': 'center',

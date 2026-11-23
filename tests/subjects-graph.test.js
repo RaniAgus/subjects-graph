@@ -377,7 +377,7 @@ describe('SubjectsGraph controlled progress and requests', () => {
   it('suppresses user changes in read-only mode and restores editing when it is disabled', () => {
     const plan = makePlan();
     const id = plan.subjects[0].id;
-    const { graph, renderer } = mount({ plan, editable: true, readOnly: true });
+    const { graph, renderer, container } = mount({ plan, editable: true, readOnly: true });
     const status = vi.fn();
     const edit = vi.fn();
     const move = vi.fn();
@@ -387,6 +387,10 @@ describe('SubjectsGraph controlled progress and requests', () => {
 
     expect(renderer.node(id).locked).toBe(true);
     expect(renderer.options.autounselectify).toBe(true);
+    expect(renderer.options.style).toContainEqual(expect.objectContaining({
+      selector: 'node[nodeType="subject"]',
+      style: expect.objectContaining({ events: 'no' }),
+    }));
     renderer.tap(id);
     renderer.emit('dbltap', id);
     renderer.emit('dbltap');
@@ -400,8 +404,14 @@ describe('SubjectsGraph controlled progress and requests', () => {
     expect(graph.getProgress()[id]).toBe(plan.statuses[1].id);
     graph.setReadOnly(false);
     expect(renderer.node(id).locked).toBe(false);
+    renderer.emit('mouseover', id, { x: 10, y: 10 });
+    const tooltip = container.children[0].children[1];
+    expect(tooltip.style.display).toBe('block');
     renderer.tap(id);
     graph.setReadOnly(true);
+    expect(tooltip.style.display).toBe('none');
+    renderer.emit('mouseover', id, { x: 10, y: 10 });
+    expect(tooltip.style.display).toBe('none');
     expect(renderer.$).toHaveBeenCalledWith(':selected');
     expect(renderer.unselect).toHaveBeenCalledOnce();
     expect(renderer.autounselectify).toHaveBeenLastCalledWith(true);

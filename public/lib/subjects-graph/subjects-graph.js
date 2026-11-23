@@ -146,7 +146,7 @@ export class SubjectsGraph {
     this.#cy = cytoscape({
       container: this.#surface,
       elements,
-      style: buildStylesheet(this.#canEdit, this.#theme),
+      style: buildStylesheet(this.#canEdit, this.#theme, this.#readOnly),
       autounselectify: readOnly,
       layout: { name: 'preset', fit: false },
       minZoom: 0.3,
@@ -245,7 +245,11 @@ export class SubjectsGraph {
     if (this.#readOnly === readOnly) return;
     this.#readOnly = readOnly;
     this.#cancelPendingTap();
-    if (readOnly) this.#cy.$(':selected').unselect();
+    if (readOnly) {
+      this.#hoveredSubjectId = undefined;
+      this.#pointer = undefined;
+      this.#cy.$(':selected').unselect();
+    }
     this.#cy.autounselectify(readOnly);
     this.#updateInteractionMode();
   }
@@ -352,14 +356,14 @@ export class SubjectsGraph {
       if (!this.#destroyed) this.#updateGrid();
     });
     this.#cy.on('mouseover', 'node[nodeType="subject"]', event => {
-      if (this.#destroyed) return;
+      if (this.#destroyed || this.#readOnly) return;
       this.#hoveredSubjectId = event.target.id();
       this.#pointer = { ...event.renderedPosition };
       this.#updateCursor();
       this.#refreshTooltip();
     });
     this.#cy.on('mousemove', 'node[nodeType="subject"]', event => {
-      if (this.#destroyed) return;
+      if (this.#destroyed || this.#readOnly) return;
       this.#pointer = { ...event.renderedPosition };
       this.#positionTooltip();
     });
@@ -379,7 +383,7 @@ export class SubjectsGraph {
   }
 
   #updateCursor() {
-    this.#surface.style.cursor = this.#canEdit ? 'move' : this.#hoveredSubjectId && !this.#readOnly ? 'pointer' : 'grab';
+    this.#surface.style.cursor = this.#canEdit ? 'move' : this.#hoveredSubjectId ? 'pointer' : 'grab';
   }
 
   #updateGrid() {
@@ -519,7 +523,7 @@ export class SubjectsGraph {
         this.#cy.nodes().unlock();
         this.#cy.json({ elements });
         if (updateStyles) {
-          this.#cy.style(buildStylesheet(this.#canEdit, this.#theme));
+          this.#cy.style(buildStylesheet(this.#canEdit, this.#theme, this.#readOnly));
         }
       });
     });
