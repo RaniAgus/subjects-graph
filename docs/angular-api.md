@@ -88,8 +88,9 @@ no reemplaza esa integración.
 consumidora puede enlazarse con un writable signal, como arriba, o una propiedad
 `progress: Progress = {}` usando el mismo `[(progress)]="progress"`.
 
-`readOnly` deshabilita la interacción con las materias y tiene prioridad sobre
-`editable`. `viewportLocked` bloquea el zoom y el arrastre del fondo. `fit()` sigue disponible con ambos gestos deshabilitados.
+`readOnly` bloquea los cambios por clic y la edición, y tiene prioridad sobre
+`editable`. `viewportLocked` bloquea el zoom y el arrastre del fondo. `fit()`
+sigue disponible con ambos gestos deshabilitados.
 
 Los inputs de objetos se actualizan por referencia. Reemplazá el objeto o usá
 `signal.set` / `signal.update`; modificar una propiedad anidada no sincroniza el

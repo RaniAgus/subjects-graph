@@ -252,8 +252,6 @@ export class SubjectsGraph {
     this.#readOnly = readOnly;
     this.#cancelPendingTap();
     if (readOnly) {
-      this.#hoveredSubjectId = undefined;
-      this.#pointer = undefined;
       this.#cy.$(':selected').unselect();
     }
     this.#cy.autounselectify(readOnly);
@@ -371,14 +369,14 @@ export class SubjectsGraph {
       if (!this.#destroyed) this.#updateGrid();
     });
     this.#cy.on('mouseover', 'node[nodeType="subject"]', event => {
-      if (this.#destroyed || this.#readOnly) return;
+      if (this.#destroyed) return;
       this.#hoveredSubjectId = event.target.id();
       this.#pointer = { ...event.renderedPosition };
       this.#updateCursor();
       this.#refreshTooltip();
     });
     this.#cy.on('mousemove', 'node[nodeType="subject"]', event => {
-      if (this.#destroyed || this.#readOnly) return;
+      if (this.#destroyed) return;
       this.#pointer = { ...event.renderedPosition };
       this.#positionTooltip();
     });
@@ -402,7 +400,7 @@ export class SubjectsGraph {
     if (this.#canEdit && (this.#hoveredSubjectId || canPan)) {
       this.#surface.style.cursor = 'move';
     } else {
-      this.#surface.style.cursor = this.#hoveredSubjectId ? 'pointer' : canPan ? 'grab' : 'default';
+      this.#surface.style.cursor = this.#hoveredSubjectId && !this.#readOnly ? 'pointer' : canPan ? 'grab' : 'default';
     }
   }
 

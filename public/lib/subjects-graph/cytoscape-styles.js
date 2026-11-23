@@ -15,7 +15,6 @@ export function buildStylesheet(editable = false, theme = {}, readOnly = false) 
           'width': 60,
           'height': 60,
           'shape': 'ellipse',
-          'events': readOnly ? 'no' : 'yes',
           'label': 'data(label)',
           'text-valign': 'center',
           'text-halign': 'center',
@@ -31,6 +30,10 @@ export function buildStylesheet(editable = false, theme = {}, readOnly = false) 
           'transition-duration': 300
         }
       },
+      ...(readOnly ? [{
+        selector: 'node[nodeType="subject"]:active',
+        style: { 'overlay-opacity': 0 },
+      }] : []),
       {
         selector: 'node[nodeType="connector"]',
         style: {

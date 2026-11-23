@@ -57,7 +57,7 @@ crea sus propios elementos dentro de él y observa sus cambios de tamaño.
 | `progress` | Mapa de ID de materia a ID de estado. | `{}`; usa los estados iniciales del plan. |
 | `theme` | Personalizaciones de colores por token. | `{}`; paleta Default Dark. |
 | `viewportLocked` | Bloquea el zoom y el arrastre del fondo. | `false`. |
-| `readOnly` | Deshabilita la interacción con las materias y la edición del grafo. Tiene prioridad sobre `editable`. | `false`. |
+| `readOnly` | Bloquea los cambios por clic y la edición del grafo. Tiene prioridad sobre `editable`. | `false`. |
 | `editable` | Permite arrastrar nodos y solicitar edición con doble clic. | `false`. |
 
 El clic para cambiar el estado de una materia funciona con `editable: false` mientras `readOnly` sea `false`. `viewportLocked` se puede usar también en solo lectura. `fit()` sigue disponible con ambos gestos deshabilitados.

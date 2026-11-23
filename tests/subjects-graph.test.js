@@ -420,8 +420,8 @@ describe('SubjectsGraph controlled progress and requests', () => {
     expect(renderer.node(id).locked).toBe(true);
     expect(renderer.options.autounselectify).toBe(true);
     expect(renderer.options.style).toContainEqual(expect.objectContaining({
-      selector: 'node[nodeType="subject"]',
-      style: expect.objectContaining({ events: 'no' }),
+      selector: 'node[nodeType="subject"]:active',
+      style: { 'overlay-opacity': 0 },
     }));
     renderer.tap(id);
     renderer.emit('dbltap', id);
@@ -441,9 +441,12 @@ describe('SubjectsGraph controlled progress and requests', () => {
     expect(tooltip.style.display).toBe('block');
     renderer.tap(id);
     graph.setReadOnly(true);
+    expect(tooltip.style.display).toBe('block');
+    expect(container.children[0].children[0].style.cursor).toBe('grab');
+    renderer.emit('mouseout', id);
     expect(tooltip.style.display).toBe('none');
     renderer.emit('mouseover', id, { x: 10, y: 10 });
-    expect(tooltip.style.display).toBe('none');
+    expect(tooltip.style.display).toBe('block');
     expect(renderer.$).toHaveBeenCalledWith(':selected');
     expect(renderer.unselect).toHaveBeenCalledOnce();
     expect(renderer.autounselectify).toHaveBeenLastCalledWith(true);
